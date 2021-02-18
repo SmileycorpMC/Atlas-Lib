@@ -1,4 +1,4 @@
-package net.smileycorp.atlas.api.block;
+package net.smileycorp.atlas.api.client;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;

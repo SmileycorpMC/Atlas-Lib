@@ -3,15 +3,21 @@ package net.smileycorp.atlas.api.util;
 import java.util.List;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class RecipeUtils {
 
-    public static boolean compareItemStacks(ItemStack stack1, ItemStack stack2) {
-    	return stack2.getItem() == stack1.getItem() && (stack2.getMetadata() == 32767 || stack2.getMetadata() == stack1.getMetadata());
+    public static boolean compareItemStacks(ItemStack stack1, ItemStack stack2, boolean useNBT) {
+    	if (stack2.getItem() == stack1.getItem() && (stack2.getMetadata() == 32767 || stack2.getMetadata() == stack1.getMetadata()))  {
+    		NBTTagCompound nbt1 = stack1.getTagCompound();
+    		NBTTagCompound nbt2 = stack2.getTagCompound();
+    		return nbt1.equals(nbt2)||!useNBT;
+    	}
+    	return false;
     }
     
     public static boolean compareItemStacksCanFit(ItemStack stack1, ItemStack stack2) {
-		if (compareItemStacks(stack1, stack2)) {
+		if (compareItemStacks(stack1, stack2, true)) {
 			if (stack1.getCount()+stack2.getCount()<=stack1.getMaxStackSize()) {
 				return true;
 			}
@@ -20,7 +26,7 @@ public class RecipeUtils {
 	}
     
     public static boolean compareItemStacksWithSize(ItemStack stack1, ItemStack stack2) {
-		if (compareItemStacks(stack1, stack2)) {
+		if (compareItemStacks(stack1, stack2, true)) {
 			if (stack1.getCount()==stack2.getCount()) {
 				return true;
 			}

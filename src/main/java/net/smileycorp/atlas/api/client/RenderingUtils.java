@@ -6,10 +6,24 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.item.Item;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.smileycorp.atlas.api.interfaces.IMetaItem;
 
+@SideOnly(Side.CLIENT)
 public class RenderingUtils {
+	
+	public static void setMetaModel(String modid, Item item, int meta) {
+		ModelLoader.setCustomModelResourceLocation(item, meta,
+				new ModelResourceLocation(modid + ":items/"
+				+ item.getRegistryName().toString().substring(modid.length()+1),
+			((IMetaItem)item).byMeta(meta)));
+	}
 	
 	public static void renderPlanarQuad(BufferBuilder buffer, EnumFacing facing, double x, double y, double z, int layer, Color color, TextureAtlasSprite texture, int lightmapSkyLight, int lightmapBlockLight) {
 		Vector4f[] plane = getQuadsFor(facing);
@@ -56,7 +70,7 @@ public class RenderingUtils {
 	}
 
 	private static float offsetLayer(float offset, int layer) {
-		float layerOffset = 0.0001f*layer;
+		float layerOffset = 0.001f*layer;
 		return offset+layerOffset;
 	}
 

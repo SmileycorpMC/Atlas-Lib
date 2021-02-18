@@ -1,4 +1,4 @@
-package net.smileycorp.atlas.api.item;
+package net.smileycorp.atlas.api.dummy;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
