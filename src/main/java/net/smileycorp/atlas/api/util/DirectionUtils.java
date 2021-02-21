@@ -34,5 +34,9 @@ public class DirectionUtils {
 	public static BlockPos getPos(BlockPos pos, EnumFacing facing) {
 		return new BlockPos(pos).add(facing.getDirectionVec());
 	}
+	
+	public static BlockPos getPos(BlockPos pos, int facing) {
+		return new BlockPos(pos).add(getDirection(facing).getDirectionVec());
+	}
 
 }

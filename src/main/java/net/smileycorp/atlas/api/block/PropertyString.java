@@ -1,17 +1,22 @@
 package net.smileycorp.atlas.api.block;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Predicate;
 
 import com.google.common.base.Optional;
 
 import net.minecraft.block.properties.IProperty;
+import net.minecraftforge.common.property.IUnlistedProperty;
 
-public class PropertyString implements IProperty<String> {
+public class PropertyString implements IUnlistedProperty<String> {
 	
 	private final String name;
+	private Predicate<String> allowedValues;
 	
-	public PropertyString(String name) {
+	public PropertyString(String name, Predicate<String> predicate) {
 		this.name=name;
+		this.allowedValues=predicate;
 	}
 	
 	@Override
@@ -20,23 +25,18 @@ public class PropertyString implements IProperty<String> {
 	}
 
 	@Override
-	public Collection<String> getAllowedValues() {
-		return null;
+	public boolean isValid(String value) {
+		return allowedValues.test(value);
 	}
 
 	@Override
-	public Class<String> getValueClass() {
+	public Class<String> getType() {
 		return String.class;
 	}
 
 	@Override
-	public Optional<String> parseValue(String value) {
-		return null;
-	}
-
-	@Override
-	public String getName(String string) {
-		return name;
+	public String valueToString(String value) {
+		return value;
 	}
 
 }

@@ -1,16 +1,24 @@
 package net.smileycorp.atlas.api.client;
 
 import java.awt.Color;
+import java.util.function.Function;
 
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.item.Item;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.IRegistry;
+import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.smileycorp.atlas.api.interfaces.IMetaItem;
@@ -18,11 +26,26 @@ import net.smileycorp.atlas.api.interfaces.IMetaItem;
 @SideOnly(Side.CLIENT)
 public class RenderingUtils {
 	
+	public static final Function<ResourceLocation, TextureAtlasSprite> defaultTextureGetter = resource -> {
+	    return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(resource.toString());
+	};
+	
 	public static void setMetaModel(String modid, Item item, int meta) {
 		ModelLoader.setCustomModelResourceLocation(item, meta,
 				new ModelResourceLocation(modid + ":items/"
 				+ item.getRegistryName().toString().substring(modid.length()+1),
 			((IMetaItem)item).byMeta(meta)));
+	}
+	
+	public static void replaceRegisteredModel(ModelResourceLocation location, IRegistry<ModelResourceLocation, IBakedModel> registry, Class<? extends IBakedModel> clazz) {
+	    try {
+	      IModel model = ModelLoaderRegistry.getModel(location);
+	      IBakedModel baked = registry.getObject(location);
+	      IBakedModel finalModel = ReflectionHelper.findConstructor(clazz, IBakedModel.class, IModel.class).newInstance(baked, model);
+	      registry.putObject(location, finalModel);
+	    } catch(Exception e) {
+	      e.printStackTrace();
+	    }
 	}
 	
 	public static void renderPlanarQuad(BufferBuilder buffer, EnumFacing facing, double x, double y, double z, int layer, Color color, TextureAtlasSprite texture, int lightmapSkyLight, int lightmapBlockLight) {
