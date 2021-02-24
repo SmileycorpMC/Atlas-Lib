@@ -1,12 +1,7 @@
 package net.smileycorp.atlas.api.block;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.function.Predicate;
 
-import com.google.common.base.Optional;
-
-import net.minecraft.block.properties.IProperty;
 import net.minecraftforge.common.property.IUnlistedProperty;
 
 public class PropertyString implements IUnlistedProperty<String> {

@@ -23,6 +23,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.smileycorp.atlas.api.interfaces.IMetaItem;
 
+@SuppressWarnings("deprecation")
 @SideOnly(Side.CLIENT)
 public class RenderingUtils {
 	
