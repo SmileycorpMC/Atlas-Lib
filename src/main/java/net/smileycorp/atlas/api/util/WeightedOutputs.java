@@ -26,7 +26,6 @@ public class WeightedOutputs<T> {
 	public WeightedOutputs(int deafaultTries, List<Entry<T, Integer>> entries) {
 		this.deafaultTries = deafaultTries;
 		this.entries = entries;
-		System.out.println(deafaultTries);
 	}
 
 	public int getAmount() {
@@ -63,7 +62,6 @@ public class WeightedOutputs<T> {
 				}
 			}
 		}
-		System.out.println(list);
 		return list;
 	}
 }
