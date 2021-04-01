@@ -8,7 +8,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.smileycorp.atlas.api.interfaces.IBlockProperties;
 
 public class BlockBase extends Block implements IBlockProperties {
 	

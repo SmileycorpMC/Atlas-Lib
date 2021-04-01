@@ -15,13 +15,15 @@ import net.minecraft.item.Item;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.IRegistry;
+
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.smileycorp.atlas.api.interfaces.IMetaItem;
+
+import net.smileycorp.atlas.api.item.IMetaItem;
 
 @SuppressWarnings("deprecation")
 @SideOnly(Side.CLIENT)
@@ -50,8 +52,8 @@ public class RenderingUtils {
 	}
 	
 	public static void renderPlanarQuad(BufferBuilder buffer, EnumFacing facing, double x, double y, double z, int layer, Color color, TextureAtlasSprite texture, int lightmapSkyLight, int lightmapBlockLight) {
-		Vector4f[] plane = getQuadsFor(facing);
-		Vector3f offset = getOffsetFor(facing, x, y, z, layer);
+		Vector4f[] plane = PlanarQuadRenderer.getQuadsFor(facing);
+		Vector3f offset = PlanarQuadRenderer.getOffsetFor(facing, x, y, z, layer);
 		int rgba = color.getRGB();
 		for (int i = 0; i < 4; ++i) {
 			Vector4f quadPos = plane[i];
@@ -67,76 +69,80 @@ public class RenderingUtils {
 			buffer.pos(quadPos.x + offset.x, quadPos.y + offset.y, quadPos.z + offset.z).color(r, g, b, a).tex(u, v).lightmap(lightmapSkyLight, lightmapBlockLight).endVertex();
 		}
 	}
-
-	private static Vector3f getOffsetFor(EnumFacing facing, double x, double y, double z, int layer) {
-		Vector3f vector = new Vector3f((float)x, (float)y, (float)z);
-		switch(facing) {
-		case UP:
-			vector.translate(0, offsetLayer(1, layer), 0);
-			break;
-		case DOWN:
-			vector.translate(0, offsetLayer(0, -layer), 0);
-			break;
-		case NORTH:
-			vector.translate(0, 0, offsetLayer(0, -layer));
-			break;
-		case SOUTH:
-			vector.translate(0, 0, offsetLayer(1, layer));
-			break;
-		case EAST:
-			vector.translate(offsetLayer(1, layer), 0, 0);
-			break;
-		case WEST:
-			vector.translate(offsetLayer(0, -layer), 0, 0);
-			break;
+	
+	
+	private static class PlanarQuadRenderer {
+		
+		private static Vector3f getOffsetFor(EnumFacing facing, double x, double y, double z, int layer) {
+			Vector3f vector = new Vector3f((float)x, (float)y, (float)z);
+			switch(facing) {
+			case UP:
+				vector.translate(0, offsetLayer(1, layer), 0);
+				break;
+			case DOWN:
+				vector.translate(0, offsetLayer(0, -layer), 0);
+				break;
+			case NORTH:
+				vector.translate(0, 0, offsetLayer(0, -layer));
+				break;
+			case SOUTH:
+				vector.translate(0, 0, offsetLayer(1, layer));
+				break;
+			case EAST:
+				vector.translate(offsetLayer(1, layer), 0, 0);
+				break;
+			case WEST:
+				vector.translate(offsetLayer(0, -layer), 0, 0);
+				break;
+			}
+			return vector;
 		}
-		return vector;
-	}
-
-	private static float offsetLayer(float offset, int layer) {
-		float layerOffset = 0.001f*layer;
-		return offset+layerOffset;
-	}
-
-	private static Vector4f[] getQuadsFor(EnumFacing facing) {
-		switch(facing) {
-		case DOWN:
-			return new Vector4f[] {
-					new Vector4f(1, 0, 1, 0),
-					new Vector4f(1, 0, 0, 0),
-					new Vector4f(0, 0, 0, 0),
-					new Vector4f(0, 0, 1, 0)};
-		case NORTH:
-			return new Vector4f[] {
-					new Vector4f(0, 1, 0, 0),
-					new Vector4f(0, 0, 0, 0),
-					new Vector4f(1, 0, 0, 0),
-					new Vector4f(1, 1, 0, 0)};
-		case SOUTH:
-			return new Vector4f[] {
-					new Vector4f(1, 1, 0, 0),
-					new Vector4f(1, 0, 0, 0),
-					new Vector4f(0, 0, 0, 0),
-					new Vector4f(0, 1, 0, 0)};
-		case EAST:
-			return new Vector4f[] {
-					new Vector4f(0, 1, 0, 0),
-					new Vector4f(0, 0, 0, 0),
-					new Vector4f(0, 0, 1, 0),
-					new Vector4f(0, 1, 1, 0)};
-		case WEST:
-			
-			return new Vector4f[] {
-					new Vector4f(0, 1, 1, 0),
-					new Vector4f(0, 0, 1, 0),
-					new Vector4f(0, 0, 0, 0),
-					new Vector4f(0, 1, 0, 0)};
-		default:
-			return new Vector4f[] {
-					new Vector4f(1, 0, 0, 0),
-					new Vector4f(1, 0, 1, 0),
-					new Vector4f(0, 0, 1, 0),
-					new Vector4f(0, 0, 0, 0)};
+	
+		private static float offsetLayer(float offset, int layer) {
+			float layerOffset = 0.001f*layer;
+			return offset+layerOffset;
+		}
+	
+		private static Vector4f[] getQuadsFor(EnumFacing facing) {
+			switch(facing) {
+			case DOWN:
+				return new Vector4f[] {
+						new Vector4f(1, 0, 1, 0),
+						new Vector4f(1, 0, 0, 0),
+						new Vector4f(0, 0, 0, 0),
+						new Vector4f(0, 0, 1, 0)};
+			case NORTH:
+				return new Vector4f[] {
+						new Vector4f(0, 1, 0, 0),
+						new Vector4f(0, 0, 0, 0),
+						new Vector4f(1, 0, 0, 0),
+						new Vector4f(1, 1, 0, 0)};
+			case SOUTH:
+				return new Vector4f[] {
+						new Vector4f(1, 1, 0, 0),
+						new Vector4f(1, 0, 0, 0),
+						new Vector4f(0, 0, 0, 0),
+						new Vector4f(0, 1, 0, 0)};
+			case EAST:
+				return new Vector4f[] {
+						new Vector4f(0, 1, 0, 0),
+						new Vector4f(0, 0, 0, 0),
+						new Vector4f(0, 0, 1, 0),
+						new Vector4f(0, 1, 1, 0)};
+			case WEST:
+				
+				return new Vector4f[] {
+						new Vector4f(0, 1, 1, 0),
+						new Vector4f(0, 0, 1, 0),
+						new Vector4f(0, 0, 0, 0),
+						new Vector4f(0, 1, 0, 0)};
+			default:
+				return new Vector4f[] {
+						new Vector4f(1, 0, 0, 0),
+						new Vector4f(1, 0, 1, 0),
+						new Vector4f(0, 0, 1, 0),
+						new Vector4f(0, 0, 0, 0)};
+			}
 		}
 	}
 }

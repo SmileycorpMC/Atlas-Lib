@@ -1,4 +1,4 @@
-package net.smileycorp.atlas.api.interfaces;
+package net.smileycorp.atlas.api.item;
 
 public interface IMetaItem {
 	

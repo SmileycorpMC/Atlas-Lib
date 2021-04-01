@@ -1,6 +1,7 @@
-package net.smileycorp.atlas.api.interfaces;
+package net.smileycorp.atlas.api.block;
 
 public interface IBlockProperties {
+	
 	
 	public default int getMaxMeta(){
 		return 0;
