@@ -89,9 +89,9 @@ public class ShapedBlock {
 	}
 	
 	public void registerRecipes() {
-		GameRegistry.addShapedRecipe(new ResourceLocation(modid, name+"_stairs"), new ResourceLocation(modid, name), new ItemStack(stairs, 6), 
+		GameRegistry.addShapedRecipe(new ResourceLocation(modid, name+"_stairs"), new ResourceLocation(modid, name), new ItemStack(stairs, 4), 
 				new Object[]{"  #", " ##", "###", '#', new ItemStack(base)});
-		GameRegistry.addShapedRecipe(new ResourceLocation(modid, name+"_slab"), new ResourceLocation(modid, name), new ItemStack(slab, 3), 
+		GameRegistry.addShapedRecipe(new ResourceLocation(modid, name+"_slab"), new ResourceLocation(modid, name), new ItemStack(slab, 6), 
 				new Object[]{"###", '#', new ItemStack(base)});
 	}
 }

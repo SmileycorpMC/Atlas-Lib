@@ -22,7 +22,8 @@ public class WorldGenOreIn extends WorldGenerator {
         this.replace = replace;
     }
 
-    public boolean generate(World worldIn, Random rand, BlockPos position) {
+    @Override
+	public boolean generate(World worldIn, Random rand, BlockPos position) {
         float f = rand.nextFloat() * (float)Math.PI;
         double d0 = (double)((float)(position.getX() + 8) + MathHelper.sin(f) * (float)this.numberOfBlocks / 8.0F);
         double d1 = (double)((float)(position.getX() + 8) - MathHelper.sin(f) * (float)this.numberOfBlocks / 8.0F);

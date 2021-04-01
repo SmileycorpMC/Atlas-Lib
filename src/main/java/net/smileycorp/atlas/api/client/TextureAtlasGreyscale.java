@@ -62,7 +62,6 @@ public class TextureAtlasGreyscale extends TextureAtlasSprite {
 			        float gg = (float) Math.pow(g / 255.0, 2.2);
 			        float bb = (float) Math.pow(b / 255.0, 2.2);
 			        float l = 0.2126f * rr + 0.7152f * gg + 0.0722f * bb;
-			        System.out.println(l);
 			        int grey = (int) (255.0 * Math.pow(l, 1.0 / 2.2));
 					data[i][j] = new Color(grey, grey, grey, 255).getRGB();
 		 		}
