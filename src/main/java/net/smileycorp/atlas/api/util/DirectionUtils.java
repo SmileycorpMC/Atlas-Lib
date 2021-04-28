@@ -3,8 +3,6 @@ package net.smileycorp.atlas.api.util;
 import java.util.List;
 import java.util.Random;
 
-import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
@@ -14,15 +12,13 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-import net.minecraftforge.fluids.IFluidBlock;
-
 public class DirectionUtils {
 	
 	public static RayTraceResult getPlayerRayTrace(World world, EntityPlayer player, float blockReach) {
 		Vec3d eyepos = player.getPositionEyes(1f);
 	    Vec3d lookangle = player.getLook(1f);
 	    Vec3d lastVec = eyepos.addVector(lookangle.x, lookangle.y, lookangle.z);
-	    EnumFacing facing = getFacing(lookangle);
+	    //EnumFacing facing = getFacing(lookangle);
 	    RayTraceResult blockRay = world.rayTraceBlocks(eyepos, eyepos.addVector(lookangle.x * blockReach, lookangle.y * blockReach, lookangle.z * blockReach), false, false, true);
 		for (int x = 0; x <16*blockReach; x++) {
 			float reach = x/16f;
@@ -66,12 +62,8 @@ public class DirectionUtils {
 		return facing.getIndex()-2;
 	}
 	
-	public static BlockPos getPos(BlockPos pos, EnumFacing facing) {
-		return new BlockPos(pos).add(facing.getDirectionVec());
-	}
-	
 	public static BlockPos getPos(BlockPos pos, int facing) {
-		return new BlockPos(pos).add(getXZDirection(facing).getDirectionVec());
+		return new BlockPos(pos).offset(getXZDirection(facing));
 	}
 
 }

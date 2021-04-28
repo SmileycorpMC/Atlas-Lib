@@ -1,4 +1,4 @@
-package net.smileycorp.atlas.api.util;
+package net.smileycorp.atlas.api.recipe;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-
-import net.minecraft.item.ItemStack;
 
 public class WeightedOutputs<T> {
 

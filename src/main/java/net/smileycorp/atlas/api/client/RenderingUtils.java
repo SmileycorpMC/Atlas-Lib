@@ -1,29 +1,35 @@
 package net.smileycorp.atlas.api.client;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
-
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.item.Item;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.IRegistry;
-
+import net.minecraft.world.World;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
+import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad.Builder;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
 import net.smileycorp.atlas.api.item.IMetaItem;
+
+import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 @SuppressWarnings("deprecation")
 @SideOnly(Side.CLIENT)
@@ -51,10 +57,16 @@ public class RenderingUtils {
 	    }
 	}
 	
-	public static void renderPlanarQuad(BufferBuilder buffer, EnumFacing facing, double x, double y, double z, int layer, Color color, TextureAtlasSprite texture, int lightmapSkyLight, int lightmapBlockLight) {
+	public static void renderCubeQuad(BufferBuilder buffer, double x, double y, double z, int layer, Color colour, TextureAtlasSprite texture, World world, int luminance, BlockPos pos) {
+		for (EnumFacing facing : EnumFacing.VALUES) {
+			renderPlanarQuad(buffer, facing, x, y, z, layer, colour, texture, world, luminance, pos);
+		}
+	}
+	
+	public static void renderPlanarQuad(BufferBuilder buffer, EnumFacing facing, double x, double y, double z, int layer, Color colour, TextureAtlasSprite texture, World world, int luminance, BlockPos pos) {
 		Vector4f[] plane = PlanarQuadRenderer.getQuadsFor(facing);
-		Vector3f offset = PlanarQuadRenderer.getOffsetFor(facing, x, y, z, layer);
-		int rgba = color.getRGB();
+		Vector3f offset = (layer == 0 ? new Vector3f(0, 0, 0) : PlanarQuadRenderer.getOffsetFor(facing, x, y, z, layer));
+		int rgba = colour.getRGB();
 		for (int i = 0; i < 4; ++i) {
 			Vector4f quadPos = plane[i];
 			
@@ -66,7 +78,63 @@ public class RenderingUtils {
 			float u = i < 2 ? texture.getMaxU() - (1F / 16F / 10000) : texture.getMinU() + (1F / 16F / 10000);
 			float v = i == 1 || i == 2 ? texture.getMaxV() - (1F / 16F / 10000) : texture.getMinV() + (1F / 16F / 10000);
 			
-			buffer.pos(quadPos.x + offset.x, quadPos.y + offset.y, quadPos.z + offset.z).color(r, g, b, a).tex(u, v).lightmap(lightmapSkyLight, lightmapBlockLight).endVertex();
+			int light = world.getCombinedLight(pos.offset(facing), luminance);
+			
+			buffer.pos(quadPos.x + offset.x, quadPos.y + offset.y, quadPos.z + offset.z).color(r, g, b, a).tex(u, v).lightmap(light >> 16 & 0xFFFF, light & 0xFFFF).endVertex();
+		}
+	}
+	
+	public static List<BakedQuad> getQuadsForCube(Color colour, TextureAtlasSprite sprite, VertexFormat format, int lightmapSkyLight, int lightmapBlockLight) {
+		List<BakedQuad> quads = new ArrayList<BakedQuad>();
+		for (EnumFacing facing : EnumFacing.VALUES) {
+			quads.addAll(getQuadsForPlane(facing, colour, sprite, format, lightmapBlockLight, lightmapBlockLight));
+		}
+		return quads;
+	}
+	
+	public static List<BakedQuad> getQuadsForPlane(EnumFacing facing, Color colour, TextureAtlasSprite sprite, VertexFormat format, int lightmapSkyLight, int lightmapBlockLight) {
+		List<BakedQuad> quads = new ArrayList<BakedQuad>();
+		//List<Integer> quadData = new ArrayList<Integer>();
+		Builder quad = new UnpackedBakedQuad.Builder(format);
+		quad.setTexture(sprite);
+		quad.setQuadTint(0);
+		quad.setQuadOrientation(facing);
+		Vector4f[] vectors = PlanarQuadRenderer.getQuadsFor(facing);
+		for (int i  = 0; i < vectors.length; i++) {
+			Vector4f vector = vectors[i];
+			float u = i < 2 ? sprite.getMaxU() - (1F / 16F / 10000) : sprite.getMinU() + (1F / 16F / 10000);
+			float v = i == 1 || i == 2 ? sprite.getMaxV() - (1F / 16F / 10000) : sprite.getMinV() + (1F / 16F / 10000);
+			putQuadData(quad, vector, colour, u, v);
+		}
+		
+		
+		quads.add(quad.build());
+		return quads;
+	}
+	
+	private static void putQuadData(Builder quad, Vector4f vector, Color colour, float u, float v) {
+		VertexFormat format = quad.getVertexFormat();
+		for (int i = 0; i < format.getElementCount(); i++) {
+		      switch (format.getElement(i).getUsage()) {
+		      	case POSITION:
+		      		quad.put(i, vector.getX(), vector.getY(), vector.getZ(), 1f);
+		      		break;	
+		      	case UV:
+					quad.put(i, u, v);
+		      		break;
+		      	case COLOR:
+		      		float r = colour.getRed() / 255F;
+					float g = colour.getGreen() / 255F;
+					float b = colour.getBlue() / 255F;
+					float a = colour.getAlpha() / 255F;
+					quad.put(i, r, g, b, a);
+		      		break;
+				default:
+					quad.put(i);
+					break;
+		    	  
+		    	  
+		      }
 		}
 	}
 	
@@ -104,45 +172,52 @@ public class RenderingUtils {
 		}
 	
 		private static Vector4f[] getQuadsFor(EnumFacing facing) {
-			switch(facing) {
-			case DOWN:
-				return new Vector4f[] {
-						new Vector4f(1, 0, 1, 0),
-						new Vector4f(1, 0, 0, 0),
-						new Vector4f(0, 0, 0, 0),
-						new Vector4f(0, 0, 1, 0)};
-			case NORTH:
-				return new Vector4f[] {
-						new Vector4f(0, 1, 0, 0),
-						new Vector4f(0, 0, 0, 0),
-						new Vector4f(1, 0, 0, 0),
-						new Vector4f(1, 1, 0, 0)};
-			case SOUTH:
-				return new Vector4f[] {
-						new Vector4f(1, 1, 0, 0),
-						new Vector4f(1, 0, 0, 0),
-						new Vector4f(0, 0, 0, 0),
-						new Vector4f(0, 1, 0, 0)};
-			case EAST:
-				return new Vector4f[] {
-						new Vector4f(0, 1, 0, 0),
-						new Vector4f(0, 0, 0, 0),
-						new Vector4f(0, 0, 1, 0),
-						new Vector4f(0, 1, 1, 0)};
-			case WEST:
-				
-				return new Vector4f[] {
-						new Vector4f(0, 1, 1, 0),
-						new Vector4f(0, 0, 1, 0),
-						new Vector4f(0, 0, 0, 0),
-						new Vector4f(0, 1, 0, 0)};
-			default:
-				return new Vector4f[] {
-						new Vector4f(1, 0, 0, 0),
-						new Vector4f(1, 0, 1, 0),
-						new Vector4f(0, 0, 1, 0),
-						new Vector4f(0, 0, 0, 0)};
+			if (facing!=null) {
+				switch(facing) {
+				case DOWN:
+					return new Vector4f[] {
+							new Vector4f(1, 0, 1, 0),
+							new Vector4f(1, 0, 0, 0),
+							new Vector4f(0, 0, 0, 0),
+							new Vector4f(0, 0, 1, 0)};
+				case NORTH:
+					return new Vector4f[] {
+							new Vector4f(0, 1, 0, 0),
+							new Vector4f(0, 0, 0, 0),
+							new Vector4f(1, 0, 0, 0),
+							new Vector4f(1, 1, 0, 0)};
+				case SOUTH:
+					return new Vector4f[] {
+							new Vector4f(1, 1, 0, 0),
+							new Vector4f(1, 0, 0, 0),
+							new Vector4f(0, 0, 0, 0),
+							new Vector4f(0, 1, 0, 0)};
+				case EAST:
+					return new Vector4f[] {
+							new Vector4f(0, 1, 0, 0),
+							new Vector4f(0, 0, 0, 0),
+							new Vector4f(0, 0, 1, 0),
+							new Vector4f(0, 1, 1, 0)};
+				case WEST:
+					
+					return new Vector4f[] {
+							new Vector4f(0, 1, 1, 0),
+							new Vector4f(0, 0, 1, 0),
+							new Vector4f(0, 0, 0, 0),
+							new Vector4f(0, 1, 0, 0)};
+				default:
+					return new Vector4f[] {
+							new Vector4f(1, 0, 0, 0),
+							new Vector4f(1, 0, 1, 0),
+							new Vector4f(0, 0, 1, 0),
+							new Vector4f(0, 0, 0, 0)};
+				}
 			}
+			return new Vector4f[] {
+					new Vector4f(0, 0, 0, 0),
+					new Vector4f(0, 0, 0, 0),
+					new Vector4f(0, 0, 0, 0),
+					new Vector4f(0, 0, 0, 0)};
 		}
 	}
 }

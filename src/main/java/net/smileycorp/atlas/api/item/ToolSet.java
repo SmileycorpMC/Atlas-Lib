@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -22,16 +20,23 @@ import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.OreIngredient;
 import net.minecraftforge.registries.IForgeRegistry;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 @SuppressWarnings("deprecation")
 public class ToolSet {
 
 	final String modid;
 	final String name;
 	final ToolMaterial material;
+	final boolean ignoreOredict;
 	
 	Map<ToolType, Item> tools = new HashMap<ToolType, Item>();
 	
 	public ToolSet(String modid, String name, ToolMaterial material, CreativeTabs tab) {
+		this(modid, name, material, tab, false);
+	}
+	
+	public ToolSet(String modid, String name, ToolMaterial material, CreativeTabs tab, boolean ignoreOredict) {
 		this.name=name;
 		this.modid=modid;
 		this.material=material;
@@ -39,9 +44,14 @@ public class ToolSet {
 			Item item = type.createItem(modid, name, material, tab);
 			if (item!=null) tools.put(type, item);
 		}
+		this.ignoreOredict=ignoreOredict;
 	}
 	
 	public ToolSet(String modid, String name, ToolMaterial material, CreativeTabs tab, float axedamage, float axespeed) {
+		this(modid, name, material, tab, axedamage, axespeed, false);
+	}
+	
+	public ToolSet(String modid, String name, ToolMaterial material, CreativeTabs tab, float axedamage, float axespeed, boolean ignoreOredict) {
 		this.name=name;
 		this.modid=modid;
 		this.material=material;
@@ -49,6 +59,7 @@ public class ToolSet {
 			Item item = type == ToolType.AXE ? new ToolItemAxe(modid, name, material, tab, axedamage, axespeed) : type.createItem(modid, name, material, tab);
 			if (item!=null) tools.put(type, item);
 		}
+		this.ignoreOredict=ignoreOredict;
 	}
 	
 	public String getModID() {
@@ -87,7 +98,7 @@ public class ToolSet {
 	
 	public void registerRecipes() {
 		ItemStack stack = this.material.getRepairItemStack();
-		int[] ores = OreDictionary.getOreIDs(stack);
+		int[] ores = ignoreOredict ?  new int[]{} : OreDictionary.getOreIDs(stack);
 		Ingredient ingredient = (ores == null||ores.length==0) ? Ingredient.fromStacks(stack) : new OreIngredient(OreDictionary.getOreName(ores[0]));
 		for (Entry<ToolType, Item> tool:tools.entrySet()) {
 			tool.getKey().registerRecipe(modid, name, tool.getValue(), ingredient);

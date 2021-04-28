@@ -3,24 +3,14 @@ package net.smileycorp.atlas.api.client;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -36,7 +26,7 @@ public class TextureAtlasGreyscale extends TextureAtlasSprite {
 	
 	@Override
 	public Collection<ResourceLocation> getDependencies() {
-	return ImmutableList.<ResourceLocation>builder().addAll(super.getDependencies()).add(resource).build();
+		return ImmutableList.<ResourceLocation>builder().addAll(super.getDependencies()).add(resource).build();
 	  }
 	
 	@Override

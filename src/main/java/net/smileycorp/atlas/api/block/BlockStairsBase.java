@@ -1,7 +1,5 @@
 package net.smileycorp.atlas.api.block;
 
-import org.apache.commons.lang3.text.WordUtils;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.material.Material;
@@ -9,6 +7,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+
+import org.apache.commons.lang3.text.WordUtils;
 
 public class BlockStairsBase extends BlockStairs {
 

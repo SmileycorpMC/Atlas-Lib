@@ -18,7 +18,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.smileycorp.atlas.api.dummy.DummyEnum;
+
+import net.smileycorp.atlas.api.DummyEnum;
 
 public class BlockSlabBase extends BlockSlab {
 	

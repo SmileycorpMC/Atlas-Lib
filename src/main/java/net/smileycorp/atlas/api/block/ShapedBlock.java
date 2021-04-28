@@ -10,10 +10,12 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemSlab;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
+
 import net.smileycorp.atlas.api.client.CustomStateMapper;
 import net.smileycorp.atlas.api.client.SlabStateMapper;
 
