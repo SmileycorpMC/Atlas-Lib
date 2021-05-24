@@ -10,6 +10,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 
 public class DirectionUtils {
@@ -77,6 +78,26 @@ public class DirectionUtils {
 			pos = world.getTopSolidOrLiquidBlock(basepos.add(direction.x*radius, 0, direction.z*radius));
 		}
 		return pos;
+	}
+	
+	public static BlockPos getClosestLoadedPos(World world, BlockPos basepos, Vec3d direction, int radius, int maxlight, int minlight) {
+		BlockPos pos = world.getTopSolidOrLiquidBlock(basepos.add(direction.x*radius, 0, direction.z*radius));
+		while (!world.getChunkFromBlockCoords(pos).isLoaded() && !isBrightnessAllowed(world, basepos, maxlight, minlight)) {
+			if (radius==0) return basepos;
+			radius--;
+			pos = world.getTopSolidOrLiquidBlock(basepos.add(direction.x*radius, 0, direction.z*radius));
+		}
+		return pos;
+	}
+	
+	private static boolean isBrightnessAllowed(World world, BlockPos pos, int maxlight, int minlight) {
+		int blocklight = world.getLightFromNeighbors(pos);
+		int skylight = world.getLightFor(EnumSkyBlock.SKY, pos);
+		if (skylight > maxlight) return false;
+		if (blocklight > maxlight) return false;
+		if (blocklight < minlight) return false;
+		if (skylight < minlight) return false;
+		return true;
 	}
 
 }

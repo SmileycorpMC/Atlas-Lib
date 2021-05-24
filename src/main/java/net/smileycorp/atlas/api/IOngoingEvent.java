@@ -10,4 +10,6 @@ public interface IOngoingEvent {
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt);
 	
 	public void update(World world);
+	
+	public boolean isActive(World world);
 }
