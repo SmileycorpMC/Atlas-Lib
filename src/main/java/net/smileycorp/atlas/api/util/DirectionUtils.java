@@ -18,7 +18,6 @@ public class DirectionUtils {
 		Vec3d eyepos = player.getPositionEyes(1f);
 	    Vec3d lookangle = player.getLook(1f);
 	    Vec3d lastVec = eyepos.addVector(lookangle.x, lookangle.y, lookangle.z);
-	    //EnumFacing facing = getFacing(lookangle);
 	    RayTraceResult blockRay = world.rayTraceBlocks(eyepos, eyepos.addVector(lookangle.x * blockReach, lookangle.y * blockReach, lookangle.z * blockReach), false, false, true);
 		for (int x = 0; x <16*blockReach; x++) {
 			float reach = x/16f;
@@ -62,8 +61,22 @@ public class DirectionUtils {
 		return facing.getIndex()-2;
 	}
 	
-	public static BlockPos getPos(BlockPos pos, int facing) {
-		return new BlockPos(pos).offset(getXZDirection(facing));
+	public static Vec3d getRandomDirectionVecXZ(Random rand) {
+		int a = rand.nextInt(360);
+		double rad = a * Math.PI/180;
+		double x = Math.cos(rad);
+		double z = Math.sin(rad);
+		return new Vec3d(x, 0, z);
+	}
+
+	public static BlockPos getClosestLoadedPos(World world, BlockPos basepos, Vec3d direction, int radius) {
+		BlockPos pos = world.getTopSolidOrLiquidBlock(basepos.add(direction.x*radius, 0, direction.z*radius));
+		while (!world.getChunkFromBlockCoords(pos).isLoaded()) {
+			if (radius==0) return basepos;
+			radius--;
+			pos = world.getTopSolidOrLiquidBlock(basepos.add(direction.x*radius, 0, direction.z*radius));
+		}
+		return pos;
 	}
 
 }

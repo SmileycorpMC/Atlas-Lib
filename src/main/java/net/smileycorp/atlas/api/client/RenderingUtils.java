@@ -16,11 +16,13 @@ import net.minecraft.item.Item;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad.Builder;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -84,55 +86,76 @@ public class RenderingUtils {
 		}
 	}
 	
-	public static List<BakedQuad> getQuadsForCube(Color colour, TextureAtlasSprite sprite, VertexFormat format, int lightmapSkyLight, int lightmapBlockLight) {
+	public static List<BakedQuad> getQuadsForCube(Color colour, TextureAtlasSprite sprite, VertexFormat format) {
 		List<BakedQuad> quads = new ArrayList<BakedQuad>();
 		for (EnumFacing facing : EnumFacing.VALUES) {
-			quads.addAll(getQuadsForPlane(facing, colour, sprite, format, lightmapBlockLight, lightmapBlockLight));
+			quads.addAll(getQuadsForPlane(facing, colour, sprite, format));
 		}
 		return quads;
 	}
 	
-	public static List<BakedQuad> getQuadsForPlane(EnumFacing facing, Color colour, TextureAtlasSprite sprite, VertexFormat format, int lightmapSkyLight, int lightmapBlockLight) {
+	public static List<BakedQuad> getQuadsForPlane(EnumFacing facing, Color colour, TextureAtlasSprite sprite, VertexFormat format) {
 		List<BakedQuad> quads = new ArrayList<BakedQuad>();
 		//List<Integer> quadData = new ArrayList<Integer>();
 		Builder quad = new UnpackedBakedQuad.Builder(format);
-		quad.setTexture(sprite);
-		quad.setQuadTint(0);
 		quad.setQuadOrientation(facing);
+		quad.setTexture(sprite);
 		Vector4f[] vectors = PlanarQuadRenderer.getQuadsFor(facing);
 		for (int i  = 0; i < vectors.length; i++) {
 			Vector4f vector = vectors[i];
 			float u = i < 2 ? sprite.getMaxU() - (1F / 16F / 10000) : sprite.getMinU() + (1F / 16F / 10000);
 			float v = i == 1 || i == 2 ? sprite.getMaxV() - (1F / 16F / 10000) : sprite.getMinV() + (1F / 16F / 10000);
-			putQuadData(quad, vector, colour, u, v);
+			putQuadData(quad, vector, colour, u, v, facing, sprite);
 		}
-		
-		
 		quads.add(quad.build());
 		return quads;
 	}
 	
-	private static void putQuadData(Builder quad, Vector4f vector, Color colour, float u, float v) {
+	public static List<BakedQuad> getQuadsForModel(List<BakedQuad> quads, Color colour, TextureAtlasSprite sprite) {
+		List<BakedQuad> newquads = new ArrayList<BakedQuad>();
+		for (BakedQuad quad : quads) {
+			EnumFacing facing = quad.getFace();
+			Builder builder = new UnpackedBakedQuad.Builder(quad.getFormat());
+			builder.setQuadOrientation(facing);
+			builder.setTexture(sprite);
+			Vector4f[] vectors = PlanarQuadRenderer.getQuadsFor(facing);
+			for (int i  = 0; i < vectors.length; i++) {
+				Vector4f vector = vectors[i];
+				float u = i < 2 ? sprite.getMaxU() - (1F / 16F / 10000) : sprite.getMinU() + (1F / 16F / 10000);
+				float v = i == 1 || i == 2 ? sprite.getMaxV() - (1F / 16F / 10000) : sprite.getMinV() + (1F / 16F / 10000);
+				putQuadData(builder, vector, colour, u, v, facing, sprite);
+			}
+			newquads.add(builder.build());
+		}
+		return newquads;
+	}
+	
+	private static void putQuadData(Builder quad, Vector4f vector, Color colour, float u, float v, EnumFacing facing, TextureAtlasSprite sprite) {
 		VertexFormat format = quad.getVertexFormat();
+		
+		Vec3i normal = facing.getDirectionVec();
+		float light = LightUtil.diffuseLight(normal.getX(), normal.getY(), normal.getZ());
+		
 		for (int i = 0; i < format.getElementCount(); i++) {
 		      switch (format.getElement(i).getUsage()) {
 		      	case POSITION:
 		      		quad.put(i, vector.getX(), vector.getY(), vector.getZ(), 1f);
 		      		break;	
 		      	case UV:
-					quad.put(i, u, v);
+					quad.put(i, sprite.getInterpolatedU(u * 16), sprite.getInterpolatedV(v * 16), 0, 1);
 		      		break;
 		      	case COLOR:
 		      		float r = colour.getRed() / 255F;
 					float g = colour.getGreen() / 255F;
 					float b = colour.getBlue() / 255F;
 					float a = colour.getAlpha() / 255F;
-					quad.put(i, r, g, b, a);
+					quad.put(i, light*r, light*g, light*b, a);
 		      		break;
+		      	case NORMAL:
+		            quad.put(i, normal.getX(), normal.getY(), normal.getZ(), 0);
 				default:
 					quad.put(i);
 					break;
-		    	  
 		    	  
 		      }
 		}

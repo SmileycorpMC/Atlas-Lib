@@ -3,6 +3,7 @@ package net.smileycorp.atlas.api.block;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -22,6 +23,17 @@ public class BlockStairsBase extends BlockStairs {
 		setUnlocalizedName(modid+"."+name.replace("_", ""));
 	}
 	
+	public BlockStairsBase(String name, IBlockState state) {
+		super(state);
+		useNeighborBrightness=true;
+		Block base = state.getBlock();
+		setCreativeTab(base.getCreativeTabToDisplayOn());
+		String modid = base.getRegistryName().getResourceDomain();
+		name = name+"_Stairs";
+		setRegistryName(new ResourceLocation(modid, name.toLowerCase()));
+		setUnlocalizedName(modid+"."+name.replace("_", ""));
+	}
+
 	@Override
 	public int getFlammability(IBlockAccess world, BlockPos pos, EnumFacing facing) {
 		return world.getBlockState(pos).getMaterial() == Material.WOOD ? 20 : super.getFlammability(world, pos, facing);

@@ -50,13 +50,15 @@ public class WeightedOutputs<T> {
 			mappedEntries.add(new SimpleEntry<T, Integer>(entry.getKey(), max));
 			max+=entry.getValue();
 		}
-		Collections.reverse(mappedEntries);
-		for(int i=0; i<(tries*deafaultTries);i++){
-			int result = rand.nextInt(max);
-			for(Entry<T, Integer> entry : mappedEntries) {
-				if (result>=entry.getValue()) {
-					list.add(entry.getKey());
-					break;
+		if (max>0) {
+			Collections.reverse(mappedEntries);
+			for(int i=0; i<(tries*deafaultTries);i++){
+				int result = rand.nextInt(max);
+				for(Entry<T, Integer> entry : mappedEntries) {
+					if (result>=entry.getValue()) {
+						list.add(entry.getKey());
+						break;
+					}
 				}
 			}
 		}

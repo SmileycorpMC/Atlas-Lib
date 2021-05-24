@@ -1,50 +1,68 @@
-package net.smileycorp.atlas.api.block;
+package net.smileycorp.atlas.api.block.wood;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.IStringSerializable;
+import net.smileycorp.atlas.api.block.BlockMetaBase;
+import net.smileycorp.atlas.api.block.BlockStairsBase;
+
+import com.google.common.collect.Lists;
+
 
 
 public class WoodBlock {
 	
-	/*public final PropertyString variant;
-	private List<String> variants;
+	final List<String> variants;
+	final List<List<String>> subvariants;
 	
 	final String name;
 	final String modid;
-	final BlockBaseLog log;
-	final BlockBasePlank plank;
-	final BlockBasePlankStairs stairs;
-	final BlockBasePlankSlab slab;
-	final BlockBasePlankSlab doubleSlab;
-	
-	Block[] blocks;
+	final BlockMetaBase plank;
+	final List<BlockBaseLog> logs = new ArrayList<BlockBaseLog>();
+	final Map<String, BlockStairsBase> stairs = new HashMap<String, BlockStairsBase>();
+	final List<BlockBaseLeaves> leaves = new ArrayList<BlockBaseLeaves>();
+	//final List<BlockMetaSlab> slabs = new ArrayList<BlockMetaSlab>();
+	//final List<BlockMetaSlab> doubleSlabs = new ArrayList<BlockMetaSlab>();
 
-	public WoodBlock(String name, String modid, CreativeTabs tab, Block sapling, List<String> variants) {
-		//super(name, modid, Material.WOOD, SoundType.WOOD, 3f, 5f, "axe", 0, tab);
-		this.variants = variants.subList(0, 3);
-		this.variant=new PropertyString("variant", new Predicate<String>(){
-			@Override
-			public boolean test(String variant) {
-				return this.variants.contains(variant);
-			}
-		});
+	public WoodBlock(String name, String modid, CreativeTabs tab, Map<String, ItemStack> metaDefinitions, boolean isFlamable) {
+		this.variants = new ArrayList<String>(metaDefinitions.keySet());
+		this.subvariants = Lists.partition(variants, 4);
+		List<List<ItemStack>> sapLists = Lists.partition(new ArrayList<ItemStack>(metaDefinitions.values()), 4);
 		this.name=name;
 		this.modid=modid;
-		log = new BlockBaseLog(name, modid, tab, variant);
-		plank = new BlockBasePlank(name, modid, tab, variant);
-		stairs = new BlockBasePlankStairs(plank, variant);
-		slab = new BlockBasePlankSlab(plank, variant, false);
-		doubleSlab = new BlockBasePlankSlab(plank, variant, true);
-		blocks = new Block[]{log, plank, stairs, slab, doubleSlab};
+		plank = new BlockMetaBase(name.isEmpty() ? "Plank":"Plank_"+name, modid, Material.WOOD, SoundType.WOOD, 2f, 5f, "axe", 0, tab, variants);
+		plank.isFlamable=isFlamable;
+		for (List<String> localVariants : subvariants) {
+			int i = subvariants.indexOf(localVariants);
+			String suffix = i == 1 ? "" : "_"+i;
+			logs.add(new BlockBaseLog(name + suffix, modid, tab, localVariants, isFlamable));
+			/*leaves.add(new BlockBaseLeaves(name + suffix, modid, tab, localVariants, sapLists.get(i)));
+			slab = new BlockMetaSlab(name + suffix, modid, plank, localVariants, false);
+			doubleSlab = new BlockMetaSlab(name + suffix, modid, plank, localVariants, true);*/
+		}
+		for (int i = 0; i < variants.size(); i++) {
+			stairs.put(variants.get(i), new BlockStairsBase(variants.get(i)+"_Plank", plank.getStateFromMeta(i)));
+		}
 		
 	}
-	
+
 	public Block getPlank() {
 		return plank;
 	}
 	
-	public Block getStairs() {
-		return stairs;
+	public Block getStairs(String variant) {
+		return stairs.get(variant);
 	}
 	
-	public Block getSlab() {
+	/*public Block getSlab() {
 		return getSlab(false);
 	}
 	
@@ -95,7 +113,7 @@ public class WoodBlock {
 			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name+"_slab"), new ResourceLocation(modid, name), new ItemStack(slab, 6, i), 
 					new Object[]{"###", '#', new ItemStack(plank, 1, i)});
 		}
-	}
+	}*/
 	
 	public static enum EnumWood implements IStringSerializable {
 		;
@@ -111,5 +129,5 @@ public class WoodBlock {
 			return name;
 		}
 
-	}*/
+	}
 }
