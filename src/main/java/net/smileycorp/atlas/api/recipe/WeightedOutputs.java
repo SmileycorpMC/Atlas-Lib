@@ -31,7 +31,11 @@ public class WeightedOutputs<T> {
 	}
 
 	public List<Entry<T, Integer>> getTable() {
-		return new ArrayList<Entry<T, Integer>>(entries);
+		return entries;
+	}
+	
+	public boolean isEmpty() {
+		return entries.isEmpty();
 	}
 	
 	public T getResult(Random rand) {

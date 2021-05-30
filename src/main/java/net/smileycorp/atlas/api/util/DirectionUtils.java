@@ -10,7 +10,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 
 public class DirectionUtils {
@@ -23,6 +22,7 @@ public class DirectionUtils {
 		for (int x = 0; x <16*blockReach; x++) {
 			float reach = x/16f;
 		    Vec3d vec = eyepos.addVector(lookangle.x*reach, lookangle.y*reach, lookangle.z*reach);
+		    if (blockRay == null || blockRay.hitVec == null) return new RayTraceResult(lookangle, null);
 		    if (blockRay.hitVec.distanceTo(eyepos) < vec.distanceTo(eyepos)) break;
 		    AxisAlignedBB AABB = new AxisAlignedBB(lastVec.x, lastVec.y, lastVec.z, vec.x, vec.y, vec.z);
 		    List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(player, AABB);
@@ -62,12 +62,27 @@ public class DirectionUtils {
 		return facing.getIndex()-2;
 	}
 	
-	public static Vec3d getRandomDirectionVecXZ(Random rand) {
-		int a = rand.nextInt(360);
-		double rad = a * Math.PI/180;
-		double x = Math.cos(rad);
-		double z = Math.sin(rad);
+	public static Vec3d getDirectionVecXZ(BlockPos startpos, BlockPos endpos) {
+		int dx = endpos.getX()-startpos.getX();
+		int dz = endpos.getZ()-startpos.getZ();
+		double angle = Math.atan(dz/dx);
+		return getDirectionVecXZ(angle);
+	}
+	
+	public static Vec3d getDirectionVecXZDegrees(double angle) {
+		double rad = Math.toRadians(angle);
+		return getDirectionVecXZ(rad);
+	}
+	
+	public static Vec3d getDirectionVecXZ(double angle) {
+		double x = Math.cos(angle);
+		double z = Math.sin(angle);
 		return new Vec3d(x, 0, z);
+	}
+	
+	public static Vec3d getRandomDirectionVecXZ(Random rand) {
+		int angle = rand.nextInt(360);
+		return getDirectionVecXZDegrees(angle);
 	}
 
 	public static BlockPos getClosestLoadedPos(World world, BlockPos basepos, Vec3d direction, int radius) {
@@ -82,7 +97,7 @@ public class DirectionUtils {
 	
 	public static BlockPos getClosestLoadedPos(World world, BlockPos basepos, Vec3d direction, int radius, int maxlight, int minlight) {
 		BlockPos pos = world.getTopSolidOrLiquidBlock(basepos.add(direction.x*radius, 0, direction.z*radius));
-		while (!world.getChunkFromBlockCoords(pos).isLoaded() && !isBrightnessAllowed(world, basepos, maxlight, minlight)) {
+		while (!world.getChunkFromBlockCoords(pos).isLoaded() || !isBrightnessAllowed(world, basepos, maxlight, minlight)) {
 			if (radius==0) return basepos;
 			radius--;
 			pos = world.getTopSolidOrLiquidBlock(basepos.add(direction.x*radius, 0, direction.z*radius));
@@ -90,13 +105,10 @@ public class DirectionUtils {
 		return pos;
 	}
 	
-	private static boolean isBrightnessAllowed(World world, BlockPos pos, int maxlight, int minlight) {
+	public static boolean isBrightnessAllowed(World world, BlockPos pos, int maxlight, int minlight) {
 		int blocklight = world.getLightFromNeighbors(pos);
-		int skylight = world.getLightFor(EnumSkyBlock.SKY, pos);
-		if (skylight > maxlight) return false;
 		if (blocklight > maxlight) return false;
 		if (blocklight < minlight) return false;
-		if (skylight < minlight) return false;
 		return true;
 	}
 
