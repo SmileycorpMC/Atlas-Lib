@@ -65,7 +65,7 @@ public class DirectionUtils {
 	public static Vec3d getDirectionVecXZ(BlockPos startpos, BlockPos endpos) {
 		int dx = endpos.getX()-startpos.getX();
 		int dz = endpos.getZ()-startpos.getZ();
-		double angle = Math.atan(dz/dx);
+		double angle = Math.atan2(dz, dx);
 		return getDirectionVecXZ(angle);
 	}
 	

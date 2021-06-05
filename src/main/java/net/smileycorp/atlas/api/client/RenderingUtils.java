@@ -8,8 +8,12 @@ import java.util.function.Function;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.BlockFaceUV;
+import net.minecraft.client.renderer.block.model.BlockPartFace;
+import net.minecraft.client.renderer.block.model.FaceBakery;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.item.Item;
@@ -23,7 +27,6 @@ import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.pipeline.LightUtil;
-import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad.Builder;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -86,32 +89,25 @@ public class RenderingUtils {
 		}
 	}
 	
-	public static List<BakedQuad> getQuadsForCube(Color colour, TextureAtlasSprite sprite, VertexFormat format) {
+	public static List<BakedQuad> getQuadsForCube(Color colour, String spritename) {
 		List<BakedQuad> quads = new ArrayList<BakedQuad>();
 		for (EnumFacing facing : EnumFacing.VALUES) {
-			quads.addAll(getQuadsForPlane(facing, colour, sprite, format));
+			quads.addAll(getQuadsForPlane(facing, colour, spritename));
 		}
 		return quads;
 	}
 	
-	public static List<BakedQuad> getQuadsForPlane(EnumFacing facing, Color colour, TextureAtlasSprite sprite, VertexFormat format) {
+	public static List<BakedQuad> getQuadsForPlane(EnumFacing facing, Color colour, String spritename) {
 		List<BakedQuad> quads = new ArrayList<BakedQuad>();
-		//List<Integer> quadData = new ArrayList<Integer>();
-		Builder quad = new UnpackedBakedQuad.Builder(format);
-		quad.setQuadOrientation(facing);
-		quad.setTexture(sprite);
-		Vector4f[] vectors = PlanarQuadRenderer.getQuadsFor(facing);
-		for (int i  = 0; i < vectors.length; i++) {
-			Vector4f vector = vectors[i];
-			float u = i < 2 ? sprite.getMaxU() - (1F / 16F / 10000) : sprite.getMinU() + (1F / 16F / 10000);
-			float v = i == 1 || i == 2 ? sprite.getMaxV() - (1F / 16F / 10000) : sprite.getMinV() + (1F / 16F / 10000);
-			putQuadData(quad, vector, colour, u, v, facing, sprite);
-		}
-		quads.add(quad.build());
+		FaceBakery bakery = new FaceBakery();
+		Vector3f[] vecs = PlanarQuadRenderer.get3FQuadsFor(facing);
+		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(spritename);
+		BlockPartFace face = new BlockPartFace(facing.getOpposite(), 0, spritename, new BlockFaceUV(new float[]{0, 0, 16, 16}, 0));
+		quads.add(bakery.makeBakedQuad(vecs[0], vecs[1], face, sprite, facing, ModelRotation.X0_Y0, null, true, true));
 		return quads;
 	}
 	
-	public static List<BakedQuad> getQuadsForModel(List<BakedQuad> quads, Color colour, TextureAtlasSprite sprite) {
+	/*public static List<BakedQuad> getQuadsForModel(List<BakedQuad> quads, Color colour, TextureAtlasSprite sprite) {
 		List<BakedQuad> newquads = new ArrayList<BakedQuad>();
 		for (BakedQuad quad : quads) {
 			EnumFacing facing = quad.getFace();
@@ -128,7 +124,7 @@ public class RenderingUtils {
 			newquads.add(builder.build());
 		}
 		return newquads;
-	}
+	}*/
 	
 	private static void putQuadData(Builder quad, Vector4f vector, Color colour, float u, float v, EnumFacing facing, TextureAtlasSprite sprite) {
 		VertexFormat format = quad.getVertexFormat();
@@ -189,6 +185,41 @@ public class RenderingUtils {
 			return vector;
 		}
 	
+		public static Vector3f[] get3FQuadsFor(EnumFacing facing) {
+			if (facing!=null) {
+				switch(facing) {
+				case DOWN:
+					return new Vector3f[] {
+							new Vector3f(16, 0, 16),
+							new Vector3f(0, 0, 0)};
+				case NORTH:
+					return new Vector3f[] {
+							new Vector3f(0, 16, 0),
+							new Vector3f(16, 0, 0)};
+				case SOUTH:
+					return new Vector3f[] {
+							new Vector3f(16, 16, 0),
+							new Vector3f(0, 0, 0)};
+				case EAST:
+					return new Vector3f[] {
+							new Vector3f(0, 16, 0),
+							new Vector3f(0, 0, 16)};
+				case WEST:
+					
+					return new Vector3f[] {
+							new Vector3f(0, 16, 16),
+							new Vector3f(0, 0, 0)};
+				default:
+					return new Vector3f[] {
+							new Vector3f(16, 0, 0),
+							new Vector3f(0, 0, 16)};
+				}
+			}
+			return new Vector3f[] {
+					new Vector3f(0, 0, 0),
+					new Vector3f(0, 0, 0)};
+		}
+
 		private static float offsetLayer(float offset, int layer) {
 			float layerOffset = 0.001f*layer;
 			return offset+layerOffset;
