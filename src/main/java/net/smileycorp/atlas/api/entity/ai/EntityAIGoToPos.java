@@ -13,7 +13,7 @@ public class EntityAIGoToPos extends EntityAIFindEntityNearest {
 	
 	protected final EntityLiving entity;
 	protected final World world;
-	protected final BlockPos pos;
+	protected BlockPos pos;
 	protected final PathNavigate pather;
 	protected int timeToRecalcPath = 0;
 	protected float waterCost;
@@ -22,7 +22,7 @@ public class EntityAIGoToPos extends EntityAIFindEntityNearest {
 		super(entity, EntityLiving.class);
 		this.entity=entity;
 		world=entity.world;
-		this.pos=world.getTopSolidOrLiquidBlock(pos);
+		this.pos=pos;
 		pather=entity.getNavigator();
 		this.setMutexBits(1);
 	}
