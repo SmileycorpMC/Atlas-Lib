@@ -7,16 +7,15 @@ import java.util.Map.Entry;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-
 import net.minecraftforge.fml.common.IFuelHandler;
-
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.smileycorp.atlas.api.util.RecipeUtils;
 
 public class FuelHandler implements IFuelHandler {
 
-	public static final FuelHandler INSTANCE = new FuelHandler();
+	private static FuelHandler INSTANCE = null;
 	
-	private Map<ItemStack, Integer> FUEL_MAP = new HashMap<ItemStack, Integer>();
+	private Map<ItemStack, Integer> FUEL_MAP = new HashMap<>();
 	
 	public ItemStack registerFuel(Item fuel, int burnTime) {
 		return registerFuel(new ItemStack(fuel), burnTime);
@@ -39,6 +38,14 @@ public class FuelHandler implements IFuelHandler {
 			}
 		}
 		return 0;
+	}
+	
+	public static FuelHandler getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new FuelHandler();
+			GameRegistry.registerFuelHandler(INSTANCE);
+		}
+		return INSTANCE;
 	}
 
 }

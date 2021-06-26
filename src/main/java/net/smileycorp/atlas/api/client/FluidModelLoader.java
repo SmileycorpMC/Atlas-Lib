@@ -4,14 +4,16 @@ import java.util.function.Predicate;
 
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
-
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelFluid;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.resource.IResourceType;
 import net.minecraftforge.fluids.FluidRegistry;
 
 public class FluidModelLoader implements ICustomModelLoader {
+	
+	private static FluidModelLoader INSTANCE = null;
 
 	@Override
 	public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
@@ -31,6 +33,15 @@ public class FluidModelLoader implements ICustomModelLoader {
 	@Override
 	public IModel loadModel(ResourceLocation location) throws Exception {
 		return new ModelFluid(FluidRegistry.getFluid(location.getResourcePath().split("\\.")[0]));
+	}
+
+	public static FluidModelLoader getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new FluidModelLoader();
+			ModelLoaderRegistry.registerLoader(INSTANCE);
+		}
+		return INSTANCE;
+		
 	}
 
 }
