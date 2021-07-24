@@ -3,15 +3,15 @@ package net.smileycorp.atlas.api.util;
 import java.util.List;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
 public class RecipeUtils {
 
     public static boolean compareItemStacks(ItemStack stack1, ItemStack stack2, boolean useNBT) {
     	if (stack1==null||stack2==null) return false;
-    	if (stack2.getItem() == stack1.getItem() && (stack2.getMetadata() == 32767 || stack2.getMetadata() == stack1.getMetadata()))  {
-    		NBTTagCompound nbt1 = stack1.getTagCompound();
-    		NBTTagCompound nbt2 = stack2.getTagCompound();
+    	if (stack2.getItem() == stack1.getItem() && (stack2.getDamage() == stack1.getDamage()))  {
+    		CompoundNBT nbt1 = stack1.getTag();
+    		CompoundNBT nbt2 = stack2.getTag();
     		if (nbt1==null||nbt2==null) return (nbt1==nbt2);
     		return nbt1.equals(nbt2)||!useNBT;
     	}

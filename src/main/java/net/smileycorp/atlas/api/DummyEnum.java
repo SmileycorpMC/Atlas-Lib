@@ -7,7 +7,7 @@ public enum DummyEnum implements IStringSerializable {
 	DUMMY;
 
 	@Override
-	public String getName() {
+	public String getString() {
 		return "dummy";
 	}
 	
