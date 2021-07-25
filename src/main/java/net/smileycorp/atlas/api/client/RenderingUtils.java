@@ -126,7 +126,7 @@ public class RenderingUtils {
 		return newquads;
 	}*/
 	
-	private static void putQuadData(Builder quad, Vector4f vector, Color colour, float u, float v, EnumFacing facing, TextureAtlasSprite sprite) {
+	private static void putQuadData(WoodBlockBuilder quad, Vector4f vector, Color colour, float u, float v, EnumFacing facing, TextureAtlasSprite sprite) {
 		VertexFormat format = quad.getVertexFormat();
 		
 		Vec3i normal = facing.getDirectionVec();

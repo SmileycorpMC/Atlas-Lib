@@ -1,13 +1,13 @@
 package net.smileycorp.atlas.api;
 
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
 
-public enum DummyEnum implements IStringSerializable {
+public enum DummyEnum implements StringRepresentable {
 	
 	DUMMY;
 
 	@Override
-	public String getName() {
+	public String getSerializedName() {
 		return "dummy";
 	}
 	

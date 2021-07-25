@@ -1,15 +1,15 @@
 package net.smileycorp.atlas.api;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 
 public interface IOngoingEvent {
 	
-	public void readFromNBT(NBTTagCompound nbt);
+	public void readFromNBT(CompoundTag nbt);
 	
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt);
+	public CompoundTag writeToNBT(CompoundTag nbt);
 	
-	public void update(World world);
+	public void update(Level level);
 	
-	public boolean isActive(World world);
+	public boolean isActive(Level level);
 }

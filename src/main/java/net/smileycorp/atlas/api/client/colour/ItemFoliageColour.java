@@ -2,13 +2,13 @@ package net.smileycorp.atlas.api.client.colour;
 
 import java.awt.Color;
 
-import net.minecraft.client.renderer.color.IItemColor;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.color.item.ItemColor;
+import net.minecraft.world.item.ItemStack;
 
-public class ItemFoliageColour implements IItemColor {
+public class ItemFoliageColour implements ItemColor {
 
 	@Override
-	public int colorMultiplier(ItemStack stack, int tintIndex) {
+	public int getColor(ItemStack stack, int tintIndex) {
 		if (tintIndex==0) {
 			return 0xFF74B265;
 		}

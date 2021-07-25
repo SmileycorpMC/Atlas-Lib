@@ -1,28 +1,28 @@
 package net.smileycorp.atlas.api.block;
 
 import java.util.List;
+import java.util.Optional;
 
-import net.minecraft.block.properties.IProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 
-import com.google.common.base.Optional;
+public class PropertyString extends Property<String> {
 
-public class PropertyString implements IProperty<String> {
-	
 	private final String name;
 	private List<String> allowedValues;
-	
+
 	public PropertyString(String name, List<String> allowedValues) {
+		super(name, String.class);
 		this.name=name;
 		this.allowedValues=allowedValues;
 	}
-	
+
 	@Override
 	public String getName() {
 		return name;
 	}
 
 	@Override
-	public List<String> getAllowedValues() {
+	public List<String> getPossibleValues() {
 		return allowedValues;
 	}
 
@@ -32,7 +32,7 @@ public class PropertyString implements IProperty<String> {
 	}
 
 	@Override
-	public Optional<String> parseValue(String value) {
+	public Optional<String> getValue(String value) {
 		return Optional.of(value);
 	}
 
