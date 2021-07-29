@@ -36,7 +36,7 @@ public class DirectionUtils {
 		return blockRay;
 	}
 	
-	private static Vec3d getPosVecForEntity(Entity entity) {
+	public static Vec3d getPosVecForEntity(Entity entity) {
 		return new Vec3d(entity.posX, entity.posY, entity.posZ);
 	}
 	
@@ -101,7 +101,7 @@ public class DirectionUtils {
 		return getDirectionVecXZDegrees(angle);
 	}
 	
-	public static Vec3d getDirectionVec(Entity entity1, EntityZombie entity2) {
+	public static Vec3d getDirectionVec(Entity entity1, Entity entity2) {
 		Vec3d startpos = getPosVecForEntity(entity1);
 		Vec3d endpos = getPosVecForEntity(entity2);
 		return getDirectionVec(startpos, endpos);

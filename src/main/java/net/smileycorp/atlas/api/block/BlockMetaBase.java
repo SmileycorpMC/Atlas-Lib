@@ -18,17 +18,23 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
 public class BlockMetaBase extends BlockBase {
+	//fake static property to bypass blockstate validation
+	protected static PropertyString staticProp;
 	
 	protected PropertyString prop;
 
-	public BlockMetaBase(String name, String modid, Material material, SoundType sound, float h, float r, String tool, int level, CreativeTabs tab, List<String> variants) {
+	protected BlockMetaBase(String name, String modid, Material material, SoundType sound, float h, float r, String tool, int level, CreativeTabs tab, List<String> variants) {
 		super(name, modid, material, sound, h, r, tool, level, tab);
-		this.prop = new PropertyString("variant", variants);
-		this.setDefaultState(this.blockState.getBaseState().withProperty(prop, variants.get(0)));
+		setDefaultState(this.blockState.getBaseState().withProperty(prop, variants.get(0)));
 	}
 	
-	public BlockMetaBase(String name, String modid, Material material, SoundType sound, float h, float r, int level, CreativeTabs tab, List<String> variants) {
-		this(name, modid, material, sound, h, r, "pickaxe", level, tab, variants); 
+	public static BlockMetaBase create(String name, String modid, Material material, SoundType sound, float h, float r, String tool, int level, CreativeTabs tab, List<String> variants) {
+		staticProp = new PropertyString("property", variants);
+		return new BlockMetaBase(name, modid, material, sound, h, r, tool, level, tab, variants);
+	}
+	
+	public static BlockMetaBase create(String name, String modid, Material material, SoundType sound, float h, float r, int level, CreativeTabs tab, List<String> variants) {
+		return create(name, modid, material, sound, h, r, "pickaxe", level, tab, variants); 
 	}
 	
 	public PropertyString getProperty() {
@@ -37,6 +43,7 @@ public class BlockMetaBase extends BlockBase {
 	
 	@Override
 	protected BlockStateContainer createBlockState() {
+		prop=staticProp;
 		return new BlockStateContainer(this, new IProperty[]{prop});
 	}
 	

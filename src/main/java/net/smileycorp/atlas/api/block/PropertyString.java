@@ -1,5 +1,6 @@
 package net.smileycorp.atlas.api.block;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.block.properties.IProperty;
@@ -16,6 +17,10 @@ public class PropertyString implements IProperty<String> {
 		this.allowedValues=allowedValues;
 	}
 	
+	public PropertyString(String name) {
+		this(name, new ArrayList<String>());
+	}
+
 	@Override
 	public String getName() {
 		return name;
@@ -39,6 +44,14 @@ public class PropertyString implements IProperty<String> {
 	@Override
 	public String getName(String value) {
 		return value;
+	}
+	
+	public int ordinal(String value) {
+		return allowedValues.indexOf(value);
+	}
+
+	public String getValue(int index) {
+		return allowedValues.get(index);
 	}
 
 }

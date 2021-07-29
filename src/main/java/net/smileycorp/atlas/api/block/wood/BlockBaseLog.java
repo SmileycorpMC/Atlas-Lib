@@ -20,10 +20,14 @@ import net.smileycorp.atlas.api.block.PropertyString;
 
 public class BlockBaseLog extends BlockLog implements IBlockProperties {
 	
+	//fake static property to bypass blockstate validation
+	protected static PropertyString staticProp;
+	
 	protected PropertyString prop;
+	
 	public boolean isFlamable;
 
-	public BlockBaseLog(String name, String modid, CreativeTabs tab, List<String> variants, boolean isFlamable) {
+	protected BlockBaseLog(String name, String modid, CreativeTabs tab, List<String> variants, boolean isFlamable) {
 		super();
 		name = name.isEmpty() ? "Log":"Log_"+name;
 		setCreativeTab(tab);
@@ -32,6 +36,11 @@ public class BlockBaseLog extends BlockLog implements IBlockProperties {
 		this.isFlamable = isFlamable;
 		this.setDefaultState(this.blockState.getBaseState().withProperty(LOG_AXIS, BlockLog.EnumAxis.Y).withProperty(prop, variants.get(0)));
 	}
+	
+	public static BlockBaseLog create(String name, String modid, CreativeTabs tab, List<String> variants, boolean isFlamable) {
+		staticProp = new PropertyString("property", variants);
+		return new BlockBaseLog(name, modid, tab, variants, isFlamable);
+	}
 
 	public PropertyString getProperty() {
 		return prop;
@@ -39,6 +48,7 @@ public class BlockBaseLog extends BlockLog implements IBlockProperties {
 	
 	@Override
 	protected BlockStateContainer createBlockState() {
+		prop=staticProp;
 		return new BlockStateContainer(this, new IProperty[]{prop, LOG_AXIS});
 	}
 	

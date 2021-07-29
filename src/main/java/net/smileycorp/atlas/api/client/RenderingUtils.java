@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockFaceUV;
@@ -15,19 +16,16 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.item.Item;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.client.model.pipeline.LightUtil;
-import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad.Builder;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -102,59 +100,15 @@ public class RenderingUtils {
 		FaceBakery bakery = new FaceBakery();
 		Vector3f[] vecs = PlanarQuadRenderer.get3FQuadsFor(facing);
 		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(spritename);
-		BlockPartFace face = new BlockPartFace(facing.getOpposite(), 0, spritename, new BlockFaceUV(new float[]{0, 0, 16, 16}, 0));
-		quads.add(bakery.makeBakedQuad(vecs[0], vecs[1], face, sprite, facing, ModelRotation.X0_Y0, null, true, true));
+		BlockPartFace face = new BlockPartFace(null, 0, spritename, new BlockFaceUV(new float[]{0, 0, 16, 16}, 0));
+		quads.add(bakery.makeBakedQuad(vecs[0], vecs[1], face, sprite, facing.getOpposite(), ModelRotation.X0_Y0, null, true, true));
 		return quads;
 	}
 	
-	/*public static List<BakedQuad> getQuadsForModel(List<BakedQuad> quads, Color colour, TextureAtlasSprite sprite) {
-		List<BakedQuad> newquads = new ArrayList<BakedQuad>();
-		for (BakedQuad quad : quads) {
-			EnumFacing facing = quad.getFace();
-			Builder builder = new UnpackedBakedQuad.Builder(quad.getFormat());
-			builder.setQuadOrientation(facing);
-			builder.setTexture(sprite);
-			Vector4f[] vectors = PlanarQuadRenderer.getQuadsFor(facing);
-			for (int i  = 0; i < vectors.length; i++) {
-				Vector4f vector = vectors[i];
-				float u = i < 2 ? sprite.getMaxU() - (1F / 16F / 10000) : sprite.getMinU() + (1F / 16F / 10000);
-				float v = i == 1 || i == 2 ? sprite.getMaxV() - (1F / 16F / 10000) : sprite.getMinV() + (1F / 16F / 10000);
-				putQuadData(builder, vector, colour, u, v, facing, sprite);
-			}
-			newquads.add(builder.build());
-		}
-		return newquads;
-	}*/
-	
-	private static void putQuadData(Builder quad, Vector4f vector, Color colour, float u, float v, EnumFacing facing, TextureAtlasSprite sprite) {
-		VertexFormat format = quad.getVertexFormat();
-		
-		Vec3i normal = facing.getDirectionVec();
-		float light = LightUtil.diffuseLight(normal.getX(), normal.getY(), normal.getZ());
-		
-		for (int i = 0; i < format.getElementCount(); i++) {
-		      switch (format.getElement(i).getUsage()) {
-		      	case POSITION:
-		      		quad.put(i, vector.getX(), vector.getY(), vector.getZ(), 1f);
-		      		break;	
-		      	case UV:
-					quad.put(i, sprite.getInterpolatedU(u * 16), sprite.getInterpolatedV(v * 16), 0, 1);
-		      		break;
-		      	case COLOR:
-		      		float r = colour.getRed() / 255F;
-					float g = colour.getGreen() / 255F;
-					float b = colour.getBlue() / 255F;
-					float a = colour.getAlpha() / 255F;
-					quad.put(i, light*r, light*g, light*b, a);
-		      		break;
-		      	case NORMAL:
-		            quad.put(i, normal.getX(), normal.getY(), normal.getZ(), 0);
-				default:
-					quad.put(i);
-					break;
-		    	  
-		      }
-		}
+	public static void renderFont(String text, Vec3d fontvector, int color) {
+		Minecraft mc = Minecraft.getMinecraft();
+		FontRenderer fontrenderer = mc.fontRenderer;
+		//fontrenderer.drawString(text, x, y, color);
 	}
 	
 	
@@ -190,29 +144,28 @@ public class RenderingUtils {
 				switch(facing) {
 				case DOWN:
 					return new Vector3f[] {
-							new Vector3f(16, 0, 16),
-							new Vector3f(0, 0, 0)};
+							new Vector3f(0, 0, 16),
+							new Vector3f(16, 0, 0)};
 				case NORTH:
 					return new Vector3f[] {
-							new Vector3f(0, 16, 0),
-							new Vector3f(16, 0, 0)};
+							new Vector3f(16, 0, 0),
+							new Vector3f(0, 16, 0)};
 				case SOUTH:
 					return new Vector3f[] {
-							new Vector3f(16, 16, 0),
-							new Vector3f(0, 0, 0)};
+							new Vector3f(16, 0, 16),
+							new Vector3f(0, 16, 16)};
 				case EAST:
 					return new Vector3f[] {
-							new Vector3f(0, 16, 0),
-							new Vector3f(0, 0, 16)};
+							new Vector3f(16, 0, 16),
+							new Vector3f(16, 16, 0)};
 				case WEST:
-					
 					return new Vector3f[] {
-							new Vector3f(0, 16, 16),
-							new Vector3f(0, 0, 0)};
+							new Vector3f(0, 0, 16),
+							new Vector3f(0, 16, 0)};
 				default:
 					return new Vector3f[] {
-							new Vector3f(16, 0, 0),
-							new Vector3f(0, 0, 16)};
+							new Vector3f(0, 16, 16),
+							new Vector3f(16, 16, 0)};
 				}
 			}
 			return new Vector3f[] {
@@ -274,4 +227,5 @@ public class RenderingUtils {
 					new Vector4f(0, 0, 0, 0)};
 		}
 	}
+	
 }

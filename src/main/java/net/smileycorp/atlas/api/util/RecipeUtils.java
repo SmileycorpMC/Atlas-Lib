@@ -4,24 +4,26 @@ import java.util.List;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class RecipeUtils {
 
-    public static boolean compareItemStacks(ItemStack stack1, ItemStack stack2, boolean useNBT) {
-    	if (stack1==null||stack2==null) return false;
-    	if (stack2.getItem() == stack1.getItem() && (stack2.getMetadata() == 32767 || stack2.getMetadata() == stack1.getMetadata()))  {
-    		NBTTagCompound nbt1 = stack1.getTagCompound();
-    		NBTTagCompound nbt2 = stack2.getTagCompound();
+    public static boolean compareItemStacks(ItemStack stack, ItemStack check, boolean useNBT) {
+    	if (stack==null||check==null) return false;
+    	if (check.getItem() == stack.getItem() && (check.getMetadata() == OreDictionary.WILDCARD_VALUE || check.getMetadata() == stack.getMetadata()))  {
+    		if (!useNBT) return true;
+    		NBTTagCompound nbt1 = stack.getTagCompound();
+    		NBTTagCompound nbt2 = check.getTagCompound();
     		if (nbt1==null||nbt2==null) return (nbt1==nbt2);
-    		return nbt1.equals(nbt2)||!useNBT;
+    		return nbt1.equals(nbt2);
     	}
     	return false;
     }
     
-    public static boolean compareItemStacksCanFit(ItemStack stack1, ItemStack stack2) {
-    	if (stack1.isEmpty()||stack2.isEmpty()) return true;
-		if (compareItemStacks(stack1, stack2, true)) {
-			if (stack1.getCount()+stack2.getCount()<=stack1.getMaxStackSize()) {
+    public static boolean compareItemStacksCanFit(ItemStack stack, ItemStack check) {
+    	if (stack.isEmpty()||check.isEmpty()) return true;
+		if (compareItemStacks(stack, check, true)) {
+			if (stack.getCount()+check.getCount()<=stack.getMaxStackSize()) {
 				return true;
 			}
 		}
