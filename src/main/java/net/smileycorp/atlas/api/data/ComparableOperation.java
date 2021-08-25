@@ -2,7 +2,7 @@ package net.smileycorp.atlas.api.data;
 
 import java.util.function.BiFunction;
 
-public enum EnumOperation {
+public enum ComparableOperation {
 
 	EQUALS("==", (a, b) -> a==b || a.equals(b)),
 	NOT_EQUALS("!=", (a, b) -> !(a==b || a.equals(b))),
@@ -14,7 +14,7 @@ public enum EnumOperation {
 	private final String symbol;
 	private final BiFunction<Comparable<?>, Comparable<?>, Boolean> operation;
 
-	private EnumOperation(String symbol, BiFunction<Comparable<?>, Comparable<?>, Boolean> operation) {
+	private ComparableOperation(String symbol, BiFunction<Comparable<?>, Comparable<?>, Boolean> operation) {
 		this.symbol = symbol;
 		this.operation = operation;
 	}
@@ -27,8 +27,8 @@ public enum EnumOperation {
 		return operation.apply(a, b);
 	}
 
-	public static EnumOperation of(String symbol) {
-		for (EnumOperation operation : values()) {
+	public static ComparableOperation of(String symbol) {
+		for (ComparableOperation operation : values()) {
 			if (operation.getSymbol().equals(symbol)) return operation;
 		}
 		return null;
