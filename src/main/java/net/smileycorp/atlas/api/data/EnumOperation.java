@@ -4,8 +4,8 @@ import java.util.function.BiFunction;
 
 public enum EnumOperation {
 
-	EQUALS("==", (a, b) -> a==b),
-	NOT_EQUALS("!=", (a, b) -> a!=b),
+	EQUALS("==", (a, b) -> a==b || a.equals(b)),
+	NOT_EQUALS("!=", (a, b) -> !(a==b || a.equals(b))),
 	LESS_THAN("<", (a, b) -> numberWrapped(a, b, (c, d)->c.compareTo(d)<0)),
 	GREATER_THAN(">", (a, b) -> numberWrapped(a, b, (c, d)->c.compareTo(d)>0)),
 	LESS_OR_EQUAL("<=", (a, b) -> numberWrapped(a, b, (c, d)->c.compareTo(d)<=0)),
