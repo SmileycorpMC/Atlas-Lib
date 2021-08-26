@@ -21,17 +21,17 @@ public class SimpleByteMessage implements IPacket<INetHandler> {
 		}
 
 		@Override
-		public void readPacketData(PacketBuffer buf) throws IOException {
+		public void read(PacketBuffer buf) throws IOException {
 			data = new byte[buf.readableBytes()];
 			buf.readBytes(data);
 		}
 
 		@Override
-		public void writePacketData(PacketBuffer buf) throws IOException {
+		public void write(PacketBuffer buf) throws IOException {
 			buf.writeBytes(data);
 		}
 
 		@Override
-		public void processPacket(INetHandler handler) {}
+		public void handle(INetHandler handler) {}
 
 }

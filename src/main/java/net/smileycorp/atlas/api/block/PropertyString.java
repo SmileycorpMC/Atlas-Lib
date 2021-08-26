@@ -22,7 +22,7 @@ public class PropertyString extends Property<String> {
 	}
 
 	@Override
-	public List<String> getAllowedValues() {
+	public List<String> getPossibleValues() {
 		return allowedValues;
 	}
 
@@ -32,7 +32,7 @@ public class PropertyString extends Property<String> {
 	}
 
 	@Override
-	public Optional<String> parseValue(String value) {
+	public Optional<String> getValue(String value) {
 		return Optional.of(value);
 	}
 

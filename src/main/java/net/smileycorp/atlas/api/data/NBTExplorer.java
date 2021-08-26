@@ -62,7 +62,7 @@ public class NBTExplorer<T extends Comparable<T>> {
 				throw new Exception(builder.toString() + " " + e.getMessage(), e.getCause());
 			}
 		}
-		return null;
+		throw new Exception("Could not find value " + directory);
 	}
 
 	@Override

@@ -9,7 +9,7 @@ public class RecipeUtils {
 
     public static boolean compareItemStacks(ItemStack stack1, ItemStack stack2, boolean useNBT) {
     	if (stack1==null||stack2==null) return false;
-    	if (stack2.getItem() == stack1.getItem() && (stack2.getDamage() == stack1.getDamage()))  {
+    	if (stack2.getItem() == stack1.getItem() && (stack2.getDamageValue() == stack1.getDamageValue()))  {
     		CompoundNBT nbt1 = stack1.getTag();
     		CompoundNBT nbt2 = stack2.getTag();
     		if (nbt1==null||nbt2==null) return (nbt1==nbt2);
@@ -17,7 +17,7 @@ public class RecipeUtils {
     	}
     	return false;
     }
-    
+
     public static boolean compareItemStacksCanFit(ItemStack stack1, ItemStack stack2) {
     	if (stack1.isEmpty()||stack2.isEmpty()) return true;
 		if (compareItemStacks(stack1, stack2, true)) {
@@ -27,7 +27,7 @@ public class RecipeUtils {
 		}
     	return false;
 	}
-    
+
     /*checks to see if stack2 is bigger than stack 1, if matchExactly is true, only checks that they are the same size*/
     public static boolean compareItemStacksWithSize(ItemStack stack1, ItemStack stack2, boolean matchExactly) {
 		if (compareItemStacks(stack1, stack2, true)) {
@@ -49,7 +49,7 @@ public class RecipeUtils {
 		}
 		return false;
 	}
-	
+
 	private static int compareSlots(ItemStack out, List<ItemStack> slots, int amount) {
 		for (ItemStack slot : slots) {
 			if (compareItemStacksCanFit(out, slot)) {

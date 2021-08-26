@@ -12,7 +12,7 @@ public class SimpleMessageEncoder<T extends IPacket<INetHandler>> implements BiC
 	@Override
 	public void accept(T t, PacketBuffer buf) {
 		try {
-			t.writePacketData(buf);
+			t.write(buf);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

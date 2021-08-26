@@ -6,7 +6,7 @@ import net.minecraft.network.INetHandler;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
 
-public class SimpleStringMessage implements IPacket {
+public class SimpleStringMessage implements IPacket<INetHandler> {
 
 		public SimpleStringMessage() {}
 
@@ -21,17 +21,17 @@ public class SimpleStringMessage implements IPacket {
 		}
 
 		@Override
-		public void readPacketData(PacketBuffer buf) throws IOException {
-			text = buf.readString();
+		public void read(PacketBuffer buf) throws IOException {
+			text = buf.readUtf();
 		}
 
 		@Override
-		public void writePacketData(PacketBuffer buf) throws IOException {
-			buf.writeString(text);
+		public void write(PacketBuffer buf) throws IOException {
+			buf.writeUtf(text);
 		}
 
 		@Override
-		public void processPacket(INetHandler handler) {}
+		public void handle(INetHandler handler) {}
 
 
 }

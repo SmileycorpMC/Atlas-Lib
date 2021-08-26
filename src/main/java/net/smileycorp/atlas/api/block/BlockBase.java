@@ -9,6 +9,8 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraftforge.common.ToolType;
 
@@ -21,7 +23,7 @@ public class BlockBase extends Block implements IBlockProperties {
 	public ItemGroup tab;
 
 	public BlockBase(String name, String modid, Material material, MaterialColor colour, SoundType sound, float h, float r, ToolType tool, int level, ItemGroup tab) {
-		super(Properties.create(material, colour).hardnessAndResistance(h, r).harvestLevel(level).harvestTool(tool).sound(sound));
+		super(Properties.of(material, colour).strength(h, r).harvestLevel(level).harvestTool(tool).sound(sound));
 		setRegistryName(new ResourceLocation(modid, name.toLowerCase()));
 		this.name=name;
 		this.modid=modid;
@@ -43,14 +45,15 @@ public class BlockBase extends Block implements IBlockProperties {
 		return isFlamable ? 5 : super.getFireSpreadSpeed(state, world, pos, face);
 	}
 
-	public String getName() {
-		return name;
+	@Override
+	public IFormattableTextComponent getName() {
+		return new StringTextComponent(name);
 	}
 
 	public String getMod() {
 		return modid;
 	}
-	
+
 	public ItemGroup getCreativeTab() {
 		return tab;
 	}

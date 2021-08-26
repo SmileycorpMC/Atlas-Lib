@@ -1,20 +1,24 @@
 package net.smileycorp.atlas.api.data;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiFunction;
 
-public enum ComparableOperation {
+public class ComparableOperation {
 
-	EQUALS("==", (a, b) -> a==b || a.equals(b)),
-	NOT_EQUALS("!=", (a, b) -> !(a==b || a.equals(b))),
-	LESS_THAN("<", (a, b) -> numberWrapped(a, b, (c, d)->c.compareTo(d)<0)),
-	GREATER_THAN(">", (a, b) -> numberWrapped(a, b, (c, d)->c.compareTo(d)>0)),
-	LESS_OR_EQUAL("<=", (a, b) -> numberWrapped(a, b, (c, d)->c.compareTo(d)<=0)),
-	GREATER_OR_EQUAL(">=", (a, b) -> numberWrapped(a, b, (c, d)->c.compareTo(d)>=0));
+	private static Map<String, ComparableOperation> registry = new HashMap<String, ComparableOperation>();
 
-	private final String symbol;
-	private final BiFunction<Comparable<?>, Comparable<?>, Boolean> operation;
+	public static ComparableOperation EQUALS = register("==", (a, b) -> a==b || a.equals(b));
+	public static ComparableOperation NOT_EQUALS = register("!=", (a, b) -> !(a==b || a.equals(b)));
+	public static ComparableOperation LESS_THAN = register("<", (a, b) -> numberWrapped(a, b, (c, d)->c.compareTo(d)<0));
+	public static ComparableOperation GREATER_THAN = register(">", (a, b) -> numberWrapped(a, b, (c, d)->c.compareTo(d)>0));
+	public static ComparableOperation LESS_OR_EQUAL = register("<=", (a, b) -> numberWrapped(a, b, (c, d)->c.compareTo(d)<=0));
+	public static ComparableOperation GREATER_OR_EQUAL = register(">=", (a, b) -> numberWrapped(a, b, (c, d)->c.compareTo(d)>=0));
 
-	private ComparableOperation(String symbol, BiFunction<Comparable<?>, Comparable<?>, Boolean> operation) {
+	protected final String symbol;
+	protected final BiFunction<Comparable<?>, Comparable<?>, Boolean> operation;
+
+	protected ComparableOperation(String symbol, BiFunction<Comparable<?>, Comparable<?>, Boolean> operation) {
 		this.symbol = symbol;
 		this.operation = operation;
 	}
@@ -27,11 +31,18 @@ public enum ComparableOperation {
 		return operation.apply(a, b);
 	}
 
+	private static ComparableOperation register(String symbol, BiFunction<Comparable<?>, Comparable<?>, Boolean> operation) {
+		ComparableOperation comparable = new ComparableOperation(symbol, operation);
+		return registry.put(symbol, comparable);
+	}
+
 	public static ComparableOperation of(String symbol) {
-		for (ComparableOperation operation : values()) {
-			if (operation.getSymbol().equals(symbol)) return operation;
-		}
+		if (registry.containsKey(symbol)) return registry.get(symbol);
 		return null;
+	}
+
+	public static ComparableOperationMod modOf(Comparable<?> comparable, ComparableOperation subOperation) {
+		return new ComparableOperationMod(comparable, subOperation);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -42,4 +53,20 @@ public enum ComparableOperation {
 		return false;
 	}
 
+	public static class ComparableOperationMod extends ComparableOperation {
+
+		protected final Comparable<?> value;
+
+		protected ComparableOperationMod(Comparable<?> value, ComparableOperation subOperation) {
+			super("%"+value+subOperation.symbol, subOperation.operation);
+			this.value=value;
+		}
+
+		@Override
+		public boolean apply(Comparable<?> a, Comparable<?> b) {
+			Comparable<?> mod = GREATER_THAN.apply(a, Integer.MAX_VALUE) ? ((Long)a) % ((Long)value) : ((Integer)a) % ((Integer)value);
+			return super.apply(mod, b);
+		}
+
+	}
 }

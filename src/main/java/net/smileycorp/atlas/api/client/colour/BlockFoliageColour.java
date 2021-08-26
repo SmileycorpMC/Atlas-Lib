@@ -11,7 +11,7 @@ public class BlockFoliageColour implements IBlockColor, ColorResolver {
 
 	@Override
 	public int getColor(BlockState state, IBlockDisplayReader reader, BlockPos pos, int tintIndex) {
-		return reader.getBlockColor(pos, this);
+		return reader.getBlockTint(pos, this);
 	}
 
 	@Override

@@ -24,7 +24,7 @@ public class DataType<T extends Comparable<T>> {
 	public static DataType<Boolean> BOOLEAN = new DataType<Boolean>("boolean", Boolean.class, (json)->json.getAsBoolean(), (nbt, key) -> nbt.getBoolean(key));
 
 	private final String name;
-	private final Class<?> clazz;
+	private final Class<T> clazz;
 	private final Function<JsonElement, T> jsonReader;
 	private final BiFunction<CompoundNBT, String, T> nbtReader;
 
@@ -36,12 +36,20 @@ public class DataType<T extends Comparable<T>> {
 		registry.put(name, this);
 	}
 
-	public Class<?> getType() {
+	public Class<T> getType() {
 		return clazz;
 	}
 
 	public String getName() {
 		return name;
+	}
+
+	public Boolean isNumber() {
+		return this!=BOOLEAN && this!=STRING ;
+	}
+
+	public T cast(Comparable<?> value) {
+		return clazz.cast(value);
 	}
 
 	public T readFromJson(JsonElement element) {

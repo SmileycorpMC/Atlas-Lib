@@ -18,7 +18,7 @@ public class SimpleMessageDecoder<T extends IPacket<INetHandler>> implements Fun
 	public T apply(PacketBuffer buf) {
 		try {
 			T message = clazz.newInstance();
-			message.readPacketData(buf);
+			message.read(buf);
 			return message;
 		} catch (Exception e) {
 			e.printStackTrace();
