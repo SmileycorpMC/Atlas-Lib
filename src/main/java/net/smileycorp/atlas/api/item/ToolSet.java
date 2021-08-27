@@ -3,63 +3,41 @@ package net.smileycorp.atlas.api.item;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
-import net.minecraft.item.Item.ToolMaterial;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.oredict.OreDictionary;
-import net.minecraftforge.oredict.OreIngredient;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Item.Properties;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.TieredItem;
+import net.minecraft.world.item.Tiers;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.registries.IForgeRegistry;
 
-import org.apache.commons.lang3.ArrayUtils;
-
-@SuppressWarnings("deprecation")
 public class ToolSet {
 
 	final String modid;
 	final String name;
-	final ToolMaterial material;
-	final boolean ignoreOredict;
+	final Tiers material;
 	
 	Map<ToolType, Item> tools = new HashMap<ToolType, Item>();
 	
-	public ToolSet(String modid, String name, ToolMaterial material, CreativeTabs tab) {
-		this(modid, name, material, tab, false);
+	public ToolSet(String modid, String name, Tiers material, CreativeModeTab tab) {
+		this(modid, name, material, tab, tab);
 	}
 	
-	public ToolSet(String modid, String name, ToolMaterial material, CreativeTabs tab, boolean ignoreOredict) {
+	public ToolSet(String modid, String name, Tiers material, CreativeModeTab toolTab, CreativeModeTab weaponTab) {
 		this.name=name;
 		this.modid=modid;
 		this.material=material;
 		for (ToolType type : ToolType.values()) {
-			Item item = type.createItem(modid, name, material, tab);
+			Item item = type.createItem(modid, name, material, type.isWeapon() ? weaponTab : toolTab);
 			if (item!=null) tools.put(type, item);
 		}
-		this.ignoreOredict=ignoreOredict;
-	}
-	
-	public ToolSet(String modid, String name, ToolMaterial material, CreativeTabs tab, float axedamage, float axespeed) {
-		this(modid, name, material, tab, axedamage, axespeed, false);
-	}
-	
-	public ToolSet(String modid, String name, ToolMaterial material, CreativeTabs tab, float axedamage, float axespeed, boolean ignoreOredict) {
-		this.name=name;
-		this.modid=modid;
-		this.material=material;
-		for (ToolType type : ToolType.values()) {
-			Item item = type == ToolType.AXE ? new ToolItemAxe(modid, name, material, tab, axedamage, axespeed) : type.createItem(modid, name, material, tab);
-			if (item!=null) tools.put(type, item);
-		}
-		this.ignoreOredict=ignoreOredict;
 	}
 	
 	public String getModID() {
@@ -70,7 +48,7 @@ public class ToolSet {
 		return name;
 	}
 	
-	public ToolMaterial getMaterial() {
+	public Tier getMaterial() {
 		return material;
 	}
 	
@@ -88,54 +66,58 @@ public class ToolSet {
 		}
 	}
 	
-	public void registerModels() {
-		for (Entry<ToolType, Item> tool:tools.entrySet()) {
-			ModelLoader.setCustomModelResourceLocation(tool.getValue(), 0,
-					new ModelResourceLocation(modid + ":items/"
-					+ name.toLowerCase()+"_tools", tool.getKey().name()));
-		}
-	}
-	
-	public void registerRecipes() {
-		ItemStack stack = this.material.getRepairItemStack();
-		int[] ores = ignoreOredict ?  new int[]{} : OreDictionary.getOreIDs(stack);
-		Ingredient ingredient = (ores == null||ores.length==0) ? Ingredient.fromStacks(stack) : new OreIngredient(OreDictionary.getOreName(ores[0]));
-		for (Entry<ToolType, Item> tool:tools.entrySet()) {
-			tool.getKey().registerRecipe(modid, name, tool.getValue(), ingredient);
-		}
-	}
-	
-	public static enum ToolType {
-		SWORD("sword", ToolItemSword.class, "M", "M", "S"),
-		HOE("hoe", ToolItemHoe.class, "MM", " S", " S"),
-		PICKAXE("pickaxe", ToolItemPickaxe.class, "MMM", " S ", " S "),
-		AXE("axe", ToolItemAxe.class, "MM", "MS", " S"),
-		SPADE("spade", ToolItemSpade.class, "M", "S", "S");
+	public static class ToolType {
 		
-		final String name;
-		final Class<? extends Item> clazz;
-		final Object[] pattern;
+		static Set<ToolType> REGISTERED_TYPES = new HashSet<ToolType>();
 		
-		ToolType(String name, Class<? extends Item> clazz, Object... pattern) {
+		public static ToolType SWORD = register("sword", SwordItem.class, true);
+		public static ToolType HOE = register("hoe", SwordItem.class);
+		public static ToolType PICKAXE = register("pickaxe", SwordItem.class);
+		public static ToolType AXE = register("axe", SwordItem.class);
+		public static ToolType SHOVEL = register("shovel", SwordItem.class);
+		
+		final protected String name;
+		final protected Class<? extends TieredItem> clazz;
+		final protected boolean isWeapon;
+		
+		ToolType(String name, Class<? extends TieredItem> clazz, boolean isWeapon) {
 			this.name=name;
 			this.clazz=clazz;
-			this.pattern=pattern;
+			this.isWeapon=isWeapon;
 		}
 		
-		public Item createItem(String modid, String name, ToolMaterial material, CreativeTabs tab) {
+		public static Set<ToolType> values() {
+			return REGISTERED_TYPES;
+		}
+		
+		public static ToolType register(String name, Class<? extends TieredItem> clazz) {
+			return register(name, clazz, false);
+		}
+		
+		public static ToolType register(String name, Class<? extends TieredItem> clazz, boolean isWeapon) {
+			ToolType type = new ToolType(name, clazz, isWeapon);
+			REGISTERED_TYPES.add(type);
+			return type;
+		}
+		
+		public boolean isWeapon() {
+			return isWeapon;
+		}
+		
+		public String getName() {
+			return name;
+		}
+		
+		public TieredItem createItem(String modid, String name, Tier material, CreativeModeTab tab) {
 			try {
-				return ReflectionHelper.findConstructor(clazz, String.class, String.class, ToolMaterial.class, CreativeTabs.class).newInstance(modid, name, material, tab);
+				TieredItem item = ObfuscationReflectionHelper.findConstructor(clazz, Tier.class, Float.class, Float.class,  Properties.class).newInstance(material, 0, 0, new Properties().tab(tab));
+				item.setRegistryName(new ResourceLocation(modid, name + "_" + this.name));
+				return item;
 			} catch (InstantiationException | IllegalAccessException
 					| IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();
 				return null;
 			}
-		}
-		
-		public void registerRecipe(String modid, String material, Item item, Ingredient ingredient) {
-			Object[] recipe = {'M', ingredient, 'S', new OreIngredient("stickWood")};
-			GameRegistry.addShapedRecipe(new ResourceLocation(modid, material.toLowerCase()+"_"+name), new ResourceLocation(modid, material.toLowerCase()+"_"+name),
-					new ItemStack(item), ArrayUtils.<Object>addAll(pattern, recipe));
 		}
 	}
 	

@@ -3,52 +3,51 @@ package net.smileycorp.atlas.api.util;
 import java.util.List;
 import java.util.Random;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceContext.BlockMode;
-import net.minecraft.util.math.RayTraceContext.FluidMode;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.Heightmap.Type;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.Heightmap.Types;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class DirectionUtils {
 	
-	public static RayTraceResult getPlayerRayTrace(World world, PlayerEntity player, float blockReach) {
-		Vector3d eyepos = player.getEyePosition(1);
-	    Vector3d  lookangle = player.getLook(1f);
-	    Vector3d  lastVec = eyepos.add(lookangle);
-	    Vector3d rayend = eyepos.add(lookangle.x * blockReach, lookangle.y * blockReach, lookangle.z * blockReach);
-	    RayTraceContext context = new RayTraceContext(eyepos, rayend, BlockMode.COLLIDER, FluidMode.NONE, null);
-	    RayTraceResult blockRay = world.rayTraceBlocks(context);
-		for (int x = 0; x <16*blockReach; x++) {
-			float reach = x/16f;
-		    Vector3d  vec = eyepos.add(lookangle.x*reach, lookangle.y*reach, lookangle.z*reach);
-		    if (blockRay == null || blockRay.getHitVec() == null) return new BlockRayTraceResult(lookangle, getFacing(lookangle), null, false);
-		    if (blockRay.getHitVec().distanceTo(eyepos) < vec.distanceTo(eyepos)) break;
-		    AxisAlignedBB AABB = new AxisAlignedBB(lastVec.x, lastVec.y, lastVec.z, vec.x, vec.y, vec.z);
-		    List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(player, AABB);
+	public static HitResult getPlayerRayTrace(Level level, Player player, float reach) {
+		Vec3 eyepos = player.getEyePosition();
+	    Vec3  lookangle = player.getLookAngle();
+	    Vec3  lastVec = eyepos.add(lookangle);
+	    Vec3 rayend = eyepos.add(lookangle.x * reach, lookangle.y * reach, lookangle.z * reach);
+	    //level.
+	    ClipContext context = new ClipContext(eyepos, rayend, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null);
+	    BlockHitResult blockRay = level.clip(context);
+		for (int x = 0; x <16*reach; x++) {
+			float reachpart = x/16f;
+		    Vec3  vec = eyepos.add(lookangle.x*reachpart, lookangle.y*reachpart, lookangle.z*reachpart);
+		    if (blockRay == null || blockRay.getLocation() == null) return new BlockHitResult(lookangle, getFacing(lookangle), null, false);
+		    if (blockRay.getLocation().distanceTo(eyepos) < vec.distanceTo(eyepos)) break;
+		    AABB aabb = new AABB(lastVec.x, lastVec.y, lastVec.z, vec.x, vec.y, vec.z);
+		    List<Entity> entities = level.getEntities(player, aabb);
 		    if (!entities.isEmpty()) {
-		    	return new EntityRayTraceResult(entities.get(0), lookangle);
+		    	return new EntityHitResult(entities.get(0), lookangle);
 		    }
 		    lastVec = vec;
 		}
 		return blockRay;
 	}
 	
-	private static Vector3d  getPosVecForEntity(Entity entity) {
-		return new Vector3d (entity.getPosX(), entity.getPosY(), entity.getPosZ());
+	private static Vec3  getPosVecForEntity(Entity entity) {
+		return new Vec3 (entity.getX(), entity.getY(), entity.getZ());
 	}
 	
-	public static Direction getFacing(Vector3d  vec) {
-		return Direction.getFacingFromVector((float)vec.x, (float)vec.y, (float)vec.z);
+	public static Direction getFacing(Vec3  vec) {
+		return Direction.getNearest(vec.x, vec.y, vec.z);
 	}
 
 	public static Direction getRandomDirectionXZ(Random rand) {
@@ -70,58 +69,58 @@ public class DirectionUtils {
 	
 	public static int getXZMeta(Direction facing) {
 		if (facing==Direction.UP||facing==Direction.DOWN) {
-			return facing.getIndex()+4;
+			return facing.ordinal()+4;
 		}
-		return facing.getIndex()-2;
+		return facing.ordinal()-2;
 	}
 	
-	public static Vector3d  getDirectionVecXZ(Vector3i startpos, Vector3i endpos) {
-		return getDirectionVecXZ(new Vector3d (startpos.getX(), startpos.getY(), startpos.getZ()), 
-				new Vector3d (endpos.getX(), endpos.getY(), endpos.getZ()));
+	public static Vec3  getDirectionVecXZ(Vec3i startpos, Vec3i endpos) {
+		return getDirectionVecXZ(new Vec3 (startpos.getX(), startpos.getY(), startpos.getZ()), 
+				new Vec3 (endpos.getX(), endpos.getY(), endpos.getZ()));
 	}
 	
-	public static Vector3d  getDirectionVecXZ(Vector3d  startpos, Vector3d  endpos) {
+	public static Vec3  getDirectionVecXZ(Vec3  startpos, Vec3  endpos) {
 		double dx = endpos.x-startpos.x;
 		double dz = endpos.z-startpos.z;
 		double angle = Math.atan2(dz, dx);
 		return getDirectionVecXZ(angle);
 	}
 	
-	public static Vector3d  getDirectionVecXZ(Entity entity1, Entity entity2) {
-		Vector3d  startpos = getPosVecForEntity(entity1);
-		Vector3d  endpos = getPosVecForEntity(entity2);
+	public static Vec3  getDirectionVecXZ(Entity entity1, Entity entity2) {
+		Vec3  startpos = getPosVecForEntity(entity1);
+		Vec3  endpos = getPosVecForEntity(entity2);
 		return getDirectionVecXZ(startpos, endpos);
 	}
 
-	public static Vector3d  getDirectionVecXZDegrees(double angle) {
+	public static Vec3  getDirectionVecXZDegrees(double angle) {
 		double rad = Math.toRadians(angle);
 		return getDirectionVecXZ(rad);
 	}
 	
-	public static Vector3d  getDirectionVecXZ(double angle) {
+	public static Vec3  getDirectionVecXZ(double angle) {
 		double x = Math.cos(angle);
 		double z = Math.sin(angle);
-		return new Vector3d (x, 0, z);
+		return new Vec3 (x, 0, z);
 	}
 	
-	public static Vector3d  getRandomDirectionVecXZ(Random rand) {
+	public static Vec3  getRandomDirectionVecXZ(Random rand) {
 		int angle = rand.nextInt(360);
 		return getDirectionVecXZDegrees(angle);
 	}
 	
-	public static Vector3d  getDirectionVec(Entity entity1, Entity entity2) {
-		Vector3d  startpos = getPosVecForEntity(entity1);
-		Vector3d  endpos = getPosVecForEntity(entity2);
+	public static Vec3  getDirectionVec(Entity entity1, Entity entity2) {
+		Vec3  startpos = getPosVecForEntity(entity1);
+		Vec3  endpos = getPosVecForEntity(entity2);
 		return getDirectionVec(startpos, endpos);
 	}
 	
-	public static Vector3d  getDirectionVec(Vector3i startpos, Vector3i endpos) {
-		return getDirectionVec(new Vector3d (startpos.getX(), startpos.getY(), startpos.getZ()), 
-				new Vector3d (endpos.getX(), endpos.getY(), endpos.getZ()));
+	public static Vec3  getDirectionVec(Vec3i startpos, Vec3i endpos) {
+		return getDirectionVec(new Vec3 (startpos.getX(), startpos.getY(), startpos.getZ()), 
+				new Vec3 (endpos.getX(), endpos.getY(), endpos.getZ()));
 	}
 	
-	public static Vector3d  getDirectionVec(Vector3d  startpos, Vector3d  endpos) {
-		if (startpos.equals(endpos)) return new Vector3d (0,0,0);
+	public static Vec3  getDirectionVec(Vec3  startpos, Vec3  endpos) {
+		if (startpos.equals(endpos)) return new Vec3 (0,0,0);
 		double dx = endpos.x-startpos.x;
 		double dy = endpos.y-startpos.y;
 		double dz = endpos.z-startpos.z;
@@ -129,31 +128,31 @@ public class DirectionUtils {
 		double mx = (endpos.x+startpos.x)/magnitude;
 		double my = (endpos.y+startpos.y)/magnitude;
 		double mz = (endpos.z+startpos.z)/magnitude;
-		return new Vector3d (mx, my, mz);
+		return new Vec3 (mx, my, mz);
 	}
 
-	public static BlockPos getClosestLoadedPos(World world, BlockPos basepos, Vector3d  direction, double radius) {
-		BlockPos pos = world.getHeight(Type.WORLD_SURFACE, basepos.add(direction.x*radius, 0, direction.z*radius));
-		while (!world.chunkExists(pos.getX(), pos.getZ())) {
+	public static BlockPos getClosestLoadedPos(Level level, BlockPos basepos, Vec3  direction, double radius) {
+		BlockPos pos = level.getHeightmapPos(Types.WORLD_SURFACE_WG, basepos.offset(direction.x*radius, 0, direction.z*radius));
+		while (!level.hasChunk(pos.getX(), pos.getZ())) {
 			if (radius==0) return basepos;
 			radius--;
-			pos = world.getHeight(Type.WORLD_SURFACE, basepos.add(direction.x*radius, 0, direction.z*radius));
+			pos = level.getHeightmapPos(Types.WORLD_SURFACE, basepos.offset(direction.x*radius, 0, direction.z*radius));
 		}
 		return pos;
 	}
 	
-	public static BlockPos getClosestLoadedPos(World world, BlockPos basepos, Vector3d  direction, double radius, int maxlight, int minlight) {
-		BlockPos pos = world.getHeight(Type.WORLD_SURFACE, basepos.add(direction.x*radius, 0, direction.z*radius));
-		while (!world.chunkExists(pos.getX(), pos.getZ()) || !isBrightnessAllowed(world, basepos, maxlight, minlight)) {
+	public static BlockPos getClosestLoadedPos(Level level, BlockPos basepos, Vec3  direction, double radius, int maxlight, int minlight) {
+		BlockPos pos = level.getHeightmapPos(Types.WORLD_SURFACE_WG, basepos.offset(direction.x*radius, 0, direction.z*radius));
+		while (!level.hasChunk(pos.getX(), pos.getZ()) || !isBrightnessAllowed(level, basepos, maxlight, minlight)) {
 			if (radius==0) return basepos;
 			radius--;
-			pos = world.getHeight(Type.WORLD_SURFACE, basepos.add(direction.x*radius, 0, direction.z*radius));
+			pos = level.getHeightmapPos(Types.WORLD_SURFACE_WG, basepos.offset(direction.x*radius, 0, direction.z*radius));
 		}
 		return pos;
 	}
 	
-	public static boolean isBrightnessAllowed(World world, BlockPos pos, int maxlight, int minlight) {
-		int blocklight = world.getLight(pos);
+	public static boolean isBrightnessAllowed(Level level, BlockPos pos, int maxlight, int minlight) {
+		int blocklight = level.getLightEmission(pos);
 		if (blocklight > maxlight) return false;
 		if (blocklight < minlight) return false;
 		return true;

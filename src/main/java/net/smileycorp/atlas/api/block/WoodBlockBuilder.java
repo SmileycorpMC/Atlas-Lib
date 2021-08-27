@@ -2,19 +2,24 @@ package net.smileycorp.atlas.api.block;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.grower.AbstractTreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
-import net.minecraftforge.common.ToolType;
+import net.minecraftforge.registries.DeferredRegister;
 
 public class WoodBlockBuilder {
 	
-	protected final String name, modid;
+	protected DeferredRegister<Item> items;
+	protected DeferredRegister<Block> blocks;
+	
+	protected final String name;
 	protected final CreativeModeTab tab;
-	protected CreativeModeTab decorationsTab;
+	protected CreativeModeTab decorations_tab;
 	protected Material woodMaterial = Material.WOOD;
 	protected Material leavesMaterial = Material.GRASS;
 	protected MaterialColor plankColour = MaterialColor.WOOD;
@@ -25,21 +30,21 @@ public class WoodBlockBuilder {
 	protected SoundType leavesSound = SoundType.GRASS;
 	protected float blockHardness = 2f;
 	protected float explosionResistance = 5f;
-	protected int harvestLevel = 0;
 	
-	private WoodBlockBuilder(String name, String modid, CreativeModeTab tab) {
+	private WoodBlockBuilder(String name, CreativeModeTab tab, DeferredRegister<Item> items, DeferredRegister<Block> blocks) {
+		this.items = items;
+		this.blocks = blocks;
 		this.name = name;
-		this.modid = modid;
 		this.tab = tab;
-		this.decorationsTab = tab;
+		this.decorations_tab = tab;
 	}
 	
-	public static WoodBlockBuilder of(String name, String modid, CreativeModeTab tab) {
-		return new WoodBlockBuilder(name, modid, tab);
+	public static WoodBlockBuilder of(String name, CreativeModeTab tab, DeferredRegister<Item> items, DeferredRegister<Block> blocks) {
+		return new WoodBlockBuilder(name, tab, items, blocks);
 	}
 	
 	public WoodBlockBuilder decorationsTab(CreativeModeTab tab) {
-		decorationsTab = tab;
+		decorations_tab = tab;
 		return this;
 	}
 	
@@ -93,17 +98,8 @@ public class WoodBlockBuilder {
 		return this;
 	}
 	
-	public WoodBlockBuilder harvestLevel(int level) {
-		harvestLevel = level;
-		return this;
-	}
-	
 	public WoodBlock build() {
-		return new WoodBlock(this);
-	}
-	
-	public boolean requiresTool() {
-		return harvestLevel > 0;
+		return new WoodBlock(this, items, blocks);
 	}
 	
 	public Properties constructBaseProperties() {
@@ -115,8 +111,7 @@ public class WoodBlockBuilder {
 	}
 
 	public Properties constructPropertiesFrom(Properties base) {
-		Properties properties = base.sound(woodSound).strength(blockHardness, explosionResistance).harvestTool(ToolType.AXE).harvestLevel(harvestLevel);
-		return requiresTool() ? properties.requiresCorrectToolForDrops() : properties;
+		return base.sound(woodSound).strength(blockHardness, explosionResistance).requiresCorrectToolForDrops();
 	}
 
 	

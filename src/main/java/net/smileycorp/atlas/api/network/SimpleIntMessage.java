@@ -4,23 +4,23 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.protocol.Packet;
 
-public class SimpleStringMessage<T extends PacketListener> implements Packet<T> {
+public class SimpleIntMessage<T extends PacketListener> implements Packet<T> {
 
-		public SimpleStringMessage() {}
+		public SimpleIntMessage() {}
 
-		private String text;
+		private int value;
 
-		public SimpleStringMessage(String text) {
-			this.text=text;
+		public SimpleIntMessage(int value) {
+			this.value=value;
 		}
 
-		public String getText() {
-			return text;
+		public int get() {
+			return value;
 		}
 
 		@Override
 		public void write(FriendlyByteBuf buf) {
-			buf.writeUtf(text);
+			buf.writeInt(value);
 		}
 
 		@Override

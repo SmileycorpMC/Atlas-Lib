@@ -1,65 +1,67 @@
 package net.smileycorp.atlas.api.block;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.function.Supplier;
 
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.fmllegacy.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 
 public class ShapedBlock {
 	
-	protected final String name, modid;
+	protected final String name;
 	protected final CreativeModeTab tab;
 	
-	protected final Block base;
-	protected final StairBlock stairs;
-	protected final SlabBlock slab;
-	
-	protected final List<Block> blocks;
+	protected final RegistryObject<Block> base;
+	protected final RegistryObject<Block> stairs;
+	protected final RegistryObject<Block> slab;
+	protected final RegistryObject<Block> wall;
 	
 	@SuppressWarnings("deprecation")
-	public ShapedBlock(String name, String modid, CreativeModeTab tab, BlockBehaviour.Properties properties) {
+	public ShapedBlock(String name, CreativeModeTab tab, BlockBehaviour.Properties properties, DeferredRegister<Item> items, DeferredRegister<Block> blocks, boolean hasWall) {
 		this.name=name;
-		this.modid=modid;
 		this.tab=tab;
-		base = new Block(properties);
-		base.setRegistryName(new ResourceLocation(modid, name.toLowerCase()));
-		stairs = new StairBlock(base.defaultBlockState(), properties);
-		stairs.setRegistryName(new ResourceLocation(modid, name.toLowerCase()+"_stairs"));
-		slab = new SlabBlock(properties);
-		slab.setRegistryName(new ResourceLocation(modid, name.toLowerCase()+"_slab"));
-		blocks = Arrays.asList(new Block[]{base, stairs, slab});
+		base = register(items, blocks, () -> new Block(properties), "");
+		stairs = register(items, blocks, () -> new StairBlock(base.get().defaultBlockState(), properties), "stairs");
+		slab = register(items, blocks, () -> new SlabBlock(properties), "slab");
+		wall = hasWall ? register(items, blocks, () -> new WallBlock(properties), "wall") : null;
+	}
+	
+	protected RegistryObject<Block> register(DeferredRegister<Item> items, DeferredRegister<Block> blocks, Supplier<Block> supplier, String suffix) {
+		RegistryObject<Block> block = register(blocks, supplier, suffix);
+		register(items, () -> new BlockItem(supplier.get(), new Item.Properties().tab(tab)), suffix);
+		return block;
 	}
 
+	protected <T extends IForgeRegistryEntry<T>> RegistryObject<T> register(DeferredRegister<T> registry, Supplier<T> object, String suffix) {
+		StringBuilder builder = new StringBuilder();
+		builder.append(name.toLowerCase());
+		if (!suffix.isBlank()) builder.append("_" + suffix);
+		return registry.register(builder.toString(), object);
+	}
+
+
 	public Block getBase() {
-		return base;
+		return base.get();
 	}
 	
 	public Block getStairs() {
-		return stairs;
+		return stairs.get();
 	}
 	
 	public Block getSlab() {
-		return slab;
+		return slab.get();
 	}
 	
-	public void registerBlocks(IForgeRegistry<Block> registry) {
-		registry.registerAll(blocks.toArray(new Block[] {}));
-	}
-	
-	public void registerItems(IForgeRegistry<Item> registry) {
-		for (Block block : blocks) {
-			Item item = new BlockItem(block, new Item.Properties().tab(tab));
-			item.setRegistryName(block.getRegistryName());
-			registry.register(item);
-		}
+	public Block getWall() {
+		return wall.get();
 	}
 	
 }

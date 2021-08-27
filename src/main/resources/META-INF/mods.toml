@@ -1,5 +1,5 @@
 modLoader="javafml" #mandatory
-loaderVersion="[34,)"
+loaderVersion="[37,)"
 license="GNU LESSER GENERAL PUBLIC LICENSE Version 2.1"
 
 [[mods]]

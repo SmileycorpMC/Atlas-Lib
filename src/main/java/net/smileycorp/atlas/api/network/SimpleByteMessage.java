@@ -1,12 +1,10 @@
 package net.smileycorp.atlas.api.network;
 
-import java.io.IOException;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.PacketListener;
+import net.minecraft.network.protocol.Packet;
 
-import net.minecraft.network.INetHandler;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-
-public class SimpleByteMessage implements IPacket<INetHandler> {
+public class SimpleByteMessage<T extends PacketListener> implements Packet<T> {
 
 		public SimpleByteMessage() {}
 
@@ -21,17 +19,13 @@ public class SimpleByteMessage implements IPacket<INetHandler> {
 		}
 
 		@Override
-		public void readPacketData(PacketBuffer buf) throws IOException {
-			data = new byte[buf.readableBytes()];
-			buf.readBytes(data);
+		public void write(FriendlyByteBuf buf) {
+			buf.writeBytes(data);	
 		}
 
 		@Override
-		public void writePacketData(PacketBuffer buf) throws IOException {
-			buf.writeBytes(data);
+		public void handle(T listener) {
+			
 		}
-
-		@Override
-		public void processPacket(INetHandler handler) {}
 
 }
