@@ -23,8 +23,8 @@ public class DirectionUtils {
 
 	public static RayTraceResult getPlayerRayTrace(World world, PlayerEntity player, float blockReach) {
 		Vector3d eyepos = player.getEyePosition(1);
-	    Vector3d  lookangle = player.getLookAngle();
-	    Vector3d  lastVec = eyepos.add(lookangle);
+	    Vector3d lookangle = player.getLookAngle();
+	    Vector3d lastVec = eyepos.add(lookangle);
 	    Vector3d rayend = eyepos.add(lookangle.x * blockReach, lookangle.y * blockReach, lookangle.z * blockReach);
 	    RayTraceContext context = new RayTraceContext(eyepos, rayend, BlockMode.COLLIDER, FluidMode.NONE, null);
 	    RayTraceResult blockRay = world.clip(context);
