@@ -64,8 +64,7 @@ public class ComparableOperation {
 
 		@Override
 		public boolean apply(Comparable<?> a, Comparable<?> b) {
-			Comparable<?> mod = GREATER_THAN.apply(a, Integer.MAX_VALUE) ? ((Long)a) % ((Long)value) : ((Integer)a) % ((Integer)value);
-			return super.apply(mod, b);
+			return super.apply(((Number)a).longValue() % ((Number)value).longValue(), ((Number)b).longValue());
 		}
 
 	}
