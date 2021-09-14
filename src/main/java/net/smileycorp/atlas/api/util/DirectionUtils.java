@@ -7,7 +7,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.Entity;
+<<<<<<< Updated upstream
 import net.minecraft.world.entity.player.Player;
+=======
+>>>>>>> Stashed changes
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
@@ -19,9 +22,15 @@ import net.minecraft.world.phys.Vec3;
 
 public class DirectionUtils {
 	
+<<<<<<< Updated upstream
 	public static HitResult getPlayerRayTrace(Level level, Player player, float reach) {
 		Vec3 eyepos = player.getEyePosition();
 	    Vec3  lookangle = player.getLookAngle();
+=======
+	public static HitResult getEntityRayTrace(Level level, Entity entity, float reach) {
+		Vec3 eyepos = entity.getEyePosition();
+	    Vec3  lookangle = entity.getLookAngle();
+>>>>>>> Stashed changes
 	    Vec3  lastVec = eyepos.add(lookangle);
 	    Vec3 rayend = eyepos.add(lookangle.x * reach, lookangle.y * reach, lookangle.z * reach);
 	    //level.
@@ -33,7 +42,11 @@ public class DirectionUtils {
 		    if (blockRay == null || blockRay.getLocation() == null) return new BlockHitResult(lookangle, getFacing(lookangle), null, false);
 		    if (blockRay.getLocation().distanceTo(eyepos) < vec.distanceTo(eyepos)) break;
 		    AABB aabb = new AABB(lastVec.x, lastVec.y, lastVec.z, vec.x, vec.y, vec.z);
+<<<<<<< Updated upstream
 		    List<Entity> entities = level.getEntities(player, aabb);
+=======
+		    List<Entity> entities = level.getEntities(entity, aabb);
+>>>>>>> Stashed changes
 		    if (!entities.isEmpty()) {
 		    	return new EntityHitResult(entities.get(0), lookangle);
 		    }
