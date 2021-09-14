@@ -2,14 +2,9 @@ package net.smileycorp.atlas.api.network;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.PacketListener;
-<<<<<<< Updated upstream
-import net.minecraft.network.protocol.Packet;
 
-public class SimpleStringMessage<T extends PacketListener> implements Packet<T> {
-=======
 
 public class SimpleStringMessage extends SimpleAbstractMessage {
->>>>>>> Stashed changes
 
 		public SimpleStringMessage() {}
 
@@ -29,13 +24,6 @@ public class SimpleStringMessage extends SimpleAbstractMessage {
 		}
 
 		@Override
-<<<<<<< Updated upstream
-		public void handle(T listener) {
-			
-		}
-
-
-=======
 		public void read(FriendlyByteBuf buf) {
 			text = buf.readUtf();
 		}
@@ -43,5 +31,4 @@ public class SimpleStringMessage extends SimpleAbstractMessage {
 		@Override
 		public void handle(PacketListener listener) {}
 		
->>>>>>> Stashed changes
 }
