@@ -7,16 +7,16 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.smileycorp.atlas.api.util.TextUtils;
 
-public class ItemBlockMeta extends ItemBlock {
-	
-	final IProperty prop;
+public class ItemBlockMeta<T extends Comparable<T>> extends ItemBlock {
+
+	final IProperty<T> prop;
 	final String name;
-	
-	public ItemBlockMeta(Block block, IProperty prop) {
+
+	public ItemBlockMeta(Block block, IProperty<T> prop) {
 		this(block, prop, "");
 	}
-	
-	public ItemBlockMeta(Block block, IProperty prop, String name) {
+
+	public ItemBlockMeta(Block block, IProperty<T> prop, String name) {
 		super(block);
 		setRegistryName(block.getRegistryName());
 		setUnlocalizedName(block.getUnlocalizedName());
@@ -24,15 +24,15 @@ public class ItemBlockMeta extends ItemBlock {
 		this.prop = prop;
 		this.name = name;
 	}
-	
+
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
-        return getNameForState(block.getStateFromMeta(stack.getMetadata()));
-    }
+		return getNameForState(block.getStateFromMeta(stack.getMetadata()));
+	}
 
 	protected String getNameForState(IBlockState state) {
-		String variant = TextUtils.toProperCase(prop.getName(state.getValue(prop)));
+		String variant = TextUtils.toProperCase(prop.getName((T)state.getValue(prop)));
 		return "tile." + block.getRegistryName().getResourceDomain() + "." + name + variant.replace(" ", "");
 	}
-	
+
 }
