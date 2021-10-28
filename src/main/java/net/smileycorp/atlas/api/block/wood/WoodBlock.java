@@ -27,10 +27,10 @@ import net.smileycorp.atlas.api.item.ItemBlockMeta;
 import com.google.common.collect.Lists;
 
 public class WoodBlock {
-	
+
 	final List<String> variants;
 	final List<List<String>> subvariants;
-	
+
 	final String name;
 	final String modid;
 	final BlockMetaBase plank;
@@ -39,12 +39,12 @@ public class WoodBlock {
 	final List<BlockBaseLeaves> leaves = new ArrayList<BlockBaseLeaves>();
 	//final List<BlockMetaSlab> slabs = new ArrayList<BlockMetaSlab>();
 	//final List<BlockMetaSlab> doubleSlabs = new ArrayList<BlockMetaSlab>();
-	
+
 	final List<Block> blocks = new ArrayList<Block>();
 
 	public WoodBlock(String name, String modid, CreativeTabs tab, Map<String, ItemStack> metaDefinitions, boolean isFlamable) {
-		this.variants = new ArrayList<String>(metaDefinitions.keySet());
-		this.subvariants = Lists.partition(variants, 4);
+		variants = new ArrayList<String>(metaDefinitions.keySet());
+		subvariants = Lists.partition(variants, 4);
 		List<List<ItemStack>> sapLists = Lists.partition(new ArrayList<ItemStack>(metaDefinitions.values()), 4);
 		this.name=name;
 		this.modid=modid;
@@ -70,30 +70,30 @@ public class WoodBlock {
 	public Block getPlank() {
 		return plank;
 	}
-	
+
 	public Block getStairs(String variant) {
 		return stairs.get(variant);
 	}
-	
+
 	/*public Block getSlab() {
 		return getSlab(false);
 	}
-	
+
 	public Block getSlab(boolean getFull) {
 		return getFull ? doubleSlab : slab;
 	}*/
-	
+
 	public void registerBlocks(IForgeRegistry<Block> registry) {
 		registry.registerAll(blocks.toArray(new Block[]{}));
 	}
-	
+
 	public void registerItems(IForgeRegistry<Item> registry) {
-		registry.register(new ItemBlockMeta(plank, plank.getProperty(), "Plank"));
+		registry.register(new ItemBlockMeta<String>(plank, plank.getProperty(), "Plank"));
 		for (BlockBaseLog log : logs) {
-			registry.register(new ItemBlockMeta(log, log.getProperty(), "Log"));
+			registry.register(new ItemBlockMeta<String>(log, log.getProperty(), "Log"));
 		}
 		for (BlockBaseLeaves leaf : leaves) {
-			registry.register(new ItemBlockMeta(leaf, leaf.getProperty(), "Leaves"));
+			registry.register(new ItemBlockMeta<String>(leaf, leaf.getProperty(), "Leaves"));
 		}
 		for (Block stair : stairs.values()) {
 			Item item = new ItemBlock(stair);
@@ -102,7 +102,7 @@ public class WoodBlock {
 			registry.register(item);
 		}
 	}
-	
+
 	public void registerModels() {
 		for (Block block : blocks) {
 			//if (block==doubleSlab) continue;
@@ -110,7 +110,7 @@ public class WoodBlock {
 			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0, new ModelResourceLocation(loc, "normal"));
 		}
 	}
-	
+
 	public void registerRecipes() {
 		for (Block log : logs) {
 			OreDictionary.registerOre("logWood", log);
@@ -122,11 +122,11 @@ public class WoodBlock {
 		}
 		for (int i = 0; i < 4;) {
 			String name = variants.get(i);
-			GameRegistry.addShapelessRecipe(new ResourceLocation(modid, name +"_plank"), new ResourceLocation(modid, name), new ItemStack(plank, 4, i), 
+			GameRegistry.addShapelessRecipe(new ResourceLocation(modid, name +"_plank"), new ResourceLocation(modid, name), new ItemStack(plank, 4, i),
 					Ingredient.fromStacks(new ItemStack(logs.get((int) Math.floor(i / 4)), 1, i % 4)));
-			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name+"_stairs"), new ResourceLocation(modid, name), new ItemStack(stairs.get(name), 4, i), 
+			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name+"_stairs"), new ResourceLocation(modid, name), new ItemStack(stairs.get(name), 4, i),
 					new Object[]{"  #", " ##", "###", '#', new ItemStack(plank, 1, i)});
-			/*GameRegistry.addShapedRecipe(new ResourceLocation(modid, name+"_slab"), new ResourceLocation(modid, name), new ItemStack(slab, 6, i), 
+			/*GameRegistry.addShapedRecipe(new ResourceLocation(modid, name+"_slab"), new ResourceLocation(modid, name), new ItemStack(slab, 6, i),
 					new Object[]{"###", '#', new ItemStack(plank, 1, i)});*/
 		}
 	}
