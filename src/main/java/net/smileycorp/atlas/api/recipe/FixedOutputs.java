@@ -20,11 +20,13 @@ public class FixedOutputs<T> extends WeightedOutputs<T> {
 
 	@Override
 	public void addEntry(T t, int weight) {
-		addEntry(t);
+		for (int i = 0; i < weight; i++) {
+			entries.add(new SimpleEntry<T, Integer>(t, 1));
+		}
 	}
 
 	public void addEntry(T t) {
-		entries.add(new SimpleEntry<T, Integer>(t, 1));
+		addEntry(t, 1);
 	}
 
 	@Override
@@ -69,7 +71,9 @@ public class FixedOutputs<T> extends WeightedOutputs<T> {
 	private static <T> List<Entry<T, Integer>> mapEntries(Collection<Entry<T, Integer>> entries) {
 		List<Entry<T, Integer>> result = new ArrayList<Entry<T, Integer>>();
 		for (Entry<T, Integer> entry : entries) {
-			result.add(new SimpleEntry<T, Integer>(entry.getKey(), 1));
+			for (int i = 0; i<entry.getValue(); i++) {
+				result.add(new SimpleEntry<T, Integer>(entry.getKey(), 1));
+			}
 		}
 		return result;
 	}
