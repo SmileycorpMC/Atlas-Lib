@@ -1,15 +1,14 @@
 package net.smileycorp.atlas.api;
 
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.world.World;
 
-public interface IOngoingEvent {
-	
+public interface IOngoingEvent<T> {
+
 	public void readFromNBT(CompoundNBT nbt);
-	
+
 	public CompoundNBT writeToNBT(CompoundNBT nbt);
-	
-	public void update(World world);
-	
-	public boolean isActive(World world);
+
+	public void update(T world);
+
+	public boolean isActive(T world);
 }

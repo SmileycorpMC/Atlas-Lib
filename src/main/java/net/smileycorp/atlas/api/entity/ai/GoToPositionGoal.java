@@ -53,7 +53,7 @@ public class GoToPositionGoal extends Goal  {
 	public void tick() {
 	    if (--this.timeToRecalcPath <= 0)  {
 	        this.timeToRecalcPath = 5;
-	        pather.createPath(pos, 1);
+	        pather.moveTo(pather.createPath(pos, 1), 1);
         }
     }
 
