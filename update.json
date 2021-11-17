@@ -3,7 +3,8 @@
   "1.16.5": {
 	"1.1.1": "first version for 1.16.5",
 	"1.1.2": "added datapack reading utilities",
-	"1.1.3": "ported ai and weighting utilities from 1.12.2"
+	"1.1.3": "ported ai and weighting utilities from 1.12.2",
+	"1.1.3a": "fixed bug in direction utilities for use with the hordes"
   },
   "promos": {
     "1.16.5-latest": "1.1.3",
