@@ -134,7 +134,7 @@ public class DirectionUtils {
 
 	public static BlockPos getClosestLoadedPos(World world, BlockPos basepos, Vector3d  direction, double radius) {
 		BlockPos pos = world.getHeightmapPos(Type.WORLD_SURFACE, basepos.offset(direction.x*radius, 0, direction.z*radius));
-		while (world.getChunkSource().getChunkNow(pos.getX() >> 4, pos.getY() >> 4) == null) {
+		while (world.getChunkSource().getChunkNow(pos.getX() >> 4, pos.getZ() >> 4) == null) {
 			if (radius==0) return basepos;
 			radius--;
 			pos = world.getHeightmapPos(Type.WORLD_SURFACE, basepos.offset(direction.x*radius, 0, direction.z*radius));
