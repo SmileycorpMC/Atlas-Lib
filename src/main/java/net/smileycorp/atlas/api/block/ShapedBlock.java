@@ -10,20 +10,20 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraftforge.registries.RegistryObject;
 
 public class ShapedBlock {
-	
+
 	protected final String name;
 	protected final CreativeModeTab tab;
-	
+
 	protected final RegistryObject<Block> base;
 	protected final RegistryObject<Block> stairs;
 	protected final RegistryObject<Block> slab;
 	protected final RegistryObject<Block> wall;
-	
+
 	@SuppressWarnings("deprecation")
 	public ShapedBlock(String name, CreativeModeTab tab, BlockBehaviour.Properties properties, DeferredRegister<Item> items, DeferredRegister<Block> blocks, boolean hasWall) {
 		this.name=name;
@@ -33,7 +33,7 @@ public class ShapedBlock {
 		slab = register(items, blocks, () -> new SlabBlock(properties), "slab");
 		wall = hasWall ? register(items, blocks, () -> new WallBlock(properties), "wall") : null;
 	}
-	
+
 	protected RegistryObject<Block> register(DeferredRegister<Item> items, DeferredRegister<Block> blocks, Supplier<Block> supplier, String suffix) {
 		RegistryObject<Block> block = register(blocks, supplier, suffix);
 		register(items, () -> new BlockItem(supplier.get(), new Item.Properties().tab(tab)), suffix);
@@ -51,17 +51,17 @@ public class ShapedBlock {
 	public Block getBase() {
 		return base.get();
 	}
-	
+
 	public Block getStairs() {
 		return stairs.get();
 	}
-	
+
 	public Block getSlab() {
 		return slab.get();
 	}
-	
+
 	public Block getWall() {
 		return wall.get();
 	}
-	
+
 }
