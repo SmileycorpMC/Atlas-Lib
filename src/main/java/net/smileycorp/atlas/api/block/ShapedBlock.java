@@ -24,12 +24,11 @@ public class ShapedBlock {
 	protected final RegistryObject<Block> slab;
 	protected final RegistryObject<Block> wall;
 
-	@SuppressWarnings("deprecation")
 	public ShapedBlock(String name, CreativeModeTab tab, BlockBehaviour.Properties properties, DeferredRegister<Item> items, DeferredRegister<Block> blocks, boolean hasWall) {
 		this.name=name;
 		this.tab=tab;
 		base = register(items, blocks, () -> new Block(properties), "");
-		stairs = register(items, blocks, () -> new StairBlock(base.get().defaultBlockState(), properties), "stairs");
+		stairs = register(items, blocks, () -> new StairBlock(()->base.get().defaultBlockState(), properties), "stairs");
 		slab = register(items, blocks, () -> new SlabBlock(properties), "slab");
 		wall = hasWall ? register(items, blocks, () -> new WallBlock(properties), "wall") : null;
 	}
