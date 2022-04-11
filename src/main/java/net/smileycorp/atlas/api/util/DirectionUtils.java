@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -15,24 +16,30 @@ import net.minecraft.world.World;
 
 public class DirectionUtils {
 
-	public static RayTraceResult getPlayerRayTrace(World world, EntityPlayer player, float blockReach) {
-		Vec3d eyepos = player.getPositionEyes(1f);
-		Vec3d lookangle = player.getLook(1f);
+	public static RayTraceResult rayTrace(World world, EntityLivingBase entity, float distance) {
+		Vec3d eyepos = entity.getPositionEyes(1f);
+		Vec3d lookangle = entity.getLook(1f);
 		Vec3d lastVec = eyepos.addVector(lookangle.x, lookangle.y, lookangle.z);
-		RayTraceResult blockRay = world.rayTraceBlocks(eyepos, eyepos.addVector(lookangle.x * blockReach, lookangle.y * blockReach, lookangle.z * blockReach), false, false, true);
-		for (int x = 0; x <16*blockReach; x++) {
+		RayTraceResult blockRay = world.rayTraceBlocks(eyepos, eyepos.addVector(lookangle.x * distance, lookangle.y * distance, lookangle.z * distance), false, false, true);
+		for (int x = 0; x <16*distance; x++) {
 			float reach = x/16f;
 			Vec3d vec = eyepos.addVector(lookangle.x*reach, lookangle.y*reach, lookangle.z*reach);
 			if (blockRay == null || blockRay.hitVec == null) return new RayTraceResult(lookangle, null);
 			if (blockRay.hitVec.distanceTo(eyepos) < vec.distanceTo(eyepos)) break;
 			AxisAlignedBB AABB = new AxisAlignedBB(lastVec.x, lastVec.y, lastVec.z, vec.x, vec.y, vec.z);
-			List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(player, AABB);
+			List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(entity, AABB);
 			if (!entities.isEmpty()) {
 				return new RayTraceResult(entities.get(0), lookangle);
 			}
 			lastVec = vec;
 		}
 		return blockRay;
+	}
+
+	//use rayTrace instead
+	@Deprecated
+	public static RayTraceResult getPlayerRayTrace(World world, EntityPlayer player, float blockReach) {
+		return rayTrace(world, player, blockReach);
 	}
 
 	public static EnumFacing getFacing(Vec3d vec) {
