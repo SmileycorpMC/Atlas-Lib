@@ -16,7 +16,6 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.smileycorp.atlas.api.BoatRegistry;
-import net.smileycorp.atlas.common.AtlasLib;
 
 public class AtlasBoat extends Boat {
 
@@ -27,7 +26,7 @@ public class AtlasBoat extends Boat {
 	}
 
 	public AtlasBoat(Level level, double x, double y, double z) {
-		this(AtlasLib.BOAT_ENTITY, level);
+		this(BoatRegistry.BOAT_ENTITY.get(), level);
 		this.setPos(x, y, z);
 		xo = x;
 		yo = y;

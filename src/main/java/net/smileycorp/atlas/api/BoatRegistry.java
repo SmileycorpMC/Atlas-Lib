@@ -5,7 +5,14 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.fml.util.thread.SidedThreadGroups;
+import net.minecraftforge.registries.RegistryObject;
+import net.smileycorp.atlas.api.client.entity.AtlasBoatRenderer;
+import net.smileycorp.atlas.api.entity.AtlasBoat;
+import net.smileycorp.atlas.common.AtlasLib;
 
 public class BoatRegistry  {
 
@@ -13,7 +20,13 @@ public class BoatRegistry  {
 
 	public static BoatRegistry INSTANCE = new BoatRegistry();
 
+	public static RegistryObject<EntityType<AtlasBoat>> BOAT_ENTITY;
+
 	public Type register(String name, String modid, Supplier<Block> planks) {
+		if (TYPES.isEmpty()) { BOAT_ENTITY = AtlasLib.ENTITIES.register("atlas_boat", ()-> EntityType.Builder.<AtlasBoat>of(AtlasBoat::new, MobCategory.MISC)
+				.sized(1.375F, 0.5625F).clientTrackingRange(10).build("atlas_boat"));
+			if (Thread.currentThread().getThreadGroup() == SidedThreadGroups.CLIENT) AtlasBoatRenderer.register();
+		}
 		Type type = new Type(name, modid, planks);
 		TYPES.put(type.getRegistryName(), type);
 		return type;
@@ -25,10 +38,6 @@ public class BoatRegistry  {
 
 	public Type get(String name, String modid) {
 		return get(new ResourceLocation(modid, name));
-	}
-
-	public boolean hasValues() {
-		return !TYPES.isEmpty();
 	}
 
 
