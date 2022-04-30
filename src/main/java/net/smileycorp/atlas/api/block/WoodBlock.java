@@ -41,7 +41,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import net.minecraftforge.registries.RegistryObject;
 import net.smileycorp.atlas.api.BoatRegistry;
-import net.smileycorp.atlas.api.item.AtlasBoatItem;
+import net.smileycorp.atlas.api.client.entity.AtlasBoatRenderer;
 
 
 
@@ -70,7 +70,6 @@ public class WoodBlock {
 	protected final RegistryObject<Block> standing_sign;
 	protected final RegistryObject<Block> wall_sign;
 	protected final RegistryObject<Item> sign;
-	protected final RegistryObject<Item> boat;
 
 	@SuppressWarnings("deprecation")
 	protected WoodBlock(WoodBlockBuilder builder, DeferredRegister<Item> items, DeferredRegister<Block> blocks) {
@@ -122,11 +121,9 @@ public class WoodBlock {
 		wall_sign = register(blocks, () -> new WallSignBlock(builder.constructBaseProperties(), sign_type), "wall_sign");
 		sign = register(items, () -> new SignItem(new Item.Properties().stacksTo(16).tab(builder.decorations_tab), standing_sign.get(), wall_sign.get()), "sign");
 		if (builder.hasBoat) {
-			boat_type = BoatRegistry.INSTANCE.register(name, builder.modid, planks);
-			boat = register(items, () -> new AtlasBoatItem(boat_type, new Item.Properties().tab(builder.decorations_tab)), "boat");
+			boat_type = BoatRegistry.INSTANCE.register(name, builder.modid, items, builder.decorations_tab);
 		} else {
 			boat_type = null;
-			boat = null;
 		}
 	}
 
@@ -226,11 +223,16 @@ public class WoodBlock {
 		return sign.get();
 	}
 
+	public Item getBoat() {
+		return boat_type.getItem();
+	}
+
 	public void registerClient() {
 		Sheets.addWoodType(sign_type);
 		ItemBlockRenderTypes.setRenderLayer(getDoor(), RenderType.cutoutMipped());
 		ItemBlockRenderTypes.setRenderLayer(getTrapdoor(), RenderType.cutoutMipped());
 		ItemBlockRenderTypes.setRenderLayer(getSapling(), RenderType.cutoutMipped());
+		if (boat_type!=null) if (!AtlasBoatRenderer.isRegistered()) AtlasBoatRenderer.register();
 	}
 
 	public void registerStandardFuelValues() {

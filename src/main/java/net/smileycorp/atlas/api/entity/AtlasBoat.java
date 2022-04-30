@@ -97,7 +97,7 @@ public class AtlasBoat extends Boat {
 	@Override
 	public Item getDropItem() {
 		BoatRegistry.Type type = getAtlasType();
-		return type == null ? Items.OAK_PLANKS : BoatRegistry.INSTANCE.get(new ResourceLocation(entityData.get(DATA_ID_TYPE))).getPlanks().asItem();
+		return type == null ? Items.OAK_BOAT : BoatRegistry.INSTANCE.get(new ResourceLocation(entityData.get(DATA_ID_TYPE))).getItem();
 	}
 
 	//override vanilla types
