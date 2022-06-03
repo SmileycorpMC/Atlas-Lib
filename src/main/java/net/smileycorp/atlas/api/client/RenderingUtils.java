@@ -114,7 +114,7 @@ public class RenderingUtils {
 		float f = 1 / 32 /10000;
 		double xf = 2*(end.x-start.x)-f;
 		double zf = 2*(end.z-start.z)-f;
-		double dy = end.y-start.y/2;
+		double dy = (end.y-start.y)/2d;
 		float ndy = normalEnd.y-normalStart.y/2;
 		Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
 		Tessellator tessellator = Tessellator.getInstance();
