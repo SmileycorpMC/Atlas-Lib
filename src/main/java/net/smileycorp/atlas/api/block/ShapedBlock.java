@@ -11,7 +11,6 @@ import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 import net.minecraftforge.registries.RegistryObject;
 
 public class ShapedBlock {
@@ -39,7 +38,7 @@ public class ShapedBlock {
 		return block;
 	}
 
-	protected <T extends IForgeRegistryEntry<T>> RegistryObject<T> register(DeferredRegister<T> registry, Supplier<T> object, String suffix) {
+	protected <T> RegistryObject<T> register(DeferredRegister<T> registry, Supplier<T> object, String suffix) {
 		StringBuilder builder = new StringBuilder();
 		builder.append(name.toLowerCase());
 		if (!suffix.isBlank()) builder.append("_" + suffix);

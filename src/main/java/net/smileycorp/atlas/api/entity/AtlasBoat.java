@@ -87,7 +87,7 @@ public class AtlasBoat extends Boat {
 				}
 
 				this.resetFallDistance();
-			} else if (!level.getFluidState(this.blockPosition().below()).m_205070_(FluidTags.WATER) && p_38307_ < 0.0D) {
+			} else if (!level.getFluidState(this.blockPosition().below()).is(FluidTags.WATER) && p_38307_ < 0.0D) {
 				fallDistance -= (float)p_38307_;
 			}
 

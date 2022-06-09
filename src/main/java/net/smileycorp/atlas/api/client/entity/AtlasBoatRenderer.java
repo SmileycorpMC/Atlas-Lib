@@ -18,10 +18,12 @@ public class AtlasBoatRenderer extends BoatRenderer {
 	private static boolean registered = false;
 
 	private final Context ctx;
+	private final boolean hasChest;
 
-	public AtlasBoatRenderer(Context ctx) {
-		super(ctx);
+	public AtlasBoatRenderer(Context ctx, boolean hasChest) {
+		super(ctx, hasChest);
 		this.ctx = ctx;
+		this.hasChest = hasChest;
 	}
 
 	@Override
@@ -29,12 +31,12 @@ public class AtlasBoatRenderer extends BoatRenderer {
 		Type type = ((AtlasBoat) boat).getAtlasType();
 		ResourceLocation registry = type == null ? new ResourceLocation("oak") : type.getRegistryName();
 		ResourceLocation loc = new ResourceLocation(registry.getNamespace(), "textures/entity/boat/" + registry.getPath() + ".png");
-		return Pair.<ResourceLocation, BoatModel>of(loc, new BoatModel(ctx.bakeLayer(new ModelLayerLocation(new ResourceLocation("boat/oak"), "main"))));
+		return Pair.<ResourceLocation, BoatModel>of(loc, new BoatModel(ctx.bakeLayer(new ModelLayerLocation(new ResourceLocation("boat/oak"), "main")), hasChest));
 	}
 
 	public static void register() {
 		System.out.println("[Atlaslib] registering boat renderer");
-		EntityRenderers.register(BoatRegistry.BOAT_ENTITY.get(), AtlasBoatRenderer::new);
+		EntityRenderers.register(BoatRegistry.BOAT_ENTITY.get(), (ctx) -> new AtlasBoatRenderer(ctx, false));
 		registered = true;
 	}
 

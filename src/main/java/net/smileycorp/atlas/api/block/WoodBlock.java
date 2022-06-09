@@ -5,14 +5,11 @@ import java.util.function.Supplier;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SignItem;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.FenceBlock;
@@ -38,7 +35,6 @@ import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 import net.minecraftforge.registries.RegistryObject;
 import net.smileycorp.atlas.api.BoatRegistry;
 import net.smileycorp.atlas.api.client.entity.AtlasBoatRenderer;
@@ -89,13 +85,13 @@ public class WoodBlock {
 		registerItem(items, stripped_wood, builder.tab);
 		log = register(blocks, () -> new RotatedPillarBlock(builder.constructLogProperties()) {
 			@Override
-			public BlockState getToolModifiedState(BlockState state, Level world, BlockPos pos, Player player, ItemStack stack, ToolAction tool) {
+			public BlockState getToolModifiedState(BlockState state, UseOnContext context, ToolAction tool, boolean simulate) {
 				return tool == ToolActions.AXE_STRIP ? stripped_log.get().defaultBlockState().setValue(RotatedPillarBlock.AXIS, state.getValue(RotatedPillarBlock.AXIS)) : null;
 			}}, "log");
 		registerItem(items, log, builder.tab);
 		wood = register(blocks, () -> new RotatedPillarBlock(builder.constructPropertiesFrom(Properties.of(builder.woodMaterial, builder.barkColour))){
 			@Override
-			public BlockState getToolModifiedState(BlockState state, Level world, BlockPos pos, Player player, ItemStack stack, ToolAction tool) {
+			public BlockState getToolModifiedState(BlockState state, UseOnContext context, ToolAction tool, boolean simulate) {
 				return tool == ToolActions.AXE_STRIP ? stripped_wood.get().defaultBlockState() : null;
 			}}, name.contains("wood") ? "" : "wood");
 		registerItem(items, wood, builder.tab);
@@ -131,11 +127,11 @@ public class WoodBlock {
 		items.register(block.getId().getPath(), () -> new BlockItem(block.get(), new Item.Properties().tab(tab)));
 	}
 
-	protected <T extends IForgeRegistryEntry<T>> RegistryObject<T> register(DeferredRegister<T> registry, Supplier<T> supplier, String suffix) {
+	protected <T> RegistryObject<T> register(DeferredRegister<T> registry, Supplier<T> supplier, String suffix) {
 		return register(registry, supplier, "", suffix);
 	}
 
-	protected <T extends IForgeRegistryEntry<T>> RegistryObject<T> register(DeferredRegister<T> registry, Supplier<T> supplier, String prefix, String suffix) {
+	protected <T> RegistryObject<T> register(DeferredRegister<T> registry, Supplier<T> supplier, String prefix, String suffix) {
 		StringBuilder builder = new StringBuilder();
 		if (!prefix.isBlank()) builder.append(prefix + "_");
 		builder.append(name.toLowerCase());
