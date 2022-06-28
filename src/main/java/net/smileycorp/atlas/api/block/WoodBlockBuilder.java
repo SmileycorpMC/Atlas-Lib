@@ -20,17 +20,18 @@ public class WoodBlockBuilder {
 	protected final String name, modid;
 	protected final CreativeModeTab tab;
 	protected CreativeModeTab decorations_tab;
-	protected Material woodMaterial = Material.WOOD;
-	protected Material leavesMaterial = Material.GRASS;
-	protected MaterialColor plankColour = MaterialColor.WOOD;
-	protected MaterialColor barkColour = MaterialColor.PODZOL;
-	protected MaterialColor leavesColour = MaterialColor.GRASS;
-	protected AbstractTreeGrower treeGrower = null;
-	protected SoundType woodSound = SoundType.WOOD;
-	protected SoundType leavesSound = SoundType.GRASS;
-	protected float blockHardness = 2f;
-	protected float explosionResistance = 5f;
-	protected boolean hasBoat = false;
+	protected Material wood_material = Material.WOOD;
+	protected Material leaves_material = Material.GRASS;
+	protected MaterialColor plank_colour = MaterialColor.WOOD;
+	protected MaterialColor bark_colour = MaterialColor.PODZOL;
+	protected MaterialColor leaves_colour = MaterialColor.GRASS;
+	protected AbstractTreeGrower tree_grower = null;
+	protected SoundType wood_sound = SoundType.WOOD;
+	protected SoundType leaves_sound = SoundType.GRASS;
+	protected float block_hardness = 2f;
+	protected float explosion_resistance = 5f;
+	protected boolean has_boat = false;
+	protected boolean is_flammable = true;
 
 	private WoodBlockBuilder(String name, String modid, CreativeModeTab tab, DeferredRegister<Item> items, DeferredRegister<Block> blocks) {
 		this.items = items;
@@ -51,74 +52,80 @@ public class WoodBlockBuilder {
 	}
 
 	public WoodBlockBuilder woodMaterial(Material mat) {
-		woodMaterial = mat;
+		wood_material = mat;
 		return this;
 	}
 
 	public WoodBlockBuilder leavesMaterial(Material mat) {
-		leavesMaterial = mat;
+		leaves_material = mat;
 		return this;
 	}
 
 	public WoodBlockBuilder plankColour(MaterialColor colour) {
-		plankColour = colour;
+		plank_colour = colour;
 		return this;
 	}
 
 	public WoodBlockBuilder barkColour(MaterialColor colour) {
-		barkColour = colour;
+		bark_colour = colour;
 		return this;
 	}
 
 	public WoodBlockBuilder leavesColour(MaterialColor colour) {
-		leavesColour = colour;
+		leaves_colour = colour;
 		return this;
 	}
 
 	public WoodBlockBuilder treeGrower(AbstractTreeGrower tree) {
-		treeGrower = tree;
+		tree_grower = tree;
 		return this;
 	}
 
 	public WoodBlockBuilder woodSound(SoundType sound) {
-		woodSound = sound;
+		wood_sound = sound;
 		return this;
 	}
 
 	public WoodBlockBuilder leavesSound(SoundType sound) {
-		leavesSound = sound;
+		leaves_sound = sound;
 		return this;
 	}
 
 	public WoodBlockBuilder blockHardness(float hardness) {
-		blockHardness=hardness;
+		block_hardness=hardness;
 		return this;
 	}
 
 	public WoodBlockBuilder explosionResistance(float resistance) {
-		explosionResistance = resistance;
+		explosion_resistance = resistance;
 		return this;
 	}
 
 	public WoodBlockBuilder enableBoat() {
-		hasBoat = true;
+		has_boat = true;
 		return this;
 	}
+
+	public WoodBlockBuilder isFireproof() {
+		is_flammable = false;
+		return this;
+	}
+
 
 	public WoodBlock build() {
 		return new WoodBlock(this, items, blocks);
 	}
 
 	public Properties constructBaseProperties() {
-		return constructPropertiesFrom(Properties.of(woodMaterial, plankColour));
+		return constructPropertiesFrom(Properties.of(wood_material, plank_colour));
 	}
 
 	public Properties constructLogProperties() {
-		return constructPropertiesFrom(Properties.of(Material.WOOD, (state) -> state.getValue(RotatedPillarBlock.AXIS) == Direction.Axis.Y ? plankColour : barkColour));
+		return constructPropertiesFrom(Properties.of(Material.WOOD, (state) -> state.getValue(RotatedPillarBlock.AXIS) == Direction.Axis.Y ? plank_colour : bark_colour));
 	}
 
 	public Properties constructPropertiesFrom(Properties base) {
-		return base.sound(woodSound).strength(blockHardness, explosionResistance).requiresCorrectToolForDrops();
+		return base.sound(wood_sound).strength(block_hardness, explosion_resistance).requiresCorrectToolForDrops();
 	}
 
 
