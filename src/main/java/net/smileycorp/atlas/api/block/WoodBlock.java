@@ -11,6 +11,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SignItem;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.FenceBlock;
 import net.minecraft.world.level.block.FenceGateBlock;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.block.PressurePlateBlock;
 import net.minecraft.world.level.block.PressurePlateBlock.Sensitivity;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
@@ -38,6 +40,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import net.smileycorp.atlas.api.BoatRegistry;
 import net.smileycorp.atlas.api.client.entity.AtlasBoatRenderer;
+import net.smileycorp.atlas.api.item.AtlasBoatItem;
 
 
 
@@ -155,72 +158,72 @@ public class WoodBlock {
 		return planks.get();
 	}
 
-	public Block getStairs() {
-		return stairs.get();
+	public StairBlock getStairs() {
+		return (StairBlock) stairs.get();
 	}
 
-	public Block getSlab() {
-		return slab.get();
+	public SlabBlock getSlab() {
+		return (SlabBlock) slab.get();
 	}
 
-	public Block getLog() {
-		return log.get();
+	public RotatedPillarBlock getLog() {
+		return (RotatedPillarBlock) log.get();
 	}
 
-	public Block getStrippedLog() {
-		return stripped_log.get();
+	public RotatedPillarBlock getStrippedLog() {
+		return (RotatedPillarBlock) stripped_log.get();
 	}
 
-	public Block getWood() {
-		return wood.get();
+	public RotatedPillarBlock getWood() {
+		return (RotatedPillarBlock) wood.get();
 	}
 
-	public Block getStrippedWood() {
-		return stripped_wood.get();
+	public RotatedPillarBlock getStrippedWood() {
+		return (RotatedPillarBlock) stripped_wood.get();
 	}
 
-	public Block getLeaves() {
-		return leaves.get();
+	public LeavesBlock getLeaves() {
+		return (LeavesBlock) leaves.get();
 	}
 
-	public Block getSapling() {
-		return sapling == null ? null : sapling.get();
+	public SaplingBlock getSapling() {
+		return sapling == null ? null : (SaplingBlock) sapling.get();
 	}
 
-	public Block getFence() {
-		return fence.get();
+	public FenceBlock getFence() {
+		return (FenceBlock) fence.get();
 	}
 
-	public Block getFenceGate() {
-		return fence_gate.get();
+	public FenceGateBlock getFenceGate() {
+		return (FenceGateBlock) fence_gate.get();
 	}
 
-	public Block getButton() {
-		return button.get();
+	public ButtonBlock getButton() {
+		return (ButtonBlock) button.get();
 	}
 
-	public Block getPressurePlate() {
-		return pressure_plate.get();
+	public PressurePlateBlock getPressurePlate() {
+		return (PressurePlateBlock) pressure_plate.get();
 	}
 
-	public Block getDoor() {
-		return door.get();
+	public DoorBlock getDoor() {
+		return (DoorBlock) door.get();
 	}
 
-	public Block getTrapdoor() {
-		return trapdoor.get();
+	public TrapDoorBlock getTrapdoor() {
+		return (TrapDoorBlock) trapdoor.get();
 	}
 
-	public Block getSignBlock(boolean onWall) {
-		return onWall ? wall_sign.get() : standing_sign.get();
+	public SignBlock getSignBlock(boolean onWall) {
+		return (SignBlock) (onWall ? wall_sign.get() : standing_sign.get());
 	}
 
-	public Item getSign() {
-		return sign.get();
+	public SignItem getSign() {
+		return (SignItem) sign.get();
 	}
 
-	public Item getBoat() {
-		return boat_type.getItem();
+	public AtlasBoatItem getBoat() {
+		return (AtlasBoatItem) boat_type.getItem();
 	}
 
 	public void registerClient() {

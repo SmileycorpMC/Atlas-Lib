@@ -50,16 +50,16 @@ public class ShapedBlock {
 		return base.get();
 	}
 
-	public Block getStairs() {
-		return stairs.get();
+	public StairBlock getStairs() {
+		return (StairBlock) stairs.get();
 	}
 
-	public Block getSlab() {
-		return slab.get();
+	public SlabBlock getSlab() {
+		return (SlabBlock) slab.get();
 	}
 
-	public Block getWall() {
-		return wall.get();
+	public WallBlock getWall() {
+		return wall == null ? null : (WallBlock) wall.get();
 	}
 
 }
