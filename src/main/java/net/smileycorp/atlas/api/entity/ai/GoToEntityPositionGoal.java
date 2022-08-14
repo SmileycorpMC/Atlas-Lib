@@ -8,7 +8,11 @@ public class GoToEntityPositionGoal extends GoToPositionGoal {
 	protected Entity target;
 
 	public GoToEntityPositionGoal(MobEntity entity, Entity target) {
-		super(entity, target.blockPosition());
+		this(entity, target, 1);
+	}
+
+	public GoToEntityPositionGoal(MobEntity entity, Entity target, double speed) {
+		super(entity, target.blockPosition(), speed);
 		this.target=target;
 	}
 
@@ -17,8 +21,8 @@ public class GoToEntityPositionGoal extends GoToPositionGoal {
 		if (target!=null) {
 			pos = target.blockPosition();
 		}
-	    super.tick();
-    }
+		super.tick();
+	}
 
 	@Override
 	public boolean canContinueToUse() {
