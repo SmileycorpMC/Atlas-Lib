@@ -6,10 +6,10 @@ import java.util.Random;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -133,7 +133,7 @@ public class DirectionUtils {
 
 	public static BlockPos getClosestLoadedPos(Level level, BlockPos basepos, Vec3  direction, double radius) {
 		BlockPos pos = level.getHeightmapPos(Types.WORLD_SURFACE_WG, basepos.offset(direction.x*radius, 0, direction.z*radius));
-		while (!level.hasChunk(pos.getX(), pos.getZ())) {
+		while (!level.hasChunk(pos.getX()/16, pos.getZ()/16)) {
 			if (radius==0) return basepos;
 			radius--;
 			pos = level.getHeightmapPos(Types.WORLD_SURFACE, basepos.offset(direction.x*radius, 0, direction.z*radius));
@@ -143,7 +143,7 @@ public class DirectionUtils {
 
 	public static BlockPos getClosestLoadedPos(Level level, BlockPos basepos, Vec3  direction, double radius, int maxlight, int minlight) {
 		BlockPos pos = level.getHeightmapPos(Types.WORLD_SURFACE_WG, basepos.offset(direction.x*radius, 0, direction.z*radius));
-		while (!level.hasChunk(pos.getX(), pos.getZ()) || !isBrightnessAllowed(level, basepos, maxlight, minlight)) {
+		while (!level.hasChunk(pos.getX()/16, pos.getZ()/16) || !isBrightnessAllowed(level, basepos, maxlight, minlight)) {
 			if (radius==0) return basepos;
 			radius--;
 			pos = level.getHeightmapPos(Types.WORLD_SURFACE_WG, basepos.offset(direction.x*radius, 0, direction.z*radius));
@@ -152,14 +152,10 @@ public class DirectionUtils {
 	}
 
 	public static boolean isBrightnessAllowed(Level level, BlockPos pos, int maxlight, int minlight) {
-		int blocklight = level.getLightEmission(pos);
+		int blocklight = level.getBrightness(LightLayer.BLOCK, pos);
 		if (blocklight > maxlight) return false;
 		if (blocklight < minlight) return false;
 		return true;
-	}
-
-	public void findNearestVilage(ServerLevel level, Entity entity) {
-
 	}
 
 }

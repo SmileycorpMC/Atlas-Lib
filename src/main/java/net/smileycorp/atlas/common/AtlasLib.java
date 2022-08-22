@@ -17,7 +17,7 @@ import net.smileycorp.atlas.api.block.FuelHandler;
 @Mod.EventBusSubscriber(modid = ModDefinitions.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class AtlasLib {
 
-	public static DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, ModDefinitions.MODID);
+	public static DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, ModDefinitions.MODID);
 
 	public static SimpleChannel NETWORK_INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(ModDefinitions.MODID, "main"), ()-> "1", "1"::equals, "1"::equals);
 
