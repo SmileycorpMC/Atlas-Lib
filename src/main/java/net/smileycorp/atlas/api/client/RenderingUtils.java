@@ -211,7 +211,14 @@ public class RenderingUtils {
 
 		private static ResourceLocation getTexture(Optional<UUID> optional, Type type) {
 			if (optional.isEmpty()) {
-				return DefaultPlayerSkin.getDefaultSkin();
+				switch (type) {
+				case SKIN:
+					return DefaultPlayerSkin.getDefaultSkin();
+				case ELYTRA:
+					return new ResourceLocation("textures/entity/elytra.png");
+				default:
+					return null;
+				}
 			}
 			UUID uuid = optional.get();
 			PlayerInfo playerinfo = Minecraft.getInstance().getConnection().getPlayerInfo(uuid);
