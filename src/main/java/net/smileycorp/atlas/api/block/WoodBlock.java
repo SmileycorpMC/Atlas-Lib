@@ -132,7 +132,7 @@ public class WoodBlock {
 	protected void register(DeferredRegister<Item> items, DeferredRegister<Block> blocks, Supplier<Block> supplier, WoodShape shape) {
 		RegistryObject<Block> block = blocks.register(shape.getName(name), supplier);
 		BLOCKS.put(shape, block);
-		items.register(name, () -> new BlockItem(block.get(), new Item.Properties().tab(shape.getTab(this))));
+		items.register(shape.getName(name), () -> new BlockItem(block.get(), new Item.Properties().tab(shape.getTab(this))));
 	}
 
 	public Block get(WoodShape shape) {

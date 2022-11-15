@@ -16,10 +16,12 @@ public class FuelHandler {
 	private Map<Item, Integer> FUEL_MAP = new HashMap<>();
 
 	public ItemStack registerFuel(Block fuel, int burnTime) {
+		if (fuel == null) return ItemStack.EMPTY;
 		return registerFuel(fuel.asItem(), burnTime);
 	}
 
 	public ItemStack registerFuel(Item fuel, int burnTime) {
+		if (fuel == null) return ItemStack.EMPTY;
 		FUEL_MAP.put(fuel, burnTime);
 		return new ItemStack(fuel);
 	}
