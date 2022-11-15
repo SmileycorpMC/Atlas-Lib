@@ -2,27 +2,16 @@ package net.smileycorp.atlas.api.client;
 
 import java.awt.Color;
 import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Function;
 
-import com.google.common.collect.Maps;
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.SkinManager;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
@@ -80,11 +69,6 @@ public class RenderingUtils {
 		FontRenderer fontrenderer = mc.fontRenderer;
 		//fontrenderer.drawString(text, x, y, color);
 	} */
-
-	public static ResourceLocation getPlayerTexture(Optional<UUID> uuid, Type type) {
-		return PlayerTextureRenderer.getTexture(uuid, type);
-	}
-
 
 	private static class PlanarQuadRenderer {
 
@@ -200,54 +184,6 @@ public class RenderingUtils {
 					new Vector4f(0, 0, 0, 0),
 					new Vector4f(0, 0, 0, 0),
 					new Vector4f(0, 0, 0, 0)};
-		}
-	}
-
-	private static class PlayerTextureRenderer {
-
-		private static final Map<UUID, GameProfile> PROFILES = Maps.newHashMap();
-
-		private static ResourceLocation getTexture(Optional<UUID> optional, Type type) {
-			if (optional.isEmpty()) {
-				switch (type) {
-				case SKIN:
-					return DefaultPlayerSkin.getDefaultSkin();
-				case ELYTRA:
-					return new ResourceLocation("textures/entity/elytra.png");
-				default:
-					return null;
-				}
-			}
-			UUID uuid = optional.get();
-			PlayerInfo playerinfo = Minecraft.getInstance().getConnection().getPlayerInfo(uuid);
-			if (playerinfo != null) switch (type) {
-			case SKIN:
-				return playerinfo.getSkinLocation();
-			case CAPE:
-				return playerinfo.getCapeLocation();
-			case ELYTRA:
-				return playerinfo.getElytraLocation();
-			}
-
-			Minecraft mc = Minecraft.getInstance();
-			GameProfile profile;
-			if (PROFILES.containsKey(uuid)) profile = PROFILES.get(uuid);
-			else {
-				profile = new GameProfile(uuid, null);
-				mc.getMinecraftSessionService().fillProfileProperties(profile, true);
-				PROFILES.put(uuid, profile);
-			}
-			SkinManager manager = mc.getSkinManager();
-			Map<Type, MinecraftProfileTexture> textures = manager.getInsecureSkinInformation(profile);
-			if (textures.containsKey(type)) return manager.registerTexture(textures.get(type), type);
-			switch (type) {
-			case SKIN:
-				return DefaultPlayerSkin.getDefaultSkin(UUIDUtil.getOrCreatePlayerUUID(profile));
-			case ELYTRA:
-				return new ResourceLocation("textures/entity/elytra.png");
-			default:
-				return null;
-			}
 		}
 	}
 
