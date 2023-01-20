@@ -11,7 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.levelgen.Heightmap.Types;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -80,7 +80,7 @@ public class DirectionUtils {
 				new Vec3 (endpos.getX(), endpos.getY(), endpos.getZ()));
 	}
 
-	public static Vec3  getDirectionVecXZ(Vec3  startpos, Vec3  endpos) {
+	public static Vec3 getDirectionVecXZ(Vec3 startpos, Vec3 endpos) {
 		double dx = endpos.x-startpos.x;
 		double dz = endpos.z-startpos.z;
 		double angle = Math.atan2(dz, dx);
@@ -120,7 +120,7 @@ public class DirectionUtils {
 				new Vec3 (endpos.getX(), endpos.getY(), endpos.getZ()));
 	}
 
-	public static Vec3  getDirectionVec(Vec3  startpos, Vec3  endpos) {
+	public static Vec3 getDirectionVec(Vec3  startpos, Vec3  endpos) {
 		if (startpos.equals(endpos)) return new Vec3 (0,0,0);
 		double dx = endpos.x-startpos.x;
 		double dy = endpos.y-startpos.y;
@@ -133,21 +133,29 @@ public class DirectionUtils {
 	}
 
 	public static BlockPos getClosestLoadedPos(Level level, BlockPos basepos, Vec3  direction, double radius) {
-		BlockPos pos = level.getHeightmapPos(Types.WORLD_SURFACE_WG, basepos.offset(direction.x*radius, 0, direction.z*radius));
+		return getClosestLoadedPos(level, basepos, direction, radius, Heightmap.Types.WORLD_SURFACE_WG);
+	}
+
+	public static BlockPos getClosestLoadedPos(Level level, BlockPos basepos, Vec3  direction, double radius, Heightmap.Types type) {
+		BlockPos pos = level.getHeightmapPos(type, basepos.offset(direction.x*radius, 0, direction.z*radius));
 		while (!level.hasChunk(pos.getX()/16, pos.getZ()/16)) {
 			if (radius==0) return basepos;
 			radius--;
-			pos = level.getHeightmapPos(Types.WORLD_SURFACE, basepos.offset(direction.x*radius, 0, direction.z*radius));
+			pos = level.getHeightmapPos(type, basepos.offset(direction.x*radius, 0, direction.z*radius));
 		}
 		return pos;
 	}
 
 	public static BlockPos getClosestLoadedPos(Level level, BlockPos basepos, Vec3  direction, double radius, int maxlight, int minlight) {
-		BlockPos pos = level.getHeightmapPos(Types.WORLD_SURFACE_WG, basepos.offset(direction.x*radius, 0, direction.z*radius));
+		return getClosestLoadedPos(level, basepos, direction, radius, maxlight, minlight, Heightmap.Types.WORLD_SURFACE_WG);
+	}
+
+	public static BlockPos getClosestLoadedPos(Level level, BlockPos basepos, Vec3  direction, double radius, int maxlight, int minlight, Heightmap.Types type) {
+		BlockPos pos = level.getHeightmapPos(type, basepos.offset(direction.x*radius, 0, direction.z*radius));
 		while (!level.hasChunk(pos.getX()/16, pos.getZ()/16) || !isBrightnessAllowed(level, basepos, maxlight, minlight)) {
 			if (radius==0) return basepos;
 			radius--;
-			pos = level.getHeightmapPos(Types.WORLD_SURFACE_WG, basepos.offset(direction.x*radius, 0, direction.z*radius));
+			pos = level.getHeightmapPos(type, basepos.offset(direction.x*radius, 0, direction.z*radius));
 		}
 		return pos;
 	}
