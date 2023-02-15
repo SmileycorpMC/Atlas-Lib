@@ -1,12 +1,17 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/atlas-lib",
-  "1.19": {
+  "1.19.2": {
     "1.1.4": "Port to 1.19",
 	"1.1.5": "Port fixes from 1.18 version, fix changes with 1.19.1 forge",
 	"1.1.6": "Port elytra fixes from 1.18 version"
   },
+  "1.19.3": {
+	"1.1.6a": "Update to 1.19.3"
+  },
   "promos": {
-    "1.19-latest": "1.1.6",
-    "1.19-recommended": "1.1.6"
+    "1.19.2-latest": "1.1.6",
+    "1.19.2-recommended": "1.1.6",
+	"1.19.3-latest": "1.1.6a",
+    "1.19.3-recommended": "1.1.6a"
   }
 }

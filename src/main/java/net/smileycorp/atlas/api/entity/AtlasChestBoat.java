@@ -10,6 +10,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.vehicle.ChestBoat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
@@ -17,16 +18,16 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.smileycorp.atlas.api.BoatRegistry;
 
-public class AtlasBoat extends Boat {
+public class AtlasChestBoat extends ChestBoat {
 
-	private static final EntityDataAccessor<String> DATA_ID_TYPE = SynchedEntityData.defineId(AtlasBoat.class, EntityDataSerializers.STRING);
+	private static final EntityDataAccessor<String> DATA_ID_TYPE = SynchedEntityData.defineId(AtlasChestBoat.class, EntityDataSerializers.STRING);
 
-	public AtlasBoat(EntityType<? extends AtlasBoat> type, Level level) {
+	public AtlasChestBoat(EntityType<? extends AtlasChestBoat> type, Level level) {
 		super(type, level);
 	}
 
-	public AtlasBoat(Level level, double x, double y, double z) {
-		this(BoatRegistry.BOAT_ENTITY.get(), level);
+	public AtlasChestBoat(Level level, double x, double y, double z) {
+		this(BoatRegistry.CHEST_BOAT_ENTITY.get(), level);
 		this.setPos(x, y, z);
 		xo = x;
 		yo = y;
@@ -97,7 +98,7 @@ public class AtlasBoat extends Boat {
 	@Override
 	public Item getDropItem() {
 		BoatRegistry.Type type = getAtlasType();
-		return type == null ? Items.OAK_BOAT : BoatRegistry.INSTANCE.get(new ResourceLocation(entityData.get(DATA_ID_TYPE))).getBoat();
+		return type == null ? Items.OAK_CHEST_BOAT : BoatRegistry.INSTANCE.get(new ResourceLocation(entityData.get(DATA_ID_TYPE))).getChestBoat();
 	}
 
 	//override vanilla types

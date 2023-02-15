@@ -14,6 +14,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.Tiers;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
@@ -22,8 +25,9 @@ public class ArmourSet {
 
 	final String name;
 	final Tiers material;
+	protected final CreativeModeTab tab;
 
-	protected final Map<ArmourType, RegistryObject<ArmorItem>> tools = new HashMap<ArmourType, RegistryObject<ArmorItem>>();
+	protected final Map<ArmourType, RegistryObject<ArmorItem>> armor = new HashMap<ArmourType, RegistryObject<ArmorItem>>();
 
 	public ArmourSet(String name, Tiers material, CreativeModeTab tab, DeferredRegister<Item> registry) {
 		this(name, material, tab, ArmorItem.class, registry);
@@ -32,10 +36,17 @@ public class ArmourSet {
 	public ArmourSet(String name, Tiers material, CreativeModeTab tab, Class<? extends ArmorItem> clazz, DeferredRegister<Item> registry) {
 		this.name=name;
 		this.material=material;
+		this.tab = tab;
 		for (ArmourType type : ArmourType.values()) {
-			RegistryObject<ArmorItem> item = registry.register(name + "_" + type.name, () -> type.createItem(material, tab, null));
-			tools.put(type, item);
+			RegistryObject<ArmorItem> item = registry.register(name + "_" + type.name, () -> type.createItem(material, null));
+			armor.put(type, item);
 		}
+		MinecraftForge.EVENT_BUS.register(this);
+	}
+
+	@SubscribeEvent
+	public void addCreative(CreativeModeTabEvent.BuildContents event) {
+		if (event.getTab() == tab) for (ArmorItem item : getItems()) event.m_246326_(item);
 	}
 
 	public String getName() {
@@ -47,12 +58,12 @@ public class ArmourSet {
 	}
 
 	public ArmorItem getItem(ArmourType type) {
-		return tools.get(type).get();
+		return armor.get(type).get();
 	}
 
 	public Collection<ArmorItem> getItems() {
 		Set<ArmorItem> set = new HashSet<ArmorItem>();
-		for (RegistryObject<ArmorItem> registry : tools.values()) set.add(registry.get());
+		for (RegistryObject<ArmorItem> registry : armor.values()) set.add(registry.get());
 		return set;
 	}
 
@@ -87,9 +98,9 @@ public class ArmourSet {
 			return name;
 		}
 
-		public ArmorItem createItem(Tier material, CreativeModeTab tab, Class<? extends ArmorItem> clazz) {
+		public ArmorItem createItem(Tier material, Class<? extends ArmorItem> clazz) {
 			try {
-				ArmorItem item = ObfuscationReflectionHelper.findConstructor(clazz, Tier.class, EquipmentSlot.class,  Properties.class).newInstance(material, slot, new Properties().tab(tab));
+				ArmorItem item = ObfuscationReflectionHelper.findConstructor(clazz, Tier.class, EquipmentSlot.class,  Properties.class).newInstance(material, slot, new Properties());
 				return item;
 			} catch (InstantiationException | IllegalAccessException
 					| IllegalArgumentException | InvocationTargetException e) {

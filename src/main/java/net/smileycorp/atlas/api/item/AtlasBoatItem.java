@@ -22,6 +22,7 @@ import net.smileycorp.atlas.api.BoatRegistry;
 import net.smileycorp.atlas.api.entity.AtlasBoat;
 
 public class AtlasBoatItem extends Item {
+
 	private static final Predicate<Entity> ENTITY_PREDICATE = EntitySelector.NO_SPECTATORS.and(Entity::isPickable);
 	private final BoatRegistry.Type type;
 

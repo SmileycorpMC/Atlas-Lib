@@ -10,6 +10,9 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -30,11 +33,12 @@ public class ShapedBlock {
 		stairs = register(items, blocks, () -> new StairBlock(()->base.get().defaultBlockState(), properties), "stairs");
 		slab = register(items, blocks, () -> new SlabBlock(properties), "slab");
 		wall = hasWall ? register(items, blocks, () -> new WallBlock(properties), "wall") : null;
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	protected RegistryObject<Block> register(DeferredRegister<Item> items, DeferredRegister<Block> blocks, Supplier<Block> supplier, String suffix) {
 		RegistryObject<Block> block = register(blocks, supplier, suffix);
-		register(items, () -> new BlockItem(supplier.get(), new Item.Properties().tab(tab)), suffix);
+		register(items, () -> new BlockItem(supplier.get(), new Item.Properties()), suffix);
 		return block;
 	}
 
@@ -45,6 +49,15 @@ public class ShapedBlock {
 		return registry.register(builder.toString(), object);
 	}
 
+	@SubscribeEvent
+	public void addCreative(CreativeModeTabEvent.BuildContents event) {
+		if (event.getTab() == tab) {
+			event.m_246326_(base.get().asItem());
+			event.m_246326_(stairs.get().asItem());
+			event.m_246326_(slab.get().asItem());
+			if (wall != null) event.m_246326_(wall.get().asItem());
+		}
+	}
 
 	public Block getBase() {
 		return base.get();

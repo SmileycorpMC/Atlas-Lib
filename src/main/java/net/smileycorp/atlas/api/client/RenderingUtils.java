@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -14,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class RenderingUtils {
 
@@ -30,11 +29,11 @@ public class RenderingUtils {
 	}
 
 	public static void renderPlanarQuad(BufferBuilder buffer, Direction facing, double x, double y, double z, int layer, Color colour, TextureAtlasSprite texture, Level world, int luminance, BlockPos pos) {
-		Vector4f[] plane = PlanarQuadRenderer.getQuadsFor(facing);
-		Vector3f offset = (layer == 0 ? new Vector3f(0, 0, 0) : PlanarQuadRenderer.getOffsetFor(facing, x, y, z, layer));
+		Vec3[] plane = PlanarQuadRenderer.getQuadsFor(facing);
+		Vec3 offset = (layer == 0 ? new Vec3(0, 0, 0) : PlanarQuadRenderer.getOffsetFor(facing, x, y, z, layer));
 		int rgba = colour.getRGB();
 		for (int i = 0; i < 4; ++i) {
-			Vector4f quadPos = plane[i];
+			Vec3 quadPos = plane[i];
 
 			float r = ((rgba & 0xFF0000) >> 16) / 255F;
 			float g = ((rgba & 0xFF00) >> 8) / 255F;
@@ -58,7 +57,7 @@ public class RenderingUtils {
 	public static List<BakedQuad> getQuadsForPlane(Direction facing, Color colour, String spritename) {
 		List<BakedQuad> quads = new ArrayList<BakedQuad>();
 		FaceBakery bakery = new FaceBakery();
-		Vector3f[] vecs = PlanarQuadRenderer.get3FQuadsFor(facing);
+		Vec3[] vecs = PlanarQuadRenderer.get3FQuadsFor(facing);
 		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(spritename);
 		BlockPartFace face = new BlockPartFace(null, 0, spritename, new BlockFaceUV(new float[]{0, 0, 16, 16}, 0));
 		quads.add(bakery.makeBakedQuad(vecs[0], vecs[1], face, sprite, facing.getOpposite(), ModelRotation.X0_Y0, null, true, true));
@@ -72,8 +71,8 @@ public class RenderingUtils {
 
 	private static class PlanarQuadRenderer {
 
-		private static Vector3f getOffsetFor(Direction facing, double x, double y, double z, int layer) {
-			Vector3f vector = new Vector3f((float)x, (float)y, (float)z);
+		private static Vec3 getOffsetFor(Direction facing, double x, double y, double z, int layer) {
+			Vec3 vector = new Vec3((float)x, (float)y, (float)z);
 			switch(facing) {
 			case UP:
 				vector.add(0, offsetLayer(1, layer), 0);
@@ -98,38 +97,38 @@ public class RenderingUtils {
 		}
 
 		@SuppressWarnings("unused")
-		private static Vector3f[] get3FQuadsFor(Direction facing) {
+		private static Vec3[] get3FQuadsFor(Direction facing) {
 			if (facing!=null) {
 				switch(facing) {
 				case DOWN:
-					return new Vector3f[] {
-							new Vector3f(0, 0, 16),
-							new Vector3f(16, 0, 0)};
+					return new Vec3[] {
+							new Vec3(0, 0, 16),
+							new Vec3(16, 0, 0)};
 				case NORTH:
-					return new Vector3f[] {
-							new Vector3f(16, 0, 0),
-							new Vector3f(0, 16, 0)};
+					return new Vec3[] {
+							new Vec3(16, 0, 0),
+							new Vec3(0, 16, 0)};
 				case SOUTH:
-					return new Vector3f[] {
-							new Vector3f(16, 0, 16),
-							new Vector3f(0, 16, 16)};
+					return new Vec3[] {
+							new Vec3(16, 0, 16),
+							new Vec3(0, 16, 16)};
 				case EAST:
-					return new Vector3f[] {
-							new Vector3f(16, 0, 16),
-							new Vector3f(16, 16, 0)};
+					return new Vec3[] {
+							new Vec3(16, 0, 16),
+							new Vec3(16, 16, 0)};
 				case WEST:
-					return new Vector3f[] {
-							new Vector3f(0, 0, 16),
-							new Vector3f(0, 16, 0)};
+					return new Vec3[] {
+							new Vec3(0, 0, 16),
+							new Vec3(0, 16, 0)};
 				default:
-					return new Vector3f[] {
-							new Vector3f(0, 16, 16),
-							new Vector3f(16, 16, 0)};
+					return new Vec3[] {
+							new Vec3(0, 16, 16),
+							new Vec3(16, 16, 0)};
 				}
 			}
-			return new Vector3f[] {
-					new Vector3f(0, 0, 0),
-					new Vector3f(0, 0, 0)};
+			return new Vec3[] {
+					new Vec3(0, 0, 0),
+					new Vec3(0, 0, 0)};
 		}
 
 		private static float offsetLayer(float offset, int layer) {
@@ -137,53 +136,52 @@ public class RenderingUtils {
 			return offset+layerOffset;
 		}
 
-		private static Vector4f[] getQuadsFor(Direction facing) {
+		private static Vec3[] getQuadsFor(Direction facing) {
 			if (facing!=null) {
 				switch(facing) {
 				case DOWN:
-					return new Vector4f[] {
-							new Vector4f(1, 0, 1, 0),
-							new Vector4f(1, 0, 0, 0),
-							new Vector4f(0, 0, 0, 0),
-							new Vector4f(0, 0, 1, 0)};
+					return new Vec3[] {
+							new Vec3(1, 0, 1),
+							new Vec3(1, 0, 0),
+							new Vec3(0, 0, 0),
+							new Vec3(0, 0, 1)};
 				case NORTH:
-					return new Vector4f[] {
-							new Vector4f(0, 1, 0, 0),
-							new Vector4f(0, 0, 0, 0),
-							new Vector4f(1, 0, 0, 0),
-							new Vector4f(1, 1, 0, 0)};
+					return new Vec3[] {
+							new Vec3(0, 1, 0),
+							new Vec3(0, 0, 0),
+							new Vec3(1, 0, 0),
+							new Vec3(1, 1, 0)};
 				case SOUTH:
-					return new Vector4f[] {
-							new Vector4f(1, 1, 0, 0),
-							new Vector4f(1, 0, 0, 0),
-							new Vector4f(0, 0, 0, 0),
-							new Vector4f(0, 1, 0, 0)};
+					return new Vec3[] {
+							new Vec3(1, 1, 0),
+							new Vec3(1, 0, 0),
+							new Vec3(0, 0, 0),
+							new Vec3(0, 1, 0)};
 				case EAST:
-					return new Vector4f[] {
-							new Vector4f(0, 1, 0, 0),
-							new Vector4f(0, 0, 0, 0),
-							new Vector4f(0, 0, 1, 0),
-							new Vector4f(0, 1, 1, 0)};
+					return new Vec3[] {
+							new Vec3(0, 1, 0),
+							new Vec3(0, 0, 0),
+							new Vec3(0, 0, 1),
+							new Vec3(0, 1, 1)};
 				case WEST:
-
-					return new Vector4f[] {
-							new Vector4f(0, 1, 1, 0),
-							new Vector4f(0, 0, 1, 0),
-							new Vector4f(0, 0, 0, 0),
-							new Vector4f(0, 1, 0, 0)};
+					return new Vec3[] {
+							new Vec3(0, 1, 1),
+							new Vec3(0, 0, 1),
+							new Vec3(0, 0, 0),
+							new Vec3(0, 1, 0)};
 				default:
-					return new Vector4f[] {
-							new Vector4f(1, 0, 0, 0),
-							new Vector4f(1, 0, 1, 0),
-							new Vector4f(0, 0, 1, 0),
-							new Vector4f(0, 0, 0, 0)};
+					return new Vec3[] {
+							new Vec3(1, 0, 0),
+							new Vec3(1, 0, 1),
+							new Vec3(0, 0, 1),
+							new Vec3(0, 0, 0)};
 				}
 			}
-			return new Vector4f[] {
-					new Vector4f(0, 0, 0, 0),
-					new Vector4f(0, 0, 0, 0),
-					new Vector4f(0, 0, 0, 0),
-					new Vector4f(0, 0, 0, 0)};
+			return new Vec3[] {
+					new Vec3(0, 0, 0),
+					new Vec3(0, 0, 0),
+					new Vec3(0, 0, 0),
+					new Vec3(0, 0, 0)};
 		}
 	}
 
