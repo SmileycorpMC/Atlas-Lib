@@ -10,7 +10,7 @@
 	"1.1.7a": "fixed broken direction vector code"
   },
   "promos": {
-    "1.18-latest": "1.1.7a",
-    "1.18-recommended": "1.1.7a"
+    "1.18-latest": "1.1.7",
+    "1.18-recommended": "1.1.7"
   }
 }
