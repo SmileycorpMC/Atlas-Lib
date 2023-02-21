@@ -126,9 +126,9 @@ public class DirectionUtils {
 		double dy = endpos.y-startpos.y;
 		double dz = endpos.z-startpos.z;
 		double magnitude = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2) + Math.pow(dz, 2));
-		double mx = (endpos.x+startpos.x)/magnitude;
-		double my = (endpos.y+startpos.y)/magnitude;
-		double mz = (endpos.z+startpos.z)/magnitude;
+		double mx = (endpos.x-startpos.x)/magnitude;
+		double my = (endpos.y-startpos.y)/magnitude;
+		double mz = (endpos.z-startpos.z)/magnitude;
 		return new Vec3 (mx, my, mz);
 	}
 
