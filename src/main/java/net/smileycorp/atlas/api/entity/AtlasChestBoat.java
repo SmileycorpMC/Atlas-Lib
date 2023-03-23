@@ -7,7 +7,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.ChestBoat;
@@ -72,7 +71,7 @@ public class AtlasChestBoat extends ChestBoat {
 						return;
 					}
 
-					this.causeFallDamage(fallDistance, 1.0F, DamageSource.FALL);
+					this.causeFallDamage(fallDistance, 1.0F, m_269291_().m_268989_());
 					if (!level.isClientSide && !this.isRemoved()) {
 						this.kill();
 						if (level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
@@ -103,10 +102,10 @@ public class AtlasChestBoat extends ChestBoat {
 
 	//override vanilla types
 	@Override
-	public void m_262362_(Type type) {}
+	public void setFoxType(Type type) {}
 
 	@Override
-	public Type m_262365_() {
+	public Type getFoxType() {
 		return Type.OAK;
 	}
 

@@ -60,7 +60,7 @@ public class AtlasBoatItem extends Item {
 				} else {
 					if (!p_40622_.isClientSide) {
 						p_40622_.addFreshEntity(boat);
-						p_40622_.gameEvent(p_40623_, GameEvent.ENTITY_PLACE, new BlockPos(hitresult.getLocation()));
+						p_40622_.gameEvent(p_40623_, GameEvent.ENTITY_PLACE, BlockPos.m_274446_(hitresult.getLocation()));
 						if (!p_40623_.getAbilities().instabuild) {
 							itemstack.shrink(1);
 						}

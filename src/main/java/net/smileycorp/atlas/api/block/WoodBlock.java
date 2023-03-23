@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -32,6 +31,7 @@ import net.minecraft.world.level.block.grower.AbstractTreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.MinecraftForge;
@@ -50,7 +50,8 @@ public class WoodBlock {
 
 	protected final String name;
 	protected final AbstractTreeGrower treeGrower;
-	protected final WoodType sign_type;
+	protected final BlockSetType type;
+	protected final WoodType wood_type;
 	protected final BoatRegistry.Type boat_type;
 	protected final CreativeModeTab tab, decorations_tab;
 
@@ -77,7 +78,8 @@ public class WoodBlock {
 	protected WoodBlock(WoodBlockBuilder builder, DeferredRegister<Item> items, DeferredRegister<Block> blocks) {
 		name = builder.name;
 		treeGrower = builder.treeGrower;
-		sign_type = WoodType.register(WoodType.create(name));
+		type = new BlockSetType(name);
+		wood_type = WoodType.register(WoodType.register(new WoodType(name, type)));
 
 		planks = register(blocks, () -> new Block(builder.constructBaseProperties()), "planks");
 		registerItem(items, planks);
@@ -109,18 +111,18 @@ public class WoodBlock {
 		if (sapling!=null) registerItem(items, sapling);
 		fence = register(blocks, () -> new FenceBlock(builder.constructBaseProperties()), "fence");
 		registerItem(items, fence);
-		fence_gate = register(blocks, () -> new FenceGateBlock(builder.constructBaseProperties(), SoundEvents.FENCE_GATE_CLOSE, SoundEvents.FENCE_GATE_OPEN), "fence_gate");
+		fence_gate = register(blocks, () -> new FenceGateBlock(builder.constructBaseProperties(), wood_type), "fence_gate");
 		registerItem(items, fence_gate);
-		button = register(blocks, () -> new ButtonBlock(builder.constructBaseProperties().noCollission(), 30, true , SoundEvents.WOODEN_BUTTON_CLICK_OFF, SoundEvents.WOODEN_BUTTON_CLICK_ON), "button");
+		button = register(blocks, () -> new ButtonBlock(builder.constructBaseProperties().noCollission(), type, 30, true), "button");
 		registerItem(items, button);
-		pressure_plate = register(blocks, () -> new PressurePlateBlock(Sensitivity.EVERYTHING, builder.constructBaseProperties().noCollission(), SoundEvents.STONE_PRESSURE_PLATE_CLICK_OFF, SoundEvents.STONE_PRESSURE_PLATE_CLICK_ON), "pressure_plate");
+		pressure_plate = register(blocks, () -> new PressurePlateBlock(Sensitivity.EVERYTHING, builder.constructBaseProperties().noCollission(), type), "pressure_plate");
 		registerItem(items, pressure_plate);
-		door = register(blocks, () -> new DoorBlock(builder.constructBaseProperties().noOcclusion(), SoundEvents.WOODEN_DOOR_CLOSE, SoundEvents.WOODEN_DOOR_OPEN), "door");
+		door = register(blocks, () -> new DoorBlock(builder.constructBaseProperties().noOcclusion(), type), "door");
 		registerItem(items, door);
-		trapdoor = register(blocks, () -> new TrapDoorBlock(builder.constructBaseProperties().noOcclusion(), SoundEvents.WOODEN_TRAPDOOR_CLOSE, SoundEvents.WOODEN_TRAPDOOR_OPEN), "trapdoor");
+		trapdoor = register(blocks, () -> new TrapDoorBlock(builder.constructBaseProperties().noOcclusion(), type), "trapdoor");
 		registerItem(items, trapdoor);
-		standing_sign = register(blocks, () -> new StandingSignBlock(builder.constructBaseProperties(), sign_type), "sign");
-		wall_sign = register(blocks, () -> new WallSignBlock(builder.constructBaseProperties(), sign_type), "wall_sign");
+		standing_sign = register(blocks, () -> new StandingSignBlock(builder.constructBaseProperties(), wood_type), "sign");
+		wall_sign = register(blocks, () -> new WallSignBlock(builder.constructBaseProperties(), wood_type), "wall_sign");
 		sign = register(items, () -> new SignItem(new Item.Properties().stacksTo(16), standing_sign.get(), wall_sign.get()), "sign");
 		if (builder.hasBoat) {
 			boat_type = BoatRegistry.INSTANCE.register(name, builder.modid, items, builder.decorations_tab);
@@ -180,7 +182,7 @@ public class WoodBlock {
 	}
 
 	public WoodType getSignType() {
-		return sign_type;
+		return wood_type;
 	}
 
 	public Block getPlanks() {
@@ -257,7 +259,7 @@ public class WoodBlock {
 
 	@SuppressWarnings("removal")
 	public void registerClient() {
-		Sheets.addWoodType(sign_type);
+		Sheets.addWoodType(wood_type);
 		ItemBlockRenderTypes.setRenderLayer(getDoor(), RenderType.cutoutMipped());
 		ItemBlockRenderTypes.setRenderLayer(getTrapdoor(), RenderType.cutoutMipped());
 		ItemBlockRenderTypes.setRenderLayer(getSapling(), RenderType.cutoutMipped());

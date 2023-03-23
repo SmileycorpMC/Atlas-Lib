@@ -132,21 +132,21 @@ public class DirectionUtils {
 	}
 
 	public static BlockPos getClosestLoadedPos(Level level, BlockPos basepos, Vec3  direction, double radius) {
-		BlockPos pos = level.getHeightmapPos(Types.WORLD_SURFACE_WG, basepos.offset(direction.x*radius, 0, direction.z*radius));
+		BlockPos pos = level.getHeightmapPos(Types.WORLD_SURFACE_WG, basepos.offset(BlockPos.m_274561_(direction.x*radius, 0, direction.z*radius)));
 		while (!level.hasChunk(pos.getX()/16, pos.getZ()/16)) {
 			if (radius==0) return basepos;
 			radius--;
-			pos = level.getHeightmapPos(Types.WORLD_SURFACE, basepos.offset(direction.x*radius, 0, direction.z*radius));
+			pos = level.getHeightmapPos(Types.WORLD_SURFACE, basepos.offset(BlockPos.m_274561_(direction.x*radius, 0, direction.z*radius)));
 		}
 		return pos;
 	}
 
 	public static BlockPos getClosestLoadedPos(Level level, BlockPos basepos, Vec3  direction, double radius, int maxlight, int minlight) {
-		BlockPos pos = level.getHeightmapPos(Types.WORLD_SURFACE_WG, basepos.offset(direction.x*radius, 0, direction.z*radius));
+		BlockPos pos = level.getHeightmapPos(Types.WORLD_SURFACE_WG, basepos.offset(BlockPos.m_274561_(direction.x*radius, 0, direction.z*radius)));
 		while (!level.hasChunk(pos.getX()/16, pos.getZ()/16) || !isBrightnessAllowed(level, basepos, maxlight, minlight)) {
 			if (radius==0) return basepos;
 			radius--;
-			pos = level.getHeightmapPos(Types.WORLD_SURFACE_WG, basepos.offset(direction.x*radius, 0, direction.z*radius));
+			pos = level.getHeightmapPos(Types.WORLD_SURFACE_WG, basepos.offset(BlockPos.m_274561_(direction.x*radius, 0, direction.z*radius)));
 		}
 		return pos;
 	}
