@@ -13,13 +13,13 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.smileycorp.atlas.api.block.FuelHandler;
 
-@Mod(value = ModDefinitions.MODID)
-@Mod.EventBusSubscriber(modid = ModDefinitions.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod(value = Constants.MODID)
+@Mod.EventBusSubscriber(modid = Constants.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class AtlasLib {
 
-	public static DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, ModDefinitions.MODID);
+	public static DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, Constants.MODID);
 
-	public static SimpleChannel NETWORK_INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(ModDefinitions.MODID, "main"), ()-> "1", "1"::equals, "1"::equals);
+	public static SimpleChannel NETWORK_INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(Constants.MODID, "main"), ()-> "1", "1"::equals, "1"::equals);
 
 	@SubscribeEvent
 	public static void modConstruction(FMLConstructModEvent event) {

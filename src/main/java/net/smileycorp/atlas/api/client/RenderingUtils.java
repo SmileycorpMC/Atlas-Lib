@@ -1,25 +1,41 @@
 package net.smileycorp.atlas.api.client;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import org.joml.Vector3f;
 
+import com.google.common.collect.Lists;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.model.pipeline.QuadBakingVertexConsumer;
 
 public class RenderingUtils {
 
-	public static BakedModel replaceRegisteredModel(Map<ResourceLocation, BakedModel> map, ResourceLocation name, Function<BakedModel, BakedModel> function) {
+	public static List<BakedModel> replaceRegisteredModel(Map<ResourceLocation, BakedModel> map, ResourceLocation name, Function<BakedModel, BakedModel> function) {
+		List<BakedModel> models = Lists.newArrayList();
+		for (Map.Entry<ResourceLocation, BakedModel> entry : map.entrySet()) {
+			ResourceLocation loc = entry.getKey();
+			if (loc.getNamespace().equals(name.getNamespace()) && loc.getPath().split("#")[0].equals(name.getPath()))
+				models.add(function.apply(entry.getValue()));
+		}
 		BakedModel model = function.apply(map.get(name));
 		map.put(name, model);
-		return model;
+		return models;
 	}
 
 	public static void renderCubeQuad(BufferBuilder buffer, double x, double y, double z, int layer, Color colour, TextureAtlasSprite texture, Level world, int luminance, BlockPos pos) {
@@ -29,11 +45,11 @@ public class RenderingUtils {
 	}
 
 	public static void renderPlanarQuad(BufferBuilder buffer, Direction facing, double x, double y, double z, int layer, Color colour, TextureAtlasSprite texture, Level world, int luminance, BlockPos pos) {
-		Vec3[] plane = PlanarQuadRenderer.getQuadsFor(facing);
-		Vec3 offset = (layer == 0 ? new Vec3(0, 0, 0) : PlanarQuadRenderer.getOffsetFor(facing, x, y, z, layer));
+		Vector3f[] plane = PlanarQuadRenderer.getQuadsFor(facing);
+		Vector3f offset = (layer == 0 ? new Vector3f(0, 0, 0) : PlanarQuadRenderer.getOffsetFor(facing, x, y, z, layer));
 		int rgba = colour.getRGB();
 		for (int i = 0; i < 4; ++i) {
-			Vec3 quadPos = plane[i];
+			Vector3f quadPos = plane[i];
 
 			float r = ((rgba & 0xFF0000) >> 16) / 255F;
 			float g = ((rgba & 0xFF00) >> 8) / 255F;
@@ -47,142 +63,52 @@ public class RenderingUtils {
 		}
 	}
 
-	/*public static List<BakedQuad> getQuadsForCube(Color colour, String spritename) {
+	public static List<BakedQuad> getQuadsForCube(Color colour, TextureAtlasSprite sprite) {
 		List<BakedQuad> quads = new ArrayList<BakedQuad>();
-		for (Direction facing : Direction.VALUES) {
-			quads.addAll(getQuadsForPlane(facing, colour, spritename));
+		for (Direction facing : Direction.values()) {
+			quads.addAll(getQuadsForPlane(facing, colour, sprite));
 		}
 		return quads;
 	}
-	public static List<BakedQuad> getQuadsForPlane(Direction facing, Color colour, String spritename) {
-		List<BakedQuad> quads = new ArrayList<BakedQuad>();
-		FaceBakery bakery = new FaceBakery();
-		Vec3[] vecs = PlanarQuadRenderer.get3FQuadsFor(facing);
-		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(spritename);
-		BlockPartFace face = new BlockPartFace(null, 0, spritename, new BlockFaceUV(new float[]{0, 0, 16, 16}, 0));
-		quads.add(bakery.makeBakedQuad(vecs[0], vecs[1], face, sprite, facing.getOpposite(), ModelRotation.X0_Y0, null, true, true));
+
+	public static List<BakedQuad> getQuadsForPlane(Direction facing, Color colour, TextureAtlasSprite sprite) {
+		return getQuadsForPlane(facing, colour, sprite, 0);
+	}
+
+	public static List<BakedQuad> getQuadsForPlane(Direction facing, Color colour, TextureAtlasSprite sprite, int layer) {
+		List<BakedQuad> quads = Lists.newArrayList();
+		Vector3f[] vecs = PlanarQuadRenderer.getQuadsFor(facing);
+		//for(int i = 0; i < vecs.length; i++) vecs[i] = PlanarQuadRenderer.getOffsetFor(facing, vecs[i], layer);
+		QuadBakingVertexConsumer builder = new QuadBakingVertexConsumer(quads::add);
+		builder.setSprite(sprite);
+		builder.setDirection(facing);
+		Vector3f normal = new Vector3f(vecs[2].x()-vecs[1].x(), vecs[2].y()-vecs[1].y(), vecs[2].z()-vecs[1].z());
+		normal.cross(new Vector3f(vecs[0].x()-vecs[1].x(), vecs[0].y()-vecs[1].y(), vecs[0].z()-vecs[1].z()));
+		normal.normalize();
+		addVertex(builder, vecs[0].x(), vecs[0].y(), vecs[0].z(), 0, 0, normal, colour, sprite);
+		addVertex(builder, vecs[1].x(), vecs[1].y(), vecs[1].z(), 0, sprite.getY(), normal, colour, sprite);
+		addVertex(builder, vecs[2].x(), vecs[2].y(), vecs[2].z(), sprite.getX(), sprite.getY(), normal, colour, sprite);
+		addVertex(builder, vecs[3].x(), vecs[3].y(), vecs[3].z(), sprite.getX(), 0, normal, colour, sprite);
 		return quads;
 	}
-	public static void renderFont(String text, Vec3d fontvector, int color) {
-		Minecraft mc = Minecraft.getMinecraft();
-		FontRenderer fontrenderer = mc.fontRenderer;
-		//fontrenderer.drawString(text, x, y, color);
-	} */
 
-	private static class PlanarQuadRenderer {
-
-		private static Vec3 getOffsetFor(Direction facing, double x, double y, double z, int layer) {
-			Vec3 vector = new Vec3((float)x, (float)y, (float)z);
-			switch(facing) {
-			case UP:
-				vector.add(0, offsetLayer(1, layer), 0);
-				break;
-			case DOWN:
-				vector.add(0, offsetLayer(0, -layer), 0);
-				break;
-			case NORTH:
-				vector.add(0, 0, offsetLayer(0, -layer));
-				break;
-			case SOUTH:
-				vector.add(0, 0, offsetLayer(1, layer));
-				break;
-			case EAST:
-				vector.add(offsetLayer(1, layer), 0, 0);
-				break;
-			case WEST:
-				vector.add(offsetLayer(0, -layer), 0, 0);
-				break;
-			}
-			return vector;
-		}
-
-		@SuppressWarnings("unused")
-		private static Vec3[] get3FQuadsFor(Direction facing) {
-			if (facing!=null) {
-				switch(facing) {
-				case DOWN:
-					return new Vec3[] {
-							new Vec3(0, 0, 16),
-							new Vec3(16, 0, 0)};
-				case NORTH:
-					return new Vec3[] {
-							new Vec3(16, 0, 0),
-							new Vec3(0, 16, 0)};
-				case SOUTH:
-					return new Vec3[] {
-							new Vec3(16, 0, 16),
-							new Vec3(0, 16, 16)};
-				case EAST:
-					return new Vec3[] {
-							new Vec3(16, 0, 16),
-							new Vec3(16, 16, 0)};
-				case WEST:
-					return new Vec3[] {
-							new Vec3(0, 0, 16),
-							new Vec3(0, 16, 0)};
-				default:
-					return new Vec3[] {
-							new Vec3(0, 16, 16),
-							new Vec3(16, 16, 0)};
-				}
-			}
-			return new Vec3[] {
-					new Vec3(0, 0, 0),
-					new Vec3(0, 0, 0)};
-		}
-
-		private static float offsetLayer(float offset, int layer) {
-			float layerOffset = 0.001f*layer;
-			return offset+layerOffset;
-		}
-
-		private static Vec3[] getQuadsFor(Direction facing) {
-			if (facing!=null) {
-				switch(facing) {
-				case DOWN:
-					return new Vec3[] {
-							new Vec3(1, 0, 1),
-							new Vec3(1, 0, 0),
-							new Vec3(0, 0, 0),
-							new Vec3(0, 0, 1)};
-				case NORTH:
-					return new Vec3[] {
-							new Vec3(0, 1, 0),
-							new Vec3(0, 0, 0),
-							new Vec3(1, 0, 0),
-							new Vec3(1, 1, 0)};
-				case SOUTH:
-					return new Vec3[] {
-							new Vec3(1, 1, 0),
-							new Vec3(1, 0, 0),
-							new Vec3(0, 0, 0),
-							new Vec3(0, 1, 0)};
-				case EAST:
-					return new Vec3[] {
-							new Vec3(0, 1, 0),
-							new Vec3(0, 0, 0),
-							new Vec3(0, 0, 1),
-							new Vec3(0, 1, 1)};
-				case WEST:
-					return new Vec3[] {
-							new Vec3(0, 1, 1),
-							new Vec3(0, 0, 1),
-							new Vec3(0, 0, 0),
-							new Vec3(0, 1, 0)};
-				default:
-					return new Vec3[] {
-							new Vec3(1, 0, 0),
-							new Vec3(1, 0, 1),
-							new Vec3(0, 0, 1),
-							new Vec3(0, 0, 0)};
-				}
-			}
-			return new Vec3[] {
-					new Vec3(0, 0, 0),
-					new Vec3(0, 0, 0),
-					new Vec3(0, 0, 0),
-					new Vec3(0, 0, 0)};
-		}
+	private static void addVertex(VertexConsumer builder, float x, float y, float z, float u, float v, Vector3f normal, Color colour, TextureAtlasSprite sprite) {
+		builder
+		.vertex(x, y, z)
+		.uv(u, v)
+		.uv2(0, 0)
+		.color(colour.getRed(), colour.getGreen(), colour.getBlue(), colour.getAlpha())
+		.normal(normal.x(), normal.y(), normal.z())
+		.endVertex();
 	}
 
+	@Deprecated
+	public static ResourceLocation getPlayerTexture(Optional<UUID> uuid, Type type) {
+		return PlayerTextureRenderer.getTexture(uuid, type);
+	}
+
+	@Deprecated
+	public static String getSkinType(Optional<UUID> uuid) {
+		return PlayerTextureRenderer.getSkinType(uuid);
+	}
 }

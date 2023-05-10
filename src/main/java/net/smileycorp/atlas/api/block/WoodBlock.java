@@ -1,10 +1,18 @@
 package net.smileycorp.atlas.api.block;
 
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -34,7 +42,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.Material;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.event.CreativeModeTabEvent;
@@ -49,119 +56,105 @@ import net.smileycorp.atlas.api.item.AtlasBoatItem;
 public class WoodBlock {
 
 	protected final String name;
-	protected final AbstractTreeGrower treeGrower;
+	protected final boolean isFlammable;
+
+	protected final CreativeModeTab tab, decorations_tab;
+
+	protected final TagKey<Item> logs_item_tag;
+	protected final TagKey<Block> logs_block_tag;
+
+	protected final AbstractTreeGrower tree_grower;
 	protected final BlockSetType type;
 	protected final WoodType wood_type;
 	protected final BoatRegistry.Type boat_type;
-	protected final CreativeModeTab tab, decorations_tab;
 
-	protected final RegistryObject<Block> planks;
-	protected final RegistryObject<Block> stairs;
-	protected final RegistryObject<Block> slab;
-	protected final RegistryObject<Block> log;
-	protected final RegistryObject<Block> stripped_log;
-	protected final RegistryObject<Block> wood;
-	protected final RegistryObject<Block> stripped_wood;
-	protected final RegistryObject<Block> leaves;
-	protected final RegistryObject<Block> sapling;
-	protected final RegistryObject<Block> fence;
-	protected final RegistryObject<Block> fence_gate;
-	protected final RegistryObject<Block> button;
-	protected final RegistryObject<Block> pressure_plate;
-	protected final RegistryObject<Block> door;
-	protected final RegistryObject<Block> trapdoor;
-	protected final RegistryObject<Block> standing_sign;
-	protected final RegistryObject<Block> wall_sign;
-	protected final RegistryObject<Item> sign;
+	protected final Map<WoodShape, RegistryObject<Block>> BLOCKS = Maps.newHashMap();
+	protected final Optional<RegistryObject<Item>> sign;
 
 	@SuppressWarnings("deprecation")
 	protected WoodBlock(WoodBlockBuilder builder, DeferredRegister<Item> items, DeferredRegister<Block> blocks) {
 		name = builder.name;
-		treeGrower = builder.treeGrower;
+		isFlammable = builder.is_flammable;
+		tab = builder.tab;
+		decorations_tab = builder.decorations_tab;
+		logs_item_tag = ItemTags.create(new ResourceLocation(items.getRegistryName().getNamespace(), name + "_logs"));
+		logs_block_tag = BlockTags.create(new ResourceLocation(blocks.getRegistryName().getNamespace(), name + "_logs"));
+		tree_grower = builder.tree_grower;
 		type = new BlockSetType(name);
 		wood_type = WoodType.register(WoodType.register(new WoodType(name, type)));
 
-		planks = register(blocks, () -> new Block(builder.constructBaseProperties()), "planks");
-		registerItem(items, planks);
-		stairs = register(blocks, () -> new StairBlock(planks.get().defaultBlockState(), builder.constructBaseProperties()), "stairs");
-		registerItem(items, stairs);
-		slab = register(blocks, () -> new SlabBlock(builder.constructBaseProperties()), "slab");
-		registerItem(items, slab);
-		stripped_log = register(blocks, () -> new RotatedPillarBlock(builder.constructBaseProperties()), "stripped", "log");
-		registerItem(items, stripped_log);
-		stripped_wood = register(blocks, () -> new RotatedPillarBlock(builder.constructPropertiesFrom(Properties.of(builder.woodMaterial, builder.barkColour))), "stripped", name.contains("wood") ? "" : "wood");
-		registerItem(items, stripped_wood);
-		log = register(blocks, () -> new RotatedPillarBlock(builder.constructLogProperties()) {
+		register(items, blocks, () -> new Block(builder.constructBaseProperties()), WoodShape.PLANKS);
+		register(items, blocks, () -> new StairBlock(get(WoodShape.PLANKS).defaultBlockState(), builder.constructBaseProperties()), WoodShape.STAIRS);
+		register(items, blocks, () -> new SlabBlock(builder.constructBaseProperties()), WoodShape.SLAB);
+		register(items, blocks, () -> new RotatedPillarBlock(builder.constructBaseProperties()), WoodShape.STRIPPED_LOG);
+		register(items, blocks, () -> new RotatedPillarBlock(builder.constructBaseProperties()), WoodShape.STRIPPED_WOOD);
+		register(items, blocks, () -> new RotatedPillarBlock(builder.constructLogProperties()) {
 			@Override
 			public BlockState getToolModifiedState(BlockState state, UseOnContext context, ToolAction tool, boolean simulate) {
-				return tool == ToolActions.AXE_STRIP ? stripped_log.get().defaultBlockState().setValue(RotatedPillarBlock.AXIS, state.getValue(RotatedPillarBlock.AXIS)) : null;
-			}}, "log");
-		registerItem(items, log);
-		wood = register(blocks, () -> new RotatedPillarBlock(builder.constructPropertiesFrom(Properties.of(builder.woodMaterial, builder.barkColour))){
+				return tool == ToolActions.AXE_STRIP ? getStrippedLog().defaultBlockState().setValue(RotatedPillarBlock.AXIS, state.getValue(RotatedPillarBlock.AXIS)) : null;
+			}}, WoodShape.LOG);
+		register(items, blocks, () -> new RotatedPillarBlock(builder.constructPropertiesFrom(Properties.of(builder.wood_material, builder.bark_colour))){
 			@Override
 			public BlockState getToolModifiedState(BlockState state, UseOnContext context, ToolAction tool, boolean simulate) {
-				return tool == ToolActions.AXE_STRIP ? stripped_wood.get().defaultBlockState() : null;
-			}}, name.contains("wood") ? "" : "wood");
-		registerItem(items, wood);
-		leaves = register(blocks, () -> new LeavesBlock(Properties.of(builder.leavesMaterial, builder.leavesColour).strength(0.2F).randomTicks().sound(builder.leavesSound).noOcclusion()
-				.isValidSpawn(BlockUtils::jungleMob).isSuffocating(BlockUtils::never).isViewBlocking(BlockUtils::never)), "leaves");
-		registerItem(items, leaves);
-		sapling = builder.treeGrower == null ? null : register(blocks, () -> new SaplingBlock(builder.treeGrower, BlockBehaviour.Properties.of(Material.PLANT).noCollission()
-				.noOcclusion().randomTicks().instabreak().sound(SoundType.GRASS)), "sapling");
-		if (sapling!=null) registerItem(items, sapling);
-		fence = register(blocks, () -> new FenceBlock(builder.constructBaseProperties()), "fence");
-		registerItem(items, fence);
-		fence_gate = register(blocks, () -> new FenceGateBlock(builder.constructBaseProperties(), wood_type), "fence_gate");
-		registerItem(items, fence_gate);
-		button = register(blocks, () -> new ButtonBlock(builder.constructBaseProperties().noCollission(), type, 30, true), "button");
-		registerItem(items, button);
-		pressure_plate = register(blocks, () -> new PressurePlateBlock(Sensitivity.EVERYTHING, builder.constructBaseProperties().noCollission(), type), "pressure_plate");
-		registerItem(items, pressure_plate);
-		door = register(blocks, () -> new DoorBlock(builder.constructBaseProperties().noOcclusion(), type), "door");
-		registerItem(items, door);
-		trapdoor = register(blocks, () -> new TrapDoorBlock(builder.constructBaseProperties().noOcclusion(), type), "trapdoor");
-		registerItem(items, trapdoor);
-		standing_sign = register(blocks, () -> new StandingSignBlock(builder.constructBaseProperties(), wood_type), "sign");
-		wall_sign = register(blocks, () -> new WallSignBlock(builder.constructBaseProperties(), wood_type), "wall_sign");
-		sign = register(items, () -> new SignItem(new Item.Properties().stacksTo(16), standing_sign.get(), wall_sign.get()), "sign");
-		if (builder.hasBoat) {
+				return tool == ToolActions.AXE_STRIP ? getStrippedWood().defaultBlockState() : null;
+			}}, WoodShape.WOOD);
+		register(items, blocks, () -> new LeavesBlock(Properties.of(builder.leaves_material, builder.leaves_colour).strength(0.2F).randomTicks().sound(builder.leaves_sound).noOcclusion()
+				.isValidSpawn(BlockUtils::jungleMob).isSuffocating(BlockUtils::never).isViewBlocking(BlockUtils::never)), WoodShape.LEAVES);
+		if (builder.tree_grower != null) register(items, blocks, () -> new SaplingBlock(builder.tree_grower, BlockBehaviour.Properties.of(Material.PLANT).noCollission()
+				.noOcclusion().randomTicks().instabreak().sound(SoundType.GRASS)), WoodShape.SAPLING);
+		register(items, blocks, () -> new FenceBlock(builder.constructBaseProperties()), WoodShape.FENCE);
+		register(items, blocks, () -> new FenceGateBlock(builder.constructBaseProperties(), wood_type), WoodShape.FENCE_GATE);
+		register(items, blocks, () -> new ButtonBlock(builder.constructBaseProperties().noCollission(), type, 30, true), WoodShape.BUTTON);
+		register(items, blocks, () -> new PressurePlateBlock(Sensitivity.EVERYTHING, builder.constructBaseProperties().noCollission(), type), WoodShape.PRESSURE_PLATE);
+		register(items, blocks, () -> new DoorBlock(builder.constructBaseProperties().noOcclusion(), type), WoodShape.DOOR);
+		register(items, blocks, () -> new TrapDoorBlock(builder.constructBaseProperties().noOcclusion(), type), WoodShape.TRAPDOOR);
+		register(blocks, () -> new StandingSignBlock(builder.constructBaseProperties(), wood_type), WoodShape.SIGN);
+		register(blocks, () -> new WallSignBlock(builder.constructBaseProperties(), wood_type), WoodShape.WALL_SIGN);
+		sign = Optional.of(items.register(WoodShape.SIGN.getName(name),
+				() -> new SignItem(new Item.Properties().stacksTo(16), get(WoodShape.SIGN), get(WoodShape.WALL_SIGN))));
+		if (builder.has_boat) {
 			boat_type = BoatRegistry.INSTANCE.register(name, builder.modid, items, builder.decorations_tab);
 		} else {
 			boat_type = null;
 		}
-		tab = builder.tab;
-		decorations_tab = builder.decorations_tab;
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
-	protected void registerItem(DeferredRegister<Item> items, RegistryObject<Block> block) {
+	protected void registerItem(DeferredRegister<Item> items, RegistryObject<Block> block, CreativeModeTab tab) {
 		items.register(block.getId().getPath(), () -> new BlockItem(block.get(), new Item.Properties()));
 	}
 
-	protected <T> RegistryObject<T> register(DeferredRegister<T> registry, Supplier<T> supplier, String suffix) {
-		return register(registry, supplier, "", suffix);
+	protected void register(DeferredRegister<Block> blocks, Supplier<Block> supplier, WoodShape shape) {
+		RegistryObject<Block> block = blocks.register(shape.getName(name), supplier);
+		BLOCKS.put(shape, block);
+	}
+
+
+	protected void register(DeferredRegister<Item> items, DeferredRegister<Block> blocks, Supplier<Block> supplier, WoodShape shape) {
+		RegistryObject<Block> block = blocks.register(shape.getName(name), supplier);
+		BLOCKS.put(shape, block);
+		items.register(shape.getName(name), () -> new BlockItem(block.get(), new Item.Properties()));
 	}
 
 	@SubscribeEvent
 	public void addCreative(CreativeModeTabEvent.BuildContents event) {
 		if (event.getTab() == tab) {
-			event.m_246326_(planks.get().asItem());
-			event.m_246326_(stairs.get().asItem());
-			event.m_246326_(slab.get().asItem());
-			event.m_246326_(stripped_log.get().asItem());
-			event.m_246326_(stripped_wood.get().asItem());
-			event.m_246326_(log.get());
-			event.m_246326_(wood.get());
+			event.m_246326_(getPlanks().asItem());
+			event.m_246326_(getStairs().asItem());
+			event.m_246326_(getSlab().asItem());
+			event.m_246326_(getStrippedLog().asItem());
+			event.m_246326_(getStrippedWood().asItem());
+			event.m_246326_(getLog());
+			event.m_246326_(getWood());
 		} else if (event.getTab() == decorations_tab) {
-			event.m_246326_(leaves.get().asItem());
-			if (sapling != null) event.m_246326_(sapling.get().asItem());
-			event.m_246326_(fence.get().asItem());
-			event.m_246326_(fence_gate.get().asItem());
-			event.m_246326_(button.get().asItem());
-			event.m_246326_(pressure_plate.get());
-			event.m_246326_(door.get());
-			event.m_246326_(trapdoor.get());
-			event.m_246326_(sign.get());
+			event.m_246326_(getLeaves().asItem());
+			if (BLOCKS.containsKey(WoodShape.SAPLING)) event.m_246326_(getSapling().asItem());
+			event.m_246326_(getFence().asItem());
+			event.m_246326_(getFenceGate().asItem());
+			event.m_246326_(getButton().asItem());
+			event.m_246326_(getPressurePlate());
+			event.m_246326_(getDoor());
+			event.m_246326_(getTrapdoor());
+			event.m_246326_(getSignItem());
 		}
 	}
 
@@ -177,80 +170,96 @@ public class WoodBlock {
 		return name;
 	}
 
-	public AbstractTreeGrower getTreeGrower() {
-		return treeGrower;
+	public boolean isFlammable() {
+		return isFlammable;
 	}
 
-	public WoodType getSignType() {
+	public TagKey<Item> getLogItemTag() {
+		return logs_item_tag;
+	}
+
+	public TagKey<Block> getLogBlockTag() {
+		return logs_block_tag;
+	}
+
+	public AbstractTreeGrower getTreeGrower() {
+		return tree_grower;
+	}
+
+	public WoodType getWoodType() {
 		return wood_type;
 	}
 
+	public Block get(WoodShape shape) {
+		return BLOCKS.containsKey(shape) ? BLOCKS.get(shape).get() : null;
+	}
+
 	public Block getPlanks() {
-		return planks.get();
+		return get(WoodShape.PLANKS);
 	}
 
 	public StairBlock getStairs() {
-		return (StairBlock) stairs.get();
+		return (StairBlock) get(WoodShape.STAIRS);
 	}
 
 	public SlabBlock getSlab() {
-		return (SlabBlock) slab.get();
+		return (SlabBlock) get(WoodShape.SLAB);
 	}
 
 	public RotatedPillarBlock getLog() {
-		return (RotatedPillarBlock) log.get();
+		return (RotatedPillarBlock) get(WoodShape.LOG);
 	}
 
 	public RotatedPillarBlock getStrippedLog() {
-		return (RotatedPillarBlock) stripped_log.get();
+		return (RotatedPillarBlock) get(WoodShape.STRIPPED_LOG);
 	}
 
 	public RotatedPillarBlock getWood() {
-		return (RotatedPillarBlock) wood.get();
+		return (RotatedPillarBlock) get(WoodShape.WOOD);
 	}
 
 	public RotatedPillarBlock getStrippedWood() {
-		return (RotatedPillarBlock) stripped_wood.get();
+		return (RotatedPillarBlock) get(WoodShape.STRIPPED_WOOD);
 	}
 
 	public LeavesBlock getLeaves() {
-		return (LeavesBlock) leaves.get();
+		return (LeavesBlock) get(WoodShape.LEAVES);
 	}
 
 	public SaplingBlock getSapling() {
-		return sapling == null ? null : (SaplingBlock) sapling.get();
+		return (SaplingBlock) get(WoodShape.SAPLING);
 	}
 
 	public FenceBlock getFence() {
-		return (FenceBlock) fence.get();
+		return (FenceBlock) get(WoodShape.FENCE);
 	}
 
 	public FenceGateBlock getFenceGate() {
-		return (FenceGateBlock) fence_gate.get();
+		return (FenceGateBlock) get(WoodShape.FENCE_GATE);
 	}
 
 	public ButtonBlock getButton() {
-		return (ButtonBlock) button.get();
+		return (ButtonBlock) get(WoodShape.BUTTON);
 	}
 
 	public PressurePlateBlock getPressurePlate() {
-		return (PressurePlateBlock) pressure_plate.get();
+		return (PressurePlateBlock) get(WoodShape.PRESSURE_PLATE);
 	}
 
 	public DoorBlock getDoor() {
-		return (DoorBlock) door.get();
+		return (DoorBlock) get(WoodShape.DOOR);
 	}
 
 	public TrapDoorBlock getTrapdoor() {
-		return (TrapDoorBlock) trapdoor.get();
+		return (TrapDoorBlock) get(WoodShape.TRAPDOOR);
 	}
 
 	public SignBlock getSignBlock(boolean onWall) {
-		return (SignBlock) (onWall ? wall_sign.get() : standing_sign.get());
+		return (SignBlock) (onWall ? get(WoodShape.WALL_SIGN) : get(WoodShape.SIGN));
 	}
 
-	public SignItem getSign() {
-		return (SignItem) sign.get();
+	public SignItem getSignItem() {
+		return (SignItem) sign.get().orElse(null);
 	}
 
 	public AtlasBoatItem getBoat() {
@@ -281,7 +290,48 @@ public class WoodBlock {
 		FuelHandler.INSTANCE.registerFuel(getPressurePlate(), 300);
 		FuelHandler.INSTANCE.registerFuel(getDoor(), 200);
 		FuelHandler.INSTANCE.registerFuel(getTrapdoor(), 300);
-		FuelHandler.INSTANCE.registerFuel(getSign(), 200);
+		FuelHandler.INSTANCE.registerFuel(getSignItem(), 200);
 	}
+
+	public static enum WoodShape {
+		PLANKS("planks"), STAIRS("stairs"), SLAB("slab"),
+		STRIPPED_LOG("stripped", "log"), STRIPPED_WOOD("stripped", "wood"), LOG("log"), WOOD("wood"),
+		LEAVES("", "leaves", true), SAPLING("", "sapling", true),
+		FENCE("", "fence", true), FENCE_GATE("", "fence_gate", true), BUTTON("", "button", true), PRESSURE_PLATE("", "pressure_plate", true),
+		DOOR("", "door", true), TRAPDOOR("", "trapdoor", true), SIGN("sign"), WALL_SIGN("wall_sign");
+
+		private final String suffix, prefix;
+		private final boolean is_decoration;
+
+		private WoodShape(String suffix) {
+			this("", suffix);
+		}
+
+		private WoodShape(String prefix, String suffix) {
+			this(prefix, suffix, false);
+		}
+
+		private WoodShape(String prefix, String suffix, boolean isDecoration) {
+			this.prefix = prefix;
+			this.suffix = suffix;
+			is_decoration = isDecoration;
+		}
+
+		public String getName(String name) {
+			StringBuilder builder = new StringBuilder();
+			if (!prefix.isBlank()) builder.append(prefix + "_");
+			builder.append(name.toLowerCase());
+			if (!suffix.isBlank()) {
+				if(!(name.contains("wood") && suffix.equals("wood"))) builder.append("_" + suffix);
+			}
+			return builder.toString();
+		}
+
+		public CreativeModeTab getTab(WoodBlock wood_block) {
+			return is_decoration ? wood_block.decorations_tab : wood_block.tab;
+		}
+
+	}
+
 
 }

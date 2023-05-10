@@ -1,6 +1,9 @@
 package net.smileycorp.atlas.api.block;
 
+import java.util.Map;
 import java.util.function.Supplier;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -21,58 +24,59 @@ public class ShapedBlock {
 	protected final String name;
 	protected final CreativeModeTab tab;
 
-	protected final RegistryObject<Block> base;
-	protected final RegistryObject<Block> stairs;
-	protected final RegistryObject<Block> slab;
-	protected final RegistryObject<Block> wall;
+	protected final Map<BlockShape, RegistryObject<Block>> BLOCKS = Maps.newHashMap();
 
 	public ShapedBlock(String name, CreativeModeTab tab, BlockBehaviour.Properties properties, DeferredRegister<Item> items, DeferredRegister<Block> blocks, boolean hasWall) {
 		this.name=name;
 		this.tab=tab;
-		base = register(items, blocks, () -> new Block(properties), "");
-		stairs = register(items, blocks, () -> new StairBlock(()->base.get().defaultBlockState(), properties), "stairs");
-		slab = register(items, blocks, () -> new SlabBlock(properties), "slab");
-		wall = hasWall ? register(items, blocks, () -> new WallBlock(properties), "wall") : null;
+		register(items, blocks, () -> new Block(properties), BlockShape.BASE);
+		register(items, blocks, () -> new StairBlock(()->getBase().defaultBlockState(), properties), BlockShape.STAIRS);
+		register(items, blocks, () -> new SlabBlock(properties), BlockShape.SLAB);
+		if (hasWall) register(items, blocks, () -> new WallBlock(properties), BlockShape.WALL);
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 
-	protected RegistryObject<Block> register(DeferredRegister<Item> items, DeferredRegister<Block> blocks, Supplier<Block> supplier, String suffix) {
-		RegistryObject<Block> block = register(blocks, supplier, suffix);
-		register(items, () -> new BlockItem(supplier.get(), new Item.Properties()), suffix);
-		return block;
-	}
-
-	protected <T> RegistryObject<T> register(DeferredRegister<T> registry, Supplier<T> object, String suffix) {
-		StringBuilder builder = new StringBuilder();
-		builder.append(name.toLowerCase());
-		if (!suffix.isBlank()) builder.append("_" + suffix);
-		return registry.register(builder.toString(), object);
+	protected void register(DeferredRegister<Item> items, DeferredRegister<Block> blocks, Supplier<Block> supplier, BlockShape shape) {
+		String name = this.name;
+		if (shape != BlockShape.BASE) name += "_" + shape.name().toLowerCase();
+		RegistryObject<Block> block = blocks.register(name, supplier);
+		items.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
+		BLOCKS.put(shape, block);
 	}
 
 	@SubscribeEvent
 	public void addCreative(CreativeModeTabEvent.BuildContents event) {
 		if (event.getTab() == tab) {
-			event.m_246326_(base.get().asItem());
-			event.m_246326_(stairs.get().asItem());
-			event.m_246326_(slab.get().asItem());
-			if (wall != null) event.m_246326_(wall.get().asItem());
+			event.m_246326_(getBase().asItem());
+			event.m_246326_(getStairs().asItem());
+			event.m_246326_(getSlab().asItem());
+			if (BLOCKS.containsKey(BlockShape.WALL)) event.m_246326_(getWall().asItem());
 		}
 	}
 
+	public Block get(BlockShape shape) {
+		return BLOCKS.containsKey(shape) ? BLOCKS.get(shape).get() : null;
+	}
+
 	public Block getBase() {
-		return base.get();
+		return get(BlockShape.BASE);
 	}
 
 	public StairBlock getStairs() {
-		return (StairBlock) stairs.get();
+		return (StairBlock) get(BlockShape.STAIRS);
 	}
 
 	public SlabBlock getSlab() {
-		return (SlabBlock) slab.get();
+		return (SlabBlock) get(BlockShape.SLAB);
 	}
 
 	public WallBlock getWall() {
-		return wall == null ? null : (WallBlock) wall.get();
+		return (WallBlock) get(BlockShape.WALL);
+	}
+
+
+	public static enum BlockShape {
+		BASE, STAIRS, SLAB, WALL;
 	}
 
 }
