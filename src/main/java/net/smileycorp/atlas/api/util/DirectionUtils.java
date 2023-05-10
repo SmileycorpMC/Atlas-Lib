@@ -47,7 +47,7 @@ public class DirectionUtils {
 		return new Vec3 (entity.getX(), entity.getY(), entity.getZ());
 	}
 
-	public static Direction getFacing(Vec3  vec) {
+	public static Direction getFacing(Vec3 vec) {
 		return Direction.getNearest(vec.x, vec.y, vec.z);
 	}
 

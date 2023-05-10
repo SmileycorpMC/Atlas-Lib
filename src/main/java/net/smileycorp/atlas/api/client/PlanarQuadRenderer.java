@@ -14,33 +14,33 @@ class PlanarQuadRenderer {
 		return getOffsetFor(facing, new Vector3f(x, y, z), layer);
 	}
 
-	private static Vector3f getOffsetFor(Direction facing, Vector3f vector, int layer) {
+	public static Vector3f getOffsetFor(Direction facing, Vector3f vector, int layer) {
+		if (layer == 0) return vector;
 		switch(facing) {
 		case UP:
-			vector.add(0, offsetLayer(1, layer), 0);
+			vector.add(0, offsetLayer(layer), 0);
 			break;
 		case DOWN:
-			vector.add(0, offsetLayer(0, -layer), 0);
+			vector.add(0, offsetLayer(-layer), 0);
 			break;
 		case NORTH:
-			vector.add(0, 0, offsetLayer(0, -layer));
+			vector.add(0, 0, offsetLayer(-layer));
 			break;
 		case SOUTH:
-			vector.add(0, 0, offsetLayer(1, layer));
+			vector.add(0, 0, offsetLayer(layer));
 			break;
 		case EAST:
-			vector.add(offsetLayer(1, layer), 0, 0);
+			vector.add(offsetLayer(layer), 0, 0);
 			break;
 		case WEST:
-			vector.add(offsetLayer(0, -layer), 0, 0);
+			vector.add(offsetLayer(-layer), 0, 0);
 			break;
 		}
 		return vector;
 	}
 
-	private static float offsetLayer(float offset, int layer) {
-		float layerOffset = 0.001f*layer;
-		return offset+layerOffset;
+	private static float offsetLayer(int layer) {
+		return 0.001f*layer;
 	}
 
 	static Vector3f[] getQuadsFor(Direction facing) {

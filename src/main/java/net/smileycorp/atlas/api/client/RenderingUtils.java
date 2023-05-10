@@ -77,7 +77,7 @@ public class RenderingUtils {
 	public static List<BakedQuad> getQuadsForPlane(Direction facing, Color colour, TextureAtlasSprite sprite, int layer) {
 		List<BakedQuad> quads = new ArrayList<BakedQuad>();
 		Vector3f[] vecs = PlanarQuadRenderer.getQuadsFor(facing);
-		//for(int i = 0; i < vecs.length; i++) vecs[i] = PlanarQuadRenderer.getOffsetFor(facing, vecs[i], layer);
+		for(int i = 0; i < vecs.length; i++) vecs[i] = PlanarQuadRenderer.getOffsetFor(facing, vecs[i], layer);
 		BakedQuadBuilder builder = new BakedQuadBuilder(sprite);
 		builder.setQuadOrientation(facing);
 		Vector3f normal = new Vector3f(vecs[2].x()-vecs[1].x(), vecs[2].y()-vecs[1].y(), vecs[2].z()-vecs[1].z());
