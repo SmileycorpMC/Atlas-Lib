@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -27,14 +28,14 @@ public class ShapedBlock {
 		this.name=name;
 		this.tab=tab;
 		register(items, blocks, () -> new Block(properties), BlockShape.BASE);
-		register(items, blocks, () -> new StairBlock(() -> getBase().defaultBlockState(), properties), BlockShape.STAIRS);;
+		register(items, blocks, () -> new StairBlock(() -> getBase().defaultBlockState(), properties), BlockShape.STAIRS);
 		register(items, blocks, () -> new SlabBlock(properties), BlockShape.SLAB);
 		if (hasWall) register(items, blocks, () -> new WallBlock(properties), BlockShape.WALL);
 	}
 
 	protected void register(DeferredRegister<Item> items, DeferredRegister<Block> blocks, Supplier<Block> supplier, BlockShape shape) {
 		String name = this.name;
-		if (shape != BlockShape.BASE) name += "_" + shape.name().toLowerCase();
+		if (shape != BlockShape.BASE) name += "_" + shape.getSerializedName();
 		RegistryObject<Block> block = blocks.register(name, supplier);
 		items.register(name, () -> new BlockItem(block.get(), new Item.Properties().tab(tab)));
 		BLOCKS.put(shape, block);
@@ -61,7 +62,18 @@ public class ShapedBlock {
 	}
 
 
-	public static enum BlockShape {
-		BASE, STAIRS, SLAB, WALL;
+	public static enum BlockShape implements StringRepresentable {
+		BASE("base"), STAIRS("stairs"), SLAB("slab"), WALL("wall");
+
+		private final String name;
+
+		BlockShape(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String getSerializedName() {
+			return name;
+		}
 	}
 }
