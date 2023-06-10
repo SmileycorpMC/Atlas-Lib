@@ -1,29 +1,22 @@
 package net.smileycorp.atlas.api.item;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiFunction;
-
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.HoeItem;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.Item.Properties;
-import net.minecraft.world.item.PickaxeItem;
-import net.minecraft.world.item.ShovelItem;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
-import net.minecraft.world.item.TieredItem;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.BiFunction;
 
 public class ToolSet {
 
 	final String name;
 	final Tier material;
+	protected final CreativeModeTab toolTab, weaponTab;
 
 	Map<ToolType, RegistryObject<Item>> tools = new HashMap<ToolType, RegistryObject<Item>>();
 
@@ -34,10 +27,21 @@ public class ToolSet {
 	public ToolSet(String name, Tier material, CreativeModeTab toolTab, CreativeModeTab weaponTab, DeferredRegister<Item> registry) {
 		this.name=name;
 		this.material=material;
+		this.toolTab = toolTab;
+		this.weaponTab = weaponTab;
 		for (ToolType type : ToolType.values()) {
-			RegistryObject<Item> item = type.createItem(name, material, type.isWeapon() ? weaponTab : toolTab, registry);
+			RegistryObject<Item> item = type.createItem(name, material, registry);
 			if (item!=null) tools.put(type, item);
 		}
+		MinecraftForge.EVENT_BUS.register(this);
+	}
+
+	@SubscribeEvent
+	public void addCreative(BuildCreativeModeTabContentsEvent event) {
+		if (event.getTab() == toolTab) for (Entry<ToolType, RegistryObject<Item>> entry : tools.entrySet())
+			if (!entry.getKey().isWeapon) event.accept(entry.getValue().get());
+		if (event.getTab() == weaponTab) for (Entry<ToolType, RegistryObject<Item>> entry : tools.entrySet())
+			if (entry.getKey().isWeapon) event.accept(entry.getValue().get());
 	}
 
 	public String getName() {
@@ -98,8 +102,8 @@ public class ToolSet {
 			return name;
 		}
 
-		public RegistryObject<Item> createItem(String name, Tier material, CreativeModeTab tab, DeferredRegister<Item> registry) {
-			return registry.register(name + "_" + this.name, ()-> function.apply(material, new Properties().tab(tab)));
+		public RegistryObject<Item> createItem(String name, Tier material, DeferredRegister<Item> registry) {
+			return registry.register(name + "_" + this.name, ()-> function.apply(material, new Properties()));
 		}
 	}
 

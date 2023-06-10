@@ -1,10 +1,6 @@
 package net.smileycorp.atlas.api.block;
 
-import java.util.Map;
-import java.util.function.Supplier;
-
 import com.google.common.collect.Maps;
-
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -14,8 +10,14 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
+
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class ShapedBlock {
 
@@ -31,14 +33,25 @@ public class ShapedBlock {
 		register(items, blocks, () -> new StairBlock(() -> getBase().defaultBlockState(), properties), BlockShape.STAIRS);
 		register(items, blocks, () -> new SlabBlock(properties), BlockShape.SLAB);
 		if (hasWall) register(items, blocks, () -> new WallBlock(properties), BlockShape.WALL);
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	protected void register(DeferredRegister<Item> items, DeferredRegister<Block> blocks, Supplier<Block> supplier, BlockShape shape) {
 		String name = this.name;
 		if (shape != BlockShape.BASE) name += "_" + shape.getSerializedName();
 		RegistryObject<Block> block = blocks.register(name, supplier);
-		items.register(name, () -> new BlockItem(block.get(), new Item.Properties().tab(tab)));
+		items.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
 		BLOCKS.put(shape, block);
+	}
+
+	@SubscribeEvent
+	public void addCreative(BuildCreativeModeTabContentsEvent event) {
+		if (event.getTab() == tab) {
+			event.accept(getBase().asItem());
+			event.accept(getStairs().asItem());
+			event.accept(getSlab().asItem());
+			if (BLOCKS.containsKey(BlockShape.WALL)) event.accept(getWall().asItem());
+		}
 	}
 
 	public Block get(BlockShape shape) {

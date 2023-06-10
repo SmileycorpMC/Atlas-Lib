@@ -1,9 +1,9 @@
 package net.smileycorp.atlas.api.client.colour;
 
-import java.awt.Color;
-
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.world.item.ItemStack;
+
+import java.awt.*;
 
 public class FoliageItemColour implements ItemColor {
 

@@ -1,9 +1,9 @@
 package net.smileycorp.atlas.api.item;
 
-import java.util.function.Supplier;
-
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
+
+import java.util.function.Supplier;
 
 public class CustomTier implements Tier {
 

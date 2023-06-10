@@ -1,8 +1,8 @@
 package net.smileycorp.atlas.api.network;
 
-import java.util.function.BiConsumer;
-
 import net.minecraft.network.FriendlyByteBuf;
+
+import java.util.function.BiConsumer;
 
 public class SimpleMessageEncoder<T extends SimpleAbstractMessage> implements BiConsumer<T, FriendlyByteBuf> {
 

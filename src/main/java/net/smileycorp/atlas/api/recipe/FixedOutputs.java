@@ -1,12 +1,8 @@
 package net.smileycorp.atlas.api.recipe;
 
 import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
 
 public class FixedOutputs<T> extends WeightedOutputs<T> {
 

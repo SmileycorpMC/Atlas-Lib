@@ -1,29 +1,27 @@
 package net.smileycorp.atlas.api.client;
 
-import java.net.URI;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.UUID;
-
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.SkinManager;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+
+import java.net.URI;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.UUID;
 
 public class PlayerTextureRenderer {
 
@@ -66,7 +64,7 @@ public class PlayerTextureRenderer {
 		if (type == Type.ELYTRA && textures.containsKey(Type.CAPE)) return manager.registerTexture(textures.get(Type.CAPE), Type.CAPE);
 		switch (type) {
 		case SKIN:
-			return DefaultPlayerSkin.getDefaultSkin(Player.createPlayerUUID(profile));
+			return DefaultPlayerSkin.getDefaultSkin(UUIDUtil.getOrCreatePlayerUUID(profile));
 		case ELYTRA:
 			return new ResourceLocation("textures/entity/elytra.png");
 		default:
@@ -94,7 +92,7 @@ public class PlayerTextureRenderer {
 		SkinManager manager = mc.getSkinManager();
 		Map<Type, MinecraftProfileTexture> textures = manager.getInsecureSkinInformation(profile);
 		if (textures.containsKey(Type.SKIN)) return textures.get(Type.SKIN).getMetadata("model");
-		return DefaultPlayerSkin.getSkinModelName(Player.createPlayerUUID(profile));
+		return DefaultPlayerSkin.getSkinModelName(UUIDUtil.getOrCreatePlayerUUID(profile));
 	}
 
 	public static String getSkinType(String username) {

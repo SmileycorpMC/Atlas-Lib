@@ -1,13 +1,12 @@
 package net.smileycorp.atlas.api.data;
 
+import com.google.gson.JsonElement;
+import net.minecraft.nbt.CompoundTag;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-
-import com.google.gson.JsonElement;
-
-import net.minecraft.nbt.CompoundTag;
 
 
 public class DataType<T extends Comparable<T>> {

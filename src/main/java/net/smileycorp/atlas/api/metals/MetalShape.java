@@ -1,15 +1,14 @@
 package net.smileycorp.atlas.api.metals;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import com.google.common.base.Predicate;
-
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.DeferredRegister;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class MetalShape<T extends ItemLike> {
 

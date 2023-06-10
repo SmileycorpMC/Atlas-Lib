@@ -1,9 +1,9 @@
 package net.smileycorp.atlas.api.block;
 
+import net.minecraft.world.level.block.state.properties.Property;
+
 import java.util.List;
 import java.util.Optional;
-
-import net.minecraft.world.level.block.state.properties.Property;
 
 public class PropertyString extends Property<String> {
 

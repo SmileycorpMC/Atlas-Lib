@@ -1,12 +1,12 @@
 package net.smileycorp.atlas.api.util;
 
-import java.util.UUID;
-
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.UUID;
 
 public class DataUtils {
 

@@ -1,8 +1,5 @@
 package net.smileycorp.atlas.api.util;
 
-import java.util.List;
-import java.util.Random;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -12,11 +9,10 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.*;
+
+import java.util.List;
+import java.util.Random;
 
 public class DirectionUtils {
 
@@ -137,11 +133,11 @@ public class DirectionUtils {
 	}
 
 	public static BlockPos getClosestLoadedPos(Level level, BlockPos basepos, Vec3  direction, double radius, Heightmap.Types type) {
-		BlockPos pos = level.getHeightmapPos(type, basepos.offset(direction.x*radius, 0, direction.z*radius));
+		BlockPos pos = level.getHeightmapPos(type, basepos.offset((int)(direction.x*radius), 0, (int) (direction.z*radius)));
 		while (!level.hasChunk(pos.getX()/16, pos.getZ()/16)) {
 			if (radius==0) return basepos;
 			radius--;
-			pos = level.getHeightmapPos(type, basepos.offset(direction.x*radius, 0, direction.z*radius));
+			pos = level.getHeightmapPos(type, basepos.offset((int) (direction.x*radius), 0, (int) (direction.z*radius)));
 		}
 		return pos;
 	}
@@ -151,11 +147,11 @@ public class DirectionUtils {
 	}
 
 	public static BlockPos getClosestLoadedPos(Level level, BlockPos basepos, Vec3  direction, double radius, int maxlight, int minlight, Heightmap.Types type) {
-		BlockPos pos = level.getHeightmapPos(type, basepos.offset(direction.x*radius, 0, direction.z*radius));
+		BlockPos pos = level.getHeightmapPos(type, basepos.offset((int) (direction.x*radius), 0, (int) (direction.z*radius)));
 		while (!level.hasChunk(pos.getX()/16, pos.getZ()/16) || !isBrightnessAllowed(level, basepos, maxlight, minlight)) {
 			if (radius==0) return basepos;
 			radius--;
-			pos = level.getHeightmapPos(type, basepos.offset(direction.x*radius, 0, direction.z*radius));
+			pos = level.getHeightmapPos(type, basepos.offset((int) (direction.x*radius), 0, (int) (direction.z*radius)));
 		}
 		return pos;
 	}

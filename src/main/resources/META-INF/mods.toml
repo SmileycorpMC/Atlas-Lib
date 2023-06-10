@@ -1,13 +1,13 @@
 modLoader="javafml" #mandatory
-loaderVersion="[37,)"
+loaderVersion="[46,)"
 license="GNU LESSER GENERAL PUBLIC LICENSE Version 2.1"
 
 [[mods]]
 modId="atlaslib"
-version="1.1.7a"
+version="1.1.8"
 displayName="Atlas Lib"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/atlas-lib" #optional
-updateJSONURL="https://raw.githubusercontent.com/SmileycorpMC/Atlas-Lib/1.18/update.json"
+updateJSONURL="https://raw.githubusercontent.com/SmileycorpMC/Atlas-Lib/1.20/update.json"
 credits="Smileycorp" #optional
 authors="Smileycorp" #optional
 description=""

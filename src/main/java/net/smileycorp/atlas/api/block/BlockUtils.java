@@ -1,11 +1,11 @@
 package net.smileycorp.atlas.api.block;
 
-import java.util.Random;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.Random;
 
 public class BlockUtils {
 	

@@ -1,9 +1,9 @@
 package net.smileycorp.atlas.api.util;
 
-import java.util.List;
-
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.List;
 
 public class RecipeUtils {
 
