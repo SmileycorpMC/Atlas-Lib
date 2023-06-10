@@ -1,5 +1,6 @@
 package net.smileycorp.atlas.api.block;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -161,7 +162,7 @@ public class WoodBlock {
 	protected <T> RegistryObject<T> register(DeferredRegister<T> registry, Supplier<T> supplier, String prefix, String suffix) {
 		StringBuilder builder = new StringBuilder();
 		if (!prefix.isBlank()) builder.append(prefix + "_");
-		builder.append(name.toLowerCase());
+		builder.append(name.toLowerCase(Locale.US));
 		if (!suffix.isBlank()) builder.append("_" + suffix);
 		return registry.register(builder.toString(), supplier);
 	}
@@ -320,7 +321,7 @@ public class WoodBlock {
 		public String getName(String name) {
 			StringBuilder builder = new StringBuilder();
 			if (!prefix.isBlank()) builder.append(prefix + "_");
-			builder.append(name.toLowerCase());
+			builder.append(name.toLowerCase(Locale.US));
 			if (!suffix.isBlank()) {
 				if(!(name.contains("wood") && suffix.equals("wood"))) builder.append("_" + suffix);
 			}

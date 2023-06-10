@@ -3,15 +3,23 @@
   "1.19.2": {
     "1.1.4": "Port to 1.19",
 	"1.1.5": "Port fixes from 1.18 version, fix changes with 1.19.1 forge",
-	"1.1.6": "Port elytra fixes from 1.18 version"
+	"1.1.6": "Port elytra fixes from 1.18 version",
+	"1.1.6": "Port elytra fixes from 1.18 version",
+	"1.1.7": "Re-add rendering code, player etxture rendering now supports rendering based on username",
+	"1.1.8": "fix bug that caused shaped blocks not to load on systems with different alphabet systems"
   },
   "1.19.3": {
 	"1.1.6a": "Update to 1.19.3"
+  },
+  "1.19.4": {
+	"1.1.8": "Update to 1.19.4"
   },
   "promos": {
     "1.19.2-latest": "1.1.6",
     "1.19.2-recommended": "1.1.6",
 	"1.19.3-latest": "1.1.6a",
-    "1.19.3-recommended": "1.1.6a"
+    "1.19.3-recommended": "1.1.6a",
+	"1.19.4-latest": "1.1.8",
+    "1.19.4-recommended": "1.1.8"
   }
 }
