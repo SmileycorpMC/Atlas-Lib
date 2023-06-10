@@ -14,7 +14,11 @@ public class NetworkUtils {
 		return NetworkRegistry.newSimpleChannel(loc, ()-> "1", "1"::equals, "1"::equals);
 	}
 
-	public static <T extends SimpleAbstractMessage> void registerMessage(SimpleChannel channel, int id, Class<T> clazz, BiConsumer<T, Supplier<NetworkEvent.Context>> function) {
+	public static <T extends AbstractMessage> void registerMessage(SimpleChannel channel, int id, Class<T> clazz) {
+		channel.registerMessage(id, clazz, new SimpleMessageEncoder<T>(), new SimpleMessageDecoder<T>(clazz), (packet, ctx)->packet.process(ctx.get()));
+	}
+
+	public static <T extends AbstractMessage> void registerMessage(SimpleChannel channel, int id, Class<T> clazz, BiConsumer<T, Supplier<NetworkEvent.Context>> function) {
 		channel.registerMessage(id, clazz, new SimpleMessageEncoder<T>(), new SimpleMessageDecoder<T>(clazz), function);
 	}
 

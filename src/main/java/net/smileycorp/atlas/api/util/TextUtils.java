@@ -1,5 +1,10 @@
 package net.smileycorp.atlas.api.util;
 
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
+
+import javax.annotation.Nullable;
+
 public class TextUtils {
 
 	public static String toProperCase(String string) {
@@ -27,6 +32,10 @@ public class TextUtils {
 			}
 		}
 		return String.valueOf(value) + suffix;
+	}
+
+	public static MutableComponent translatableComponent(String key, @Nullable String fallback, Object... values) {
+		return MutableComponent.create(new TranslatableContents(key, fallback, new Object[]{values}));
 	}
 	
 }

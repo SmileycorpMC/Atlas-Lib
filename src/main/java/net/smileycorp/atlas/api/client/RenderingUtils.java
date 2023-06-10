@@ -1,14 +1,17 @@
 package net.smileycorp.atlas.api.client;
 
 import com.google.common.collect.Lists;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -96,13 +99,14 @@ public class RenderingUtils {
 				.endVertex();
 	}
 
-	@Deprecated
-	public static ResourceLocation getPlayerTexture(Optional<UUID> uuid, Type type) {
-		return PlayerTextureRenderer.getTexture(uuid, type);
+	public static void drawText(PoseStack stack, Component text, float x, float y, int colour, boolean hasShadow) {
+		Minecraft mc = Minecraft.getInstance();
+		mc.font.drawInBatch(text, x, y, colour, hasShadow, stack.last().pose(), mc.renderBuffers().bufferSource(), Font.DisplayMode.NORMAL,0, 15728880);
 	}
 
-	@Deprecated
-	public static String getSkinType(Optional<UUID> uuid) {
-		return PlayerTextureRenderer.getSkinType(uuid);
+	public static void drawText(PoseStack stack, String text, float x, float y, int colour, boolean hasShadow) {
+		Minecraft mc = Minecraft.getInstance();
+		mc.font.drawInBatch(text, x, y, colour, hasShadow, stack.last().pose(), mc.renderBuffers().bufferSource(), Font.DisplayMode.NORMAL,0, 15728880);
 	}
+
 }
