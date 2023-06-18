@@ -35,7 +35,7 @@ public class TextUtils {
 	}
 
 	public static MutableComponent translatableComponent(String key, @Nullable String fallback, Object... values) {
-		return MutableComponent.create(new TranslatableContents(key, fallback, new Object[]{values}));
+		return MutableComponent.create(new TranslatableContents(key, fallback, values));
 	}
 	
 }
