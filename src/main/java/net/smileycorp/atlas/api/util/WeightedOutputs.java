@@ -1,7 +1,9 @@
-package net.smileycorp.atlas.api.recipe;
+package net.smileycorp.atlas.api.util;
 
-import java.util.AbstractMap.SimpleEntry;
+import net.minecraft.util.RandomSource;
+
 import java.util.*;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 
 public class WeightedOutputs<T> {
@@ -34,11 +36,11 @@ public class WeightedOutputs<T> {
 		return entries.isEmpty();
 	}
 
-	public T getResult(Random rand) {
+	public T getResult(RandomSource rand) {
 		return getResults(rand, 1).get(0);
 	}
 
-	public List<T> getResults(Random rand) {
+	public List<T> getResults(RandomSource rand) {
 		return getResults(rand, 1);
 	}
 
@@ -80,7 +82,7 @@ public class WeightedOutputs<T> {
 		this.entries.addAll(entries.entrySet());
 	}
 
-	public List<T> getResults(Random rand, int tries) {
+	public List<T> getResults(RandomSource rand, int tries) {
 		List<T> list = new ArrayList<T>();
 		List<Entry<T, Integer>> mappedEntries = new ArrayList<Entry<T, Integer>>();
 		int max = 0;

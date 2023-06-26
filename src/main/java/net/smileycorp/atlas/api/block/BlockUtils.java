@@ -1,6 +1,7 @@
 package net.smileycorp.atlas.api.block;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
@@ -9,11 +10,11 @@ import java.util.Random;
 
 public class BlockUtils {
 	
-	public static int getFortune(int fortune, Random rand) {
+	public static int getFortune(int fortune, RandomSource rand) {
 		return getFortune(fortune, 1, rand);
 	}
 	
-	public static int getFortune(int fortune, int base, Random rand) {
+	public static int getFortune(int fortune, int base, RandomSource rand) {
 		int drops = (Math.max(0, rand.nextInt(fortune + 2) - 1) + 1 + fortune)*base;
 		return drops;
 	}

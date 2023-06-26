@@ -1,4 +1,6 @@
-package net.smileycorp.atlas.api.recipe;
+package net.smileycorp.atlas.api.util;
+
+import net.minecraft.util.RandomSource;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
@@ -38,7 +40,7 @@ public class FixedOutputs<T> extends WeightedOutputs<T> {
 	}
 
 	@Override
-	public List<T> getResults(Random rand, int tries) {
+	public List<T> getResults(RandomSource rand, int tries) {
 		List<T> list = new ArrayList<T>();
 		for (int i = 0; i < tries*defaultTries; i++) {
 			getResult(list, i);
