@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.*;
+import net.smileycorp.atlas.common.AtlasLib;
 
 import java.util.List;
 import java.util.Random;
@@ -157,15 +158,24 @@ public class DirectionUtils {
 		return getClosestLoadedPos(level, basepos, direction, radius, Heightmap.Types.WORLD_SURFACE_WG);
 	}
 
-	public static Vec3 getClosestLoadedPos(Level level,Vec3 basepos, Vec3 direction, double radius, Heightmap.Types type) {
+	public static Vec3 getClosestLoadedPos(Level level, Vec3 basepos, Vec3 direction, double radius, Heightmap.Types type) {
+		AtlasLib.logInfo("base " + basepos);
 		Vec3 pos = basepos.add(direction.x*radius, 0,direction.z*radius);
-		pos = pos.add(0, level.getHeight(type, (int)pos.x, (int)pos.z), 0);
+		pos = pos.add(0, level.getHeight(type, (int)pos.x, (int)pos.z)-pos.y, 0);
+		AtlasLib.logInfo("pos" + pos);
 		while (!level.hasChunk(((int)pos.x)/16, ((int)pos.z)/16)) {
-			if (radius==0) return basepos;
+			AtlasLib.logInfo("chunk " + ((int)pos.x)/16 + ", " + ((int)pos.z)/16);
+			if (radius==0) {
+				AtlasLib.logInfo(basepos);
+				AtlasLib.logInfo("ret " + basepos);
+				return basepos;
+			}
 			radius--;
 			pos = basepos.add(direction.x*radius, 0,direction.z*radius);
-			pos = pos.add(0, level.getHeight(type, (int)pos.x, (int)pos.z), 0);
+			pos = pos.add(0, level.getHeight(type, (int)pos.x, (int)pos.z)-pos.y, 0);
+			AtlasLib.logInfo("chunk" + pos);
 		}
+		AtlasLib.logInfo("ret" + pos);
 		return pos;
 	}
 
@@ -175,12 +185,12 @@ public class DirectionUtils {
 
 	public static Vec3 getClosestLoadedPos(Level level, Vec3 basepos, Vec3 direction, double radius, int maxlight, int minlight, Heightmap.Types type) {
 		Vec3 pos = basepos.add(direction.x*radius, 0,direction.z*radius);
-		pos = pos.add(0, level.getHeight(type, (int)pos.x, (int)pos.z), 0);
+		pos = pos.add(0, level.getHeight(type, (int)pos.x, (int)pos.z)-pos.y, 0);
 		while (!level.hasChunk(((int)pos.x)/16, ((int)pos.z)/16) || !isBrightnessAllowed(level, BlockPos.containing(pos), maxlight, minlight)) {
 			if (radius==0) return basepos;
 			radius--;
 			pos = basepos.add(direction.x*radius, 0,direction.z*radius);
-			pos = pos.add(0, level.getHeight(type, (int)pos.x, (int)pos.z), 0);
+			pos = pos.add(0, level.getHeight(type, (int)pos.x, (int)pos.z)-pos.y, 0);
 		}
 		return pos;
 	}
