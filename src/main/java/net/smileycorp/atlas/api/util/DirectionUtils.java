@@ -12,7 +12,6 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.*;
 
 import java.util.List;
-import java.util.Random;
 
 public class DirectionUtils {
 
