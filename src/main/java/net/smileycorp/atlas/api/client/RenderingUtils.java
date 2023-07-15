@@ -37,28 +37,44 @@ public class RenderingUtils {
 		return models;
 	}
 
+	public static void renderCubeQuad(BufferBuilder buffer, double x, double y, double z, int layer, Color colour) {
+		for (Direction facing : Direction.values()) {
+			renderPlanarQuad(buffer, facing, x, y, z, layer, colour);
+		}
+	}
+
 	public static void renderCubeQuad(BufferBuilder buffer, double x, double y, double z, int layer, Color colour, TextureAtlasSprite texture, Level world, int luminance, BlockPos pos) {
 		for (Direction facing : Direction.values()) {
 			renderPlanarQuad(buffer, facing, x, y, z, layer, colour, texture, world, luminance, pos);
 		}
 	}
 
+	public static void renderPlanarQuad(BufferBuilder buffer, Direction facing, double x, double y, double z, int layer, Color colour) {
+		Vector3f[] plane = PlanarQuadRenderer.getQuadsFor(facing);
+		Vector3f offset = (layer == 0 ? new Vector3f(0, 0, 0) : PlanarQuadRenderer.getOffsetFor(facing, x, y, z, layer));
+		for (int i = 0; i < 4; ++i) {
+			Vector3f quadPos = plane[i];
+			float r = colour.getRed() / 255F;
+			float g = colour.getGreen() / 255F;
+			float b = colour.getBlue() / 255F;
+			float a = colour.getAlpha()/ 255F;
+			buffer.vertex(quadPos.x() + offset.x(), quadPos.y() + offset.y(), quadPos.z() + offset.z()).color(r, g, b, a).endVertex();
+		}
+	}
+
 	public static void renderPlanarQuad(BufferBuilder buffer, Direction facing, double x, double y, double z, int layer, Color colour, TextureAtlasSprite texture, Level world, int luminance, BlockPos pos) {
 		Vector3f[] plane = PlanarQuadRenderer.getQuadsFor(facing);
 		Vector3f offset = (layer == 0 ? new Vector3f(0, 0, 0) : PlanarQuadRenderer.getOffsetFor(facing, x, y, z, layer));
-		int rgba = colour.getRGB();
 		for (int i = 0; i < 4; ++i) {
 			Vector3f quadPos = plane[i];
-
-			float r = ((rgba & 0xFF0000) >> 16) / 255F;
-			float g = ((rgba & 0xFF00) >> 8) / 255F;
-			float b = (rgba& 0xFF) / 255F;
-			float a = ((rgba & 0xFF000000) >> 24) / 255F;
-
+			float r = colour.getRed() / 255F;
+			float g = colour.getGreen() / 255F;
+			float b = colour.getBlue() / 255F;
+			float a = colour.getAlpha()/ 255F;
 			float u = i < 2 ? texture.getU1() - (1F / 16F / 10000) : texture.getU0()+ (1F / 16F / 10000);
 			float v = i == 1 || i == 2 ? texture.getV1() - (1F / 16F / 10000) : texture.getV0() + (1F / 16F / 10000);
-
-			buffer.vertex(quadPos.x() + offset.x(), quadPos.y() + offset.y(), quadPos.z() + offset.z()).color(r, g, b, a).uv(u, v).endVertex();
+			buffer.vertex(quadPos.x() + offset.x(), quadPos.y() + offset.y(), quadPos.z() + offset.z())
+					.color(r, g, b, a).uv(u, v).normal((float)x, (float)y, (float)z).overlayCoords(pos.getX(), pos.getZ()).uv2(1).endVertex();
 		}
 	}
 
