@@ -11,20 +11,21 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 public class ToolSet {
 
 	final String name;
 	final Tier material;
-	protected final CreativeModeTab toolTab, weaponTab;
+	protected final Supplier<CreativeModeTab> toolTab, weaponTab;
 
 	Map<ToolType, RegistryObject<Item>> tools = new HashMap<ToolType, RegistryObject<Item>>();
 
-	public ToolSet(String name, Tier material, CreativeModeTab tab, DeferredRegister<Item> registry) {
+	public ToolSet(String name, Tier material, Supplier<CreativeModeTab> tab, DeferredRegister<Item> registry) {
 		this(name, material, tab, tab, registry);
 	}
 
-	public ToolSet(String name, Tier material, CreativeModeTab toolTab, CreativeModeTab weaponTab, DeferredRegister<Item> registry) {
+	public ToolSet(String name, Tier material, Supplier<CreativeModeTab> toolTab, Supplier<CreativeModeTab> weaponTab, DeferredRegister<Item> registry) {
 		this.name=name;
 		this.material=material;
 		this.toolTab = toolTab;
@@ -38,9 +39,9 @@ public class ToolSet {
 
 	@SubscribeEvent
 	public void addCreative(BuildCreativeModeTabContentsEvent event) {
-		if (event.getTab() == toolTab) for (Entry<ToolType, RegistryObject<Item>> entry : tools.entrySet())
+		if (event.getTab() == toolTab.get()) for (Entry<ToolType, RegistryObject<Item>> entry : tools.entrySet())
 			if (!entry.getKey().isWeapon) event.accept(entry.getValue().get());
-		if (event.getTab() == weaponTab) for (Entry<ToolType, RegistryObject<Item>> entry : tools.entrySet())
+		if (event.getTab() == weaponTab.get()) for (Entry<ToolType, RegistryObject<Item>> entry : tools.entrySet())
 			if (entry.getKey().isWeapon) event.accept(entry.getValue().get());
 	}
 

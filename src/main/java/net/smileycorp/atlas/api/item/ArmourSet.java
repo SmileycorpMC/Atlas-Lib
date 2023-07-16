@@ -12,20 +12,21 @@ import net.minecraftforge.registries.RegistryObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class ArmourSet {
 
 	final String name;
 	final Tiers material;
-	protected final CreativeModeTab tab;
+	protected final Supplier<CreativeModeTab> tab;
 
 	protected final Map<ArmourType, RegistryObject<ArmorItem>> armor = new HashMap<ArmourType, RegistryObject<ArmorItem>>();
 
-	public ArmourSet(String name, Tiers material, CreativeModeTab tab, DeferredRegister<Item> registry) {
+	public ArmourSet(String name, Tiers material, Supplier<CreativeModeTab> tab, DeferredRegister<Item> registry) {
 		this(name, material, tab, ArmorItem.class, registry);
 	}
 
-	public ArmourSet(String name, Tiers material, CreativeModeTab tab, Class<? extends ArmorItem> clazz, DeferredRegister<Item> registry) {
+	public ArmourSet(String name, Tiers material, Supplier<CreativeModeTab> tab, Class<? extends ArmorItem> clazz, DeferredRegister<Item> registry) {
 		this.name=name;
 		this.material=material;
 		this.tab = tab;
@@ -38,7 +39,7 @@ public class ArmourSet {
 
 	@SubscribeEvent
 	public void addCreative(BuildCreativeModeTabContentsEvent event) {
-		if (event.getTab() == tab) for (ArmorItem item : getItems()) event.accept(item);
+		if (event.getTab() == tab.get()) for (ArmorItem item : getItems()) event.accept(item);
 	}
 
 	public String getName() {
