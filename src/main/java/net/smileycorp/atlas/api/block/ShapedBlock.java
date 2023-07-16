@@ -22,11 +22,11 @@ import java.util.function.Supplier;
 public class ShapedBlock {
 
 	protected final String name;
-	protected final CreativeModeTab tab;
+	protected final Supplier<CreativeModeTab> tab;
 
 	protected final Map<BlockShape, RegistryObject<Block>> BLOCKS = Maps.newHashMap();
 
-	public ShapedBlock(String name, CreativeModeTab tab, BlockBehaviour.Properties properties, DeferredRegister<Item> items, DeferredRegister<Block> blocks, boolean hasWall) {
+	public ShapedBlock(String name, Supplier<CreativeModeTab> tab, BlockBehaviour.Properties properties, DeferredRegister<Item> items, DeferredRegister<Block> blocks, boolean hasWall) {
 		this.name=name;
 		this.tab=tab;
 		register(items, blocks, () -> new Block(properties), BlockShape.BASE);
@@ -46,7 +46,7 @@ public class ShapedBlock {
 
 	@SubscribeEvent
 	public void addCreative(BuildCreativeModeTabContentsEvent event) {
-		if (event.getTab() == tab) {
+		if (event.getTab() == tab.get()) {
 			event.accept(getBase().asItem());
 			event.accept(getStairs().asItem());
 			event.accept(getSlab().asItem());

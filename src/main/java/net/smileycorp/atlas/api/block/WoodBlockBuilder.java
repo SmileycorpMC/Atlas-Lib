@@ -11,14 +11,16 @@ import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.registries.DeferredRegister;
 
+import java.util.function.Supplier;
+
 public class WoodBlockBuilder {
 
 	protected DeferredRegister<Item> items;
 	protected DeferredRegister<Block> blocks;
 
 	protected final String name, modid;
-	protected final CreativeModeTab tab;
-	protected CreativeModeTab decorations_tab;
+	protected final Supplier<CreativeModeTab> tab;
+	protected Supplier<CreativeModeTab> decorations_tab;
 	protected MapColor plank_colour = MapColor.WOOD;
 	protected MapColor bark_colour = MapColor.PODZOL;
 	protected MapColor leaves_colour = MapColor.GRASS;
@@ -30,7 +32,7 @@ public class WoodBlockBuilder {
 	protected boolean has_boat = false;
 	protected boolean is_flammable = true;
 
-	private WoodBlockBuilder(String name, String modid, CreativeModeTab tab, DeferredRegister<Item> items, DeferredRegister<Block> blocks) {
+	private WoodBlockBuilder(String name, String modid, Supplier<CreativeModeTab> tab, DeferredRegister<Item> items, DeferredRegister<Block> blocks) {
 		this.items = items;
 		this.blocks = blocks;
 		this.name = name;
@@ -39,11 +41,11 @@ public class WoodBlockBuilder {
 		decorations_tab = tab;
 	}
 
-	public static WoodBlockBuilder of(String name, String modid, CreativeModeTab tab, DeferredRegister<Item> items, DeferredRegister<Block> blocks) {
+	public static WoodBlockBuilder of(String name, String modid, Supplier<CreativeModeTab> tab, DeferredRegister<Item> items, DeferredRegister<Block> blocks) {
 		return new WoodBlockBuilder(name, modid, tab, items, blocks);
 	}
 
-	public WoodBlockBuilder decorationsTab(CreativeModeTab tab) {
+	public WoodBlockBuilder decorationsTab(Supplier<CreativeModeTab> tab) {
 		decorations_tab = tab;
 		return this;
 	}

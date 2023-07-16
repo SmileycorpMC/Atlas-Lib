@@ -42,7 +42,7 @@ public class WoodBlock {
 	protected final String name;
 	protected final boolean isFlammable;
 
-	protected final CreativeModeTab tab, decorations_tab;
+	protected final Supplier<CreativeModeTab> tab, decorations_tab;
 
 	protected final TagKey<Item> logs_item_tag;
 	protected final TagKey<Block> logs_block_tag;
@@ -121,7 +121,7 @@ public class WoodBlock {
 
 	@SubscribeEvent
 	public void addCreative(BuildCreativeModeTabContentsEvent event) {
-		if (event.getTab() == tab) {
+		if (event.getTab() == tab.get()) {
 			event.accept(getPlanks().asItem());
 			event.accept(getStairs().asItem());
 			event.accept(getSlab().asItem());
@@ -129,7 +129,7 @@ public class WoodBlock {
 			event.accept(getStrippedWood().asItem());
 			event.accept(getLog());
 			event.accept(getWood());
-		} else if (event.getTab() == decorations_tab) {
+		} else if (event.getTab() == decorations_tab.get()) {
 			event.accept(getLeaves().asItem());
 			if (BLOCKS.containsKey(WoodShape.SAPLING)) event.accept(getSapling().asItem());
 			event.accept(getFence().asItem());
@@ -307,7 +307,7 @@ public class WoodBlock {
 		}
 
 		public CreativeModeTab getTab(WoodBlock wood_block) {
-			return is_decoration ? wood_block.decorations_tab : wood_block.tab;
+			return is_decoration ? wood_block.decorations_tab.get() : wood_block.tab.get();
 		}
 
 	}

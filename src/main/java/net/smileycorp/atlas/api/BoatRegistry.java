@@ -17,6 +17,7 @@ import net.smileycorp.atlas.common.AtlasLib;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class BoatRegistry  {
 
@@ -29,10 +30,10 @@ public class BoatRegistry  {
 
 	@SubscribeEvent
 	public void addCreative(BuildCreativeModeTabContentsEvent event) {
-		for (Type type : TYPES.values()) if (event.getTab() == type.creativeTab) event.accept(type.getBoat());
+		for (Type type : TYPES.values()) if (event.getTab() == type.creativeTab.get()) event.accept(type.getBoat());
 	}
 
-	public Type register(String name, String modid, DeferredRegister<Item> register, CreativeModeTab creativeTab) {
+	public Type register(String name, String modid, DeferredRegister<Item> register, Supplier<CreativeModeTab> creativeTab) {
 		if (TYPES.isEmpty()) {
 			BOAT_ENTITY = AtlasLib.ENTITIES.register("atlas_boat", ()-> EntityType.Builder.<AtlasBoat>of(AtlasBoat::new, MobCategory.MISC)
 					.sized(1.375F, 0.5625F).clientTrackingRange(10).build("atlas_boat"));
@@ -58,9 +59,9 @@ public class BoatRegistry  {
 
 		private final String name, modid;
 		private final RegistryObject<Item> boat, chest_boat;
-		private final CreativeModeTab creativeTab;
+		private final Supplier<CreativeModeTab> creativeTab;
 
-		protected Type(String name, String modid, DeferredRegister<Item> register, CreativeModeTab creativeTab) {
+		protected Type(String name, String modid, DeferredRegister<Item> register, Supplier<CreativeModeTab> creativeTab) {
 			this.name = name;
 			this.modid = modid;
 			boat = register.register(name+"_boat", () -> new AtlasBoatItem(this, new Item.Properties()));
