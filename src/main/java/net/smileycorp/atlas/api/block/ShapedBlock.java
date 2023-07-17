@@ -13,6 +13,9 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -33,7 +36,7 @@ public class ShapedBlock {
 		register(items, blocks, () -> new StairBlock(() -> getBase().defaultBlockState(), properties), BlockShape.STAIRS);
 		register(items, blocks, () -> new SlabBlock(properties), BlockShape.SLAB);
 		if (hasWall) register(items, blocks, () -> new WallBlock(properties), BlockShape.WALL);
-		MinecraftForge.EVENT_BUS.register(this);
+		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 	}
 
 	protected void register(DeferredRegister<Item> items, DeferredRegister<Block> blocks, Supplier<Block> supplier, BlockShape shape) {

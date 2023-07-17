@@ -8,6 +8,7 @@ import net.minecraft.world.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import net.smileycorp.atlas.api.entity.AtlasBoat;
@@ -39,7 +40,7 @@ public class BoatRegistry  {
 					.sized(1.375F, 0.5625F).clientTrackingRange(10).build("atlas_boat"));
 			CHEST_BOAT_ENTITY = AtlasLib.ENTITIES.register("atlas_chest_boat", ()-> EntityType.Builder.<AtlasChestBoat>of(AtlasChestBoat::new, MobCategory.MISC)
 					.sized(1.375F, 0.5625F).clientTrackingRange(10).build("atlas_chest_boat"));
-			MinecraftForge.EVENT_BUS.register(this);
+			FMLJavaModLoadingContext.get().getModEventBus().register(this);
 		}
 		Type type = new Type(name, modid, register, creativeTab);
 		TYPES.put(type.getRegistryName(), type);

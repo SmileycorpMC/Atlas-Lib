@@ -6,6 +6,7 @@ import net.minecraft.world.item.Item.Properties;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
@@ -34,7 +35,7 @@ public class ArmourSet {
 			RegistryObject<ArmorItem> item = registry.register(name + "_" + type.name, () -> type.createItem(material, null));
 			armor.put(type, item);
 		}
-		MinecraftForge.EVENT_BUS.register(this);
+		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 	}
 
 	@SubscribeEvent

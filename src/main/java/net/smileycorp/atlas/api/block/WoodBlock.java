@@ -25,6 +25,7 @@ import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import net.smileycorp.atlas.api.BoatRegistry;
@@ -101,6 +102,7 @@ public class WoodBlock {
 		} else {
 			boat_type = null;
 		}
+		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 	}
 
 	protected void registerItem(DeferredRegister<Item> items, RegistryObject<Block> block, CreativeModeTab tab) {

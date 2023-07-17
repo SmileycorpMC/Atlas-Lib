@@ -5,6 +5,7 @@ import net.minecraft.world.item.Item.Properties;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -34,7 +35,7 @@ public class ToolSet {
 			RegistryObject<Item> item = type.createItem(name, material, registry);
 			if (item!=null) tools.put(type, item);
 		}
-		MinecraftForge.EVENT_BUS.register(this);
+		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 	}
 
 	@SubscribeEvent
