@@ -8,10 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.SignItem;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.PressurePlateBlock.Sensitivity;
@@ -55,6 +52,7 @@ public class WoodBlock {
 
 	protected final Map<WoodShape, RegistryObject<Block>> BLOCKS = Maps.newHashMap();
 	protected final Optional<RegistryObject<Item>> sign;
+	protected final Optional<RegistryObject<Item>> hanging_sign;
 
 	@SuppressWarnings("deprecation")
 	protected WoodBlock(WoodBlockBuilder builder, DeferredRegister<Item> items, DeferredRegister<Block> blocks) {
@@ -95,8 +93,12 @@ public class WoodBlock {
 		register(items, blocks, () -> new TrapDoorBlock(builder.constructBaseProperties().noOcclusion(), type), WoodShape.TRAPDOOR);
 		register(blocks, () -> new StandingSignBlock(builder.constructBaseProperties(), wood_type), WoodShape.SIGN);
 		register(blocks, () -> new WallSignBlock(builder.constructBaseProperties(), wood_type), WoodShape.WALL_SIGN);
+		register(blocks, () -> new CeilingHangingSignBlock(builder.constructBaseProperties(), wood_type), WoodShape.HANGING_SIGN);
+		register(blocks, () -> new WallHangingSignBlock(builder.constructBaseProperties(), wood_type), WoodShape.WALL_HANGING_SIGN);
 		sign = Optional.of(items.register(WoodShape.SIGN.getName(name),
 				() -> new SignItem(new Item.Properties().stacksTo(16), get(WoodShape.SIGN), get(WoodShape.WALL_SIGN))));
+		hanging_sign = Optional.of(items.register(WoodShape.HANGING_SIGN.getName(name),
+				() -> new HangingSignItem(get(WoodShape.HANGING_SIGN), get(WoodShape.WALL_HANGING_SIGN), new Item.Properties().stacksTo(16))));
 		if (builder.has_boat) {
 			boat_type = BoatRegistry.INSTANCE.register(name, builder.modid, items, builder.decorations_tab);
 		} else {
@@ -141,6 +143,7 @@ public class WoodBlock {
 			event.accept(getDoor());
 			event.accept(getTrapdoor());
 			event.accept(getSignItem());
+			event.accept(getHangingSignItem());
 		}
 	}
 
@@ -233,11 +236,18 @@ public class WoodBlock {
 	}
 
 	public SignBlock getSignBlock(boolean onWall) {
-		return (SignBlock) (onWall ? get(WoodShape.WALL_SIGN) : get(WoodShape.SIGN));
+		return (SignBlock) get(onWall ? WoodShape.WALL_SIGN : WoodShape.SIGN);
+	}
+
+	public SignBlock getHangingSignBlock(boolean onWall) {
+		return (SignBlock) get(onWall ? WoodShape.WALL_HANGING_SIGN : WoodShape.HANGING_SIGN);
 	}
 
 	public SignItem getSignItem() {
 		return (SignItem) sign.get().orElse(null);
+	}
+	public SignItem getHangingSignItem() {
+		return (SignItem) hanging_sign.get().orElse(null);
 	}
 
 	public AtlasBoatItem getBoat() {
@@ -272,6 +282,7 @@ public class WoodBlock {
 		FuelHandler.INSTANCE.registerFuel(getDoor(), 200);
 		FuelHandler.INSTANCE.registerFuel(getTrapdoor(), 300);
 		FuelHandler.INSTANCE.registerFuel(getSignItem(), 200);
+		FuelHandler.INSTANCE.registerFuel(getHangingSignItem(), 200);
 	}
 
 	public static enum WoodShape {
@@ -279,7 +290,8 @@ public class WoodBlock {
 		STRIPPED_LOG("stripped", "log"), STRIPPED_WOOD("stripped", "wood"), LOG("log"), WOOD("wood"),
 		LEAVES("", "leaves", true), SAPLING("", "sapling", true),
 		FENCE("", "fence", true), FENCE_GATE("", "fence_gate", true), BUTTON("", "button", true), PRESSURE_PLATE("", "pressure_plate", true),
-		DOOR("", "door", true), TRAPDOOR("", "trapdoor", true), SIGN("sign"), WALL_SIGN("wall_sign");
+		DOOR("", "door", true), TRAPDOOR("", "trapdoor", true), SIGN("sign"), WALL_SIGN("wall_sign"),
+		HANGING_SIGN("hanging_sign"), WALL_HANGING_SIGN("wall_hanging_sign");
 
 		private final String suffix, prefix;
 		private final boolean is_decoration;
