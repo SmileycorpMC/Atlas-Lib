@@ -13,7 +13,7 @@ public enum LogicalOperation {
 	private final String name, symbol;
 	private final BiFunction<Boolean, Boolean, Boolean> operation;
 
-	private LogicalOperation(String name, String symbol, BiFunction<Boolean, Boolean, Boolean> operation) {
+	LogicalOperation(String name, String symbol, BiFunction<Boolean, Boolean, Boolean> operation) {
 		this.name = name;
 		this.symbol = symbol;
 		this.operation = operation;
