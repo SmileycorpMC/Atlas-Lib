@@ -1,18 +1,21 @@
 package net.smileycorp.atlas.api.item;
 
+import com.google.common.collect.Maps;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.Item.Properties;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.fml.util.ObfuscationReflectionHelper;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class ArmourSet {
@@ -21,7 +24,7 @@ public class ArmourSet {
 	final Tiers material;
 	protected final Supplier<CreativeModeTab> tab;
 
-	protected final Map<ArmourType, RegistryObject<ArmorItem>> armor = new HashMap<ArmourType, RegistryObject<ArmorItem>>();
+	protected final Map<ArmourType, DeferredHolder<Item, ArmorItem>> armor = Maps.newHashMap();
 
 	public ArmourSet(String name, Tiers material, Supplier<CreativeModeTab> tab, DeferredRegister<Item> registry) {
 		this(name, material, tab, ArmorItem.class, registry);
@@ -32,7 +35,7 @@ public class ArmourSet {
 		this.material=material;
 		this.tab = tab;
 		for (ArmourType type : ArmourType.values()) {
-			RegistryObject<ArmorItem> item = registry.register(name + "_" + type.name, () -> type.createItem(material, null));
+			DeferredHolder<Item, ArmorItem> item = registry.register(name + "_" + type.name, () -> type.createItem(material, null));
 			armor.put(type, item);
 		}
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
@@ -57,7 +60,7 @@ public class ArmourSet {
 
 	public Collection<ArmorItem> getItems() {
 		Set<ArmorItem> set = new HashSet<ArmorItem>();
-		for (RegistryObject<ArmorItem> registry : armor.values()) set.add(registry.get());
+		for (DeferredHolder<Item, ArmorItem> registry : armor.values()) set.add(registry.get());
 		return set;
 	}
 

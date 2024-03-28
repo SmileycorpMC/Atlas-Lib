@@ -5,12 +5,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import net.smileycorp.atlas.api.entity.AtlasBoat;
 import net.smileycorp.atlas.api.entity.AtlasChestBoat;
 import net.smileycorp.atlas.api.item.AtlasBoatItem;
@@ -26,8 +25,8 @@ public class BoatRegistry  {
 
 	public static BoatRegistry INSTANCE = new BoatRegistry();
 
-	public static RegistryObject<EntityType<AtlasBoat>> BOAT_ENTITY;
-	public static RegistryObject<EntityType<AtlasChestBoat>> CHEST_BOAT_ENTITY;
+	public static DeferredHolder<EntityType<?>, EntityType<AtlasBoat>> BOAT_ENTITY;
+	public static DeferredHolder<EntityType<?>, EntityType<AtlasChestBoat>> CHEST_BOAT_ENTITY;
 
 	@SubscribeEvent
 	public void addCreative(BuildCreativeModeTabContentsEvent event) {
@@ -59,7 +58,7 @@ public class BoatRegistry  {
 	public static class Type {
 
 		private final String name, modid;
-		private final RegistryObject<Item> boat, chest_boat;
+		private final DeferredHolder<Item, AtlasBoatItem> boat, chest_boat;
 		private final Supplier<CreativeModeTab> creativeTab;
 
 		protected Type(String name, String modid, DeferredRegister<Item> register, Supplier<CreativeModeTab> creativeTab) {

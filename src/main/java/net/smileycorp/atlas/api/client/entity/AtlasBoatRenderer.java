@@ -38,7 +38,7 @@ public class AtlasBoatRenderer extends BoatRenderer {
 
 	public static void register() {
 		System.out.println("[Atlaslib] registering boat renderer");
-		EntityRenderers.register(BoatRegistry.BOAT_ENTITY.get(), (ctx) -> new AtlasBoatRenderer(ctx, false));
+		EntityRenderers.register(BoatRegistry.BOAT_ENTITY.get(), ctx -> new AtlasBoatRenderer(ctx, false));
 		registered = true;
 	}
 

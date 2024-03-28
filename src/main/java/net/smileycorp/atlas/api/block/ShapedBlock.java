@@ -10,14 +10,11 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.Map;
 import java.util.function.Supplier;
@@ -27,7 +24,7 @@ public class ShapedBlock {
 	protected final String name;
 	protected final Supplier<CreativeModeTab> tab;
 
-	protected final Map<BlockShape, RegistryObject<Block>> BLOCKS = Maps.newHashMap();
+	protected final Map<BlockShape, DeferredHolder<Block, Block>> BLOCKS = Maps.newHashMap();
 
 	public ShapedBlock(String name, Supplier<CreativeModeTab> tab, BlockBehaviour.Properties properties, DeferredRegister<Item> items, DeferredRegister<Block> blocks, boolean hasWall) {
 		this.name=name;
@@ -42,7 +39,7 @@ public class ShapedBlock {
 	protected void register(DeferredRegister<Item> items, DeferredRegister<Block> blocks, Supplier<Block> supplier, BlockShape shape) {
 		String name = this.name;
 		if (shape != BlockShape.BASE) name += "_" + shape.getSerializedName();
-		RegistryObject<Block> block = blocks.register(name, supplier);
+		DeferredHolder<Block, Block> block = blocks.register(name, supplier);
 		items.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
 		BLOCKS.put(shape, block);
 	}

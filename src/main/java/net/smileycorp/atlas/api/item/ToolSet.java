@@ -1,16 +1,19 @@
 package net.smileycorp.atlas.api.item;
 
+import com.google.common.collect.Maps;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.Item.Properties;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -20,9 +23,9 @@ public class ToolSet {
 	final Tier material;
 	protected final Supplier<CreativeModeTab> toolTab, weaponTab;
 
-	Map<ToolType, RegistryObject<Item>> tools = new HashMap<ToolType, RegistryObject<Item>>();
+	Map<ToolType, DeferredHolder<Item, Item>> tools = Maps.newHashMap();
 
-	public ToolSet(String name, Tier material, Supplier<CreativeModeTab> tab, DeferredRegister<Item> registry) {
+	public ToolSet(String name, Tier material, Supplier<CreativeModeTab> tab,  DeferredRegister<Item> registry) {
 		this(name, material, tab, tab, registry);
 	}
 
@@ -32,7 +35,7 @@ public class ToolSet {
 		this.toolTab = toolTab;
 		this.weaponTab = weaponTab;
 		for (ToolType type : ToolType.values()) {
-			RegistryObject<Item> item = type.createItem(name, material, registry);
+			DeferredHolder<Item, Item> item = type.createItem(name, material, registry);
 			if (item!=null) tools.put(type, item);
 		}
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
@@ -40,9 +43,9 @@ public class ToolSet {
 
 	@SubscribeEvent
 	public void addCreative(BuildCreativeModeTabContentsEvent event) {
-		if (event.getTab() == toolTab.get()) for (Entry<ToolType, RegistryObject<Item>> entry : tools.entrySet())
+		if (event.getTab() == toolTab.get()) for (Entry<ToolType,  DeferredHolder<Item, Item>> entry : tools.entrySet())
 			if (!entry.getKey().isWeapon) event.accept(entry.getValue().get());
-		if (event.getTab() == weaponTab.get()) for (Entry<ToolType, RegistryObject<Item>> entry : tools.entrySet())
+		if (event.getTab() == weaponTab.get()) for (Entry<ToolType,  DeferredHolder<Item, Item>> entry : tools.entrySet())
 			if (entry.getKey().isWeapon) event.accept(entry.getValue().get());
 	}
 
@@ -104,7 +107,7 @@ public class ToolSet {
 			return name;
 		}
 
-		public RegistryObject<Item> createItem(String name, Tier material, DeferredRegister<Item> registry) {
+		public  DeferredHolder<Item, Item> createItem(String name, Tier material, DeferredRegister<Item> registry) {
 			return registry.register(name + "_" + this.name, ()-> function.apply(material, new Properties()));
 		}
 	}

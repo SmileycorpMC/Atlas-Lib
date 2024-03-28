@@ -3,8 +3,8 @@ package net.smileycorp.atlas.api.block;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
 
 import java.util.HashMap;
 import java.util.Map;

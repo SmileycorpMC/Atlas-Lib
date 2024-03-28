@@ -3,7 +3,6 @@ package net.smileycorp.atlas.api.network;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.protocol.Packet;
-import net.minecraftforge.network.NetworkEvent;
 
 public abstract class AbstractMessage implements Packet<PacketListener> {
 	

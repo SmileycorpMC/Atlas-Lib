@@ -2,7 +2,6 @@ package net.smileycorp.atlas.api.network;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.PacketListener;
-import net.minecraftforge.network.NetworkEvent;
 
 
 public class GenericByteMessage extends AbstractMessage {

@@ -1,13 +1,13 @@
 package net.smileycorp.atlas.common;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
+import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import net.smileycorp.atlas.api.block.FuelHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,11 +18,11 @@ public class AtlasLib {
 
 	private static Logger logger = LogManager.getLogger(Constants.MODID);
 
-	public static DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, Constants.MODID);
+	public static DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, Constants.MODID);
 
 	@SubscribeEvent
 	public static void modConstruction(FMLConstructModEvent event) {
-		MinecraftForge.EVENT_BUS.register(FuelHandler.INSTANCE);
+		NeoForge.EVENT_BUS.register(FuelHandler.INSTANCE);
 		ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
 	}
 

@@ -2,8 +2,8 @@ package net.smileycorp.atlas.api.util;
 
 import net.minecraft.util.RandomSource;
 
-import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
 import java.util.Map.Entry;
 
 public class WeightedOutputs<T> {

@@ -23,11 +23,11 @@ public class GoToPositionGoal extends Goal  {
 
 	public GoToPositionGoal(Mob entity, BlockPos pos, double speed) {
 		super();
-		this.entity=entity;
-		this.pos=pos;
-		pather=entity.getNavigation();
+		this.entity = entity;
+		this.pos = pos;
+		pather = entity.getNavigation();
 		this.speed = speed;
-		setFlags(EnumSet.of(Flag.LOOK, Flag.MOVE));
+		setFlags(EnumSet.of(Flag.MOVE));
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public class GoToPositionGoal extends Goal  {
 	@Override
 	public void tick() {
 		if (--timeToRecalcPath <= 0)  {
-			timeToRecalcPath = 5;
+			timeToRecalcPath = 10;
 			pather.moveTo(pather.createPath(pos, 1), speed);
 		}
 	}
