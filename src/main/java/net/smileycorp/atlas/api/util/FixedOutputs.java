@@ -3,7 +3,10 @@ package net.smileycorp.atlas.api.util;
 import net.minecraft.util.RandomSource;
 
 import java.util.AbstractMap.SimpleEntry;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 public class FixedOutputs<T> extends WeightedOutputs<T> {

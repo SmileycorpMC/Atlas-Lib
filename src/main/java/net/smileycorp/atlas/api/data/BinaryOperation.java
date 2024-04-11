@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class BinaryOperation<T extends Number & Comparable<T>> {
     
@@ -16,7 +15,7 @@ public class BinaryOperation<T extends Number & Comparable<T>> {
     public static final BinaryOperation DIVIDE = register("divide", "/", DataType.DOUBLE,(a, b) -> a / b);
     public static final BinaryOperation MULTIPLY = register("multiply", "*", DataType.DOUBLE,(a, b) -> a * b);
     public static final BinaryOperation MOD = register("mod", "%", DataType.DOUBLE,(a, b) -> a % b);
-    public static final BinaryOperation POW = register("pow", "pow", DataType.DOUBLE, Math::pow);
+    public static final BinaryOperation POW = register("power", "pow", DataType.DOUBLE, Math::pow);
     public static final BinaryOperation BITWISE_AND = register("bitwise_and", "&", DataType.INT, (a, b) -> a & b);
     public static final BinaryOperation BITWISE_OR = register("bitwise_or", "|", DataType.INT, (a, b) -> a | b);
     public static final BinaryOperation BITWISE_XOR = register("bitwise_xor", "^", DataType.INT, (a, b) -> a ^ b);

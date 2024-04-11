@@ -6,8 +6,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.Random;
-
 public class BlockUtils {
 	
 	public static int getFortune(int fortune, RandomSource rand) {
