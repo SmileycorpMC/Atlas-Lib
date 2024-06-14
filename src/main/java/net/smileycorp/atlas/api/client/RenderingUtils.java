@@ -1,11 +1,14 @@
 package net.smileycorp.atlas.api.client;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.platform.GlUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -13,9 +16,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.model.pipeline.QuadBakingVertexConsumer;
+import net.smileycorp.atlas.api.util.DirectionUtils;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.lwjgl.opengl.GLUtil;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -90,13 +98,51 @@ public class RenderingUtils {
 		addVertex(builder, (float)vecs[3].x(), (float)vecs[3].y(), (float)vecs[3].z(), sprite.getX(), 0, normal, colour, sprite);
 		return quads;
 	}
-
+	
+	public static void drawSphere(VertexConsumer consumer, PoseStack poseStack, Vec3 center, float radius, Color color, TextureAtlasSprite sprite) {
+		RenderSystem.setShader(GameRenderer::getPositionColorShader);
+		List<Vec3> vectors = Lists.newArrayList();
+		addFace(vectors, center, radius, -1, -1, -1);
+		addFace(vectors, center, radius, 1, -1, -1);
+		addFace(vectors, center, radius, 1, 1, -1);
+		addFace(vectors, center, radius, 1, 1, 1);
+		addFace(vectors, center, radius, -1, 1, 1);
+		addFace(vectors, center, radius, -1, -1, 1);
+		addFace(vectors, center, radius, 1, -1, 1);
+		addFace(vectors, center, radius, -1, 1, -1);
+		vectors.forEach(vector -> {
+			float dl = radius / (float) vector.distanceTo(center);
+			float dx = (float) (vector.x - center.x) * dl;
+			float dy = (float) (vector.y - center.y) * dl;
+			float dz = (float) (vector.z - center.z) * dl;
+			addVertex(consumer, (float) vector.x + dx, (float) vector.y + dy, (float) vector.z + dz, 0, 0, vector, color, sprite);
+		});
+	}
+	
+	private static void addFace(List<Vec3> vectors, Vec3 center, float radius, int x, int y, int z) {
+		double d = Math.sqrt(2 * radius * radius) / 3;
+		Vec3 c1 = center.add(x * radius, 0, 0);
+		Vec3 c2 = center.add(0, y * radius, 0);
+		Vec3 c3 = center.add(0, 0, z * radius);
+		vectors.add(c1);
+		vectors.add(c2);
+		vectors.add(c3);
+		Vec3 d1 = DirectionUtils.getDirectionVec(c1, c2);
+		Vec3 d2 = DirectionUtils.getDirectionVec(c1, c3);
+		Vec3 d3 = DirectionUtils.getDirectionVec(c2, c3);
+		for (int i = 1; i < 3; i++) vectors.add(c1.add(d1.x * d * i, d1.y * d * 1, d1.z * d * i));
+		for (int i = 1; i < 3; i++) vectors.add(c1.add(d2.x * d * i, d2.y * d * 1, d2.z * d * i));
+		for (int i = 1; i < 3; i++) vectors.add(c2.add(d3.x * d * i, d3.y * d * 1, d3.z * d * i));
+		vectors.add(c3.add(-d3.x * radius / 2f, -d3.y * radius / 2f, -d3.z * radius / 2f));
+	}
+	
 	private static void addVertex(VertexConsumer builder, float x, float y, float z, float u, float v, Vec3 normal, Color colour, TextureAtlasSprite sprite) {
 		builder.vertex(x, y, z)
 				.uv(u, v)
 				.uv2(0, 0)
 				.color(colour.getRed(), colour.getGreen(), colour.getBlue(), colour.getAlpha())
 				.normal((float) normal.x(), (float) normal.y(), (float) normal.z())
+				.overlayCoords(0)
 				.endVertex();
 	}
 

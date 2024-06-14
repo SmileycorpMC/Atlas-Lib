@@ -60,7 +60,7 @@ public class DirectionUtils {
 	}
 
 	public static int getXZMeta(Direction facing) {
-		if (facing==Direction.UP||facing==Direction.DOWN) {
+		if (facing == Direction.UP||facing==Direction.DOWN) {
 			return facing.ordinal()+4;
 		}
 		return facing.ordinal()-2;
@@ -142,7 +142,7 @@ public class DirectionUtils {
 	}
 
 	public static BlockPos getClosestLoadedPos(Level level, BlockPos basepos, Vec3 direction, double radius, int maxlight, int minlight, Heightmap.Types type) {
-		BlockPos pos = level.getHeightmapPos(type, basepos.offset((int) (direction.x*radius), 0, (int) (direction.z*radius)));
+		BlockPos pos = level.getHeightmapPos(type, basepos.offset((int) (direction.x * radius), 0, (int) (direction.z * radius)));
 		while (!level.hasChunk(pos.getX()/16, pos.getZ()/16) || !isBrightnessAllowed(level, pos, maxlight, minlight)) {
 			if (radius==0) return basepos;
 			radius--;
@@ -156,14 +156,14 @@ public class DirectionUtils {
 	}
 
 	public static Vec3 getClosestLoadedPos(Level level, Vec3 basepos, Vec3 direction, double radius, Heightmap.Types type) {
-		Vec3 pos = basepos.add(direction.x*radius, 0,direction.z*radius);
+		Vec3 pos = basepos.add(direction.x * radius, 0,direction.z * radius);
 		pos = pos.add(0, level.getHeight(type, (int)pos.x, (int)pos.z)-pos.y, 0);
 		while (!level.hasChunk(((int)pos.x)/16, ((int)pos.z)/16)) {
 			if (radius==0) {
 				return basepos;
 			}
 			radius--;
-			pos = basepos.add(direction.x*radius, 0,direction.z*radius);
+			pos = basepos.add(direction.x * radius, 0,direction.z * radius);
 			pos = pos.add(0, level.getHeight(type, (int)pos.x, (int)pos.z)-pos.y, 0);
 		}
 		return pos;
@@ -174,13 +174,13 @@ public class DirectionUtils {
 	}
 
 	public static Vec3 getClosestLoadedPos(Level level, Vec3 basepos, Vec3 direction, double radius, int maxlight, int minlight, Heightmap.Types type) {
-		Vec3 pos = basepos.add(direction.x*radius, 0,direction.z*radius);
-		pos = pos.add(0, level.getHeight(type, (int)pos.x, (int)pos.z)-pos.y, 0);
+		Vec3 pos = basepos.add(direction.x * radius, 0,direction.z * radius);
+		pos = pos.add(0, level.getHeight(type, (int)pos.x, (int)pos.z) - pos.y, 0);
 		while (!level.hasChunk(((int)pos.x)/16, ((int)pos.z)/16) || !isBrightnessAllowed(level, BlockPos.containing(pos), maxlight, minlight)) {
 			if (radius==0) return basepos;
 			radius--;
-			pos = basepos.add(direction.x*radius, 0,direction.z*radius);
-			pos = pos.add(0, level.getHeight(type, (int)pos.x, (int)pos.z)-pos.y, 0);
+			pos = basepos.add(direction.x * radius, 0,direction.z * radius);
+			pos = pos.add(0, level.getHeight(type, (int)pos.x, (int)pos.z) - pos.y, 0);
 		}
 		return pos;
 	}
@@ -190,6 +190,16 @@ public class DirectionUtils {
 		if (blocklight > maxlight) return false;
 		if (blocklight < minlight) return false;
 		return true;
+	}
+	
+	public static Vec3 cartesianToSpherical(Vec3 vector) {
+		double r = Math.sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
+		return new Vec3(r, Math.atan2(vector.y, vector.x), Math.acos(vector.z / r));
+	}
+	
+	public static Vec3 sphericalToCartesian(Vec3 vector) {
+		double r = vector.x * Math.sin(vector.z);
+		return new Vec3(r * Math.cos(vector.y), r * Math.sin(vector.y), vector.x * Math.cos(vector.z));
 	}
 
 }
