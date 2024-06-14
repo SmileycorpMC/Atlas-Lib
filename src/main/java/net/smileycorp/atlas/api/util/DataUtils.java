@@ -1,13 +1,14 @@
 package net.smileycorp.atlas.api.util;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.loading.FMLLoader;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.fml.loading.moddiscovery.ModFile;
+import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.fml.loading.moddiscovery.ModFile;
+import net.neoforged.neoforge.common.NeoForgeConfig;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,9 +29,9 @@ public class DataUtils {
 		}
 	}
 
-	public static void saveItemsToNBT(CompoundTag nbt, NonNullList<ItemStack> items) {
+	public static void saveItemsToNBT(HolderLookup.Provider registryAccess, CompoundTag nbt, NonNullList<ItemStack> items) {
 		ListTag nbtItems = new ListTag();
-		for (ItemStack stack : items) nbtItems.add(stack.save(new CompoundTag()));
+		for (ItemStack stack : items) nbtItems.add(stack.save(registryAccess));
 		nbt.put("Inventory", nbtItems);
 	}
 
@@ -44,7 +45,7 @@ public class DataUtils {
 		Logger logger = LogManager.getLogger(modid);
 		try {
 			ModFile mod = FMLLoader.getLoadingModList().getModFileById(modid).getFile();
-			File directory = FMLPaths.CONFIGDIR.get().resolve(modid).toFile();
+			File directory = NeoForge.CONFIGDIR.get().resolve(modid).toFile();
 			File output = new File(directory, path);
 			File dir = output.getParentFile();
 			if (dir != null) dir.mkdirs();

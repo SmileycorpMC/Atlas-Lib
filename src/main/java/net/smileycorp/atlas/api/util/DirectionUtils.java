@@ -8,8 +8,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.FurnaceBlock;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.*;
+import net.minecraft.world.phys.shapes.CollisionContext;
 
 import java.util.List;
 
@@ -21,7 +23,7 @@ public class DirectionUtils {
 		Vec3 lastVec = eyepos.add(lookangle);
 		Vec3 rayend = eyepos.add(lookangle.x * reach, lookangle.y * reach, lookangle.z * reach);
 		//level.
-		ClipContext context = new ClipContext(eyepos, rayend, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null);
+		ClipContext context = new ClipContext(eyepos, rayend, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.of(entity));
 		BlockHitResult blockRay = level.clip(context);
 		for (int x = 0; x <16*reach; x++) {
 			float reachpart = x/16f;
@@ -60,10 +62,10 @@ public class DirectionUtils {
 	}
 
 	public static int getXZMeta(Direction facing) {
-		if (facing==Direction.UP||facing==Direction.DOWN) {
-			return facing.ordinal()+4;
+		if (facing == Direction.UP||facing==Direction.DOWN) {
+			return facing.ordinal() +4 ;
 		}
-		return facing.ordinal()-2;
+		return facing.ordinal() - 2;
 	}
 
 	public static Vec3 getDirectionVecXZ(Vec3i startpos, Vec3i endpos) {
