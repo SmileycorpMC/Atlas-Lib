@@ -1,5 +1,6 @@
 package net.smileycorp.atlas.api.util;
 
+import com.google.common.collect.Lists;
 import net.minecraft.util.RandomSource;
 
 import java.util.AbstractMap.SimpleEntry;
@@ -49,19 +50,15 @@ public class WeightedOutputs<T> {
 	}
 
 	public int getWeight(T t) {
-		for (Entry<T, Integer> entry : entries) {
-			if (entry.getKey() == t) entry.getValue();
-		}
+		for (Entry<T, Integer> entry : entries) if (entry.getKey() == t) return entry.getValue();
 		return 0;
 	}
 
 	public boolean removeEntry(T t) {
 		boolean result = false;
-		for (Entry<T, Integer> entry : entries) {
-			if (entry.getKey() == t) {
-				entries.remove(entry);
-				result = true;
-			}
+		for (Entry<T, Integer> entry : entries) if (entry.getKey() == t) {
+			entries.remove(entry);
+			result = true;
 		}
 		return result;
 	}
@@ -84,15 +81,15 @@ public class WeightedOutputs<T> {
 
 	public List<T> getResults(RandomSource rand, int tries) {
 		List<T> list = new ArrayList<T>();
-		List<Entry<T, Integer>> mappedEntries = new ArrayList<Entry<T, Integer>>();
+		List<Entry<T, Integer>> mappedEntries = Lists.newArrayList();
 		int max = 0;
 		for(Entry<T, Integer> entry : entries) {
-			mappedEntries.add(new SimpleEntry<T, Integer>(entry.getKey(), max));
-			max+=entry.getValue();
+			mappedEntries.add(new SimpleEntry<>(entry.getKey(), max));
+			max += entry.getValue();
 		}
-		if (max>0) {
+		if (max > 0) {
 			Collections.reverse(mappedEntries);
-			for(int i=0; i<(tries*defaultTries);i++){
+			for (int i = 0; i < (tries * defaultTries); i++){
 				int result = rand.nextInt(max);
 				for(Entry<T, Integer> entry : mappedEntries) {
 					if (result>=entry.getValue()) {

@@ -18,9 +18,7 @@ public class GoToEntityPositionGoal extends GoToPositionGoal {
 
 	@Override
 	public void tick() {
-		if (target != null) {
-			pos = target.blockPosition();
-		}
+		if (target != null) pos = target.blockPosition();
 		super.tick();
 	}
 

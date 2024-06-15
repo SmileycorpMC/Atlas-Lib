@@ -38,13 +38,13 @@ public class AtlasBoat extends Boat {
 	}
 
 	public BoatRegistry.Type getAtlasType() {
-		return BoatRegistry.INSTANCE.get(new ResourceLocation(entityData.get(DATA_ID_TYPE)));
+		return BoatRegistry.INSTANCE.get(ResourceLocation.parse(entityData.get(DATA_ID_TYPE)));
 	}
 
 	@Override
 	protected void readAdditionalSaveData(CompoundTag nbt) {
 		if (nbt.contains("Type", 8)) {
-			setType(BoatRegistry.INSTANCE.get(new ResourceLocation(nbt.getString("Type"))));
+			setType(BoatRegistry.INSTANCE.get(ResourceLocation.parse(nbt.getString("Type"))));
 		}
 	}
 
@@ -96,7 +96,7 @@ public class AtlasBoat extends Boat {
 	@Override
 	public Item getDropItem() {
 		BoatRegistry.Type type = getAtlasType();
-		return type == null ? Items.OAK_BOAT : BoatRegistry.INSTANCE.get(new ResourceLocation(entityData.get(DATA_ID_TYPE))).getBoat();
+		return type == null ? Items.OAK_BOAT : BoatRegistry.INSTANCE.get(ResourceLocation.parse(entityData.get(DATA_ID_TYPE))).getBoat();
 	}
 
 	//override vanilla types

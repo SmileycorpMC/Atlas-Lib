@@ -39,13 +39,13 @@ public class AtlasChestBoat extends ChestBoat {
 	}
 
 	public BoatRegistry.Type getAtlasType() {
-		return BoatRegistry.INSTANCE.get(new ResourceLocation(entityData.get(DATA_ID_TYPE)));
+		return BoatRegistry.INSTANCE.get(ResourceLocation.parse(entityData.get(DATA_ID_TYPE)));
 	}
 
 	@Override
 	protected void readAdditionalSaveData(CompoundTag nbt) {
 		if (nbt.contains("Type", 8)) {
-			setType(BoatRegistry.INSTANCE.get(new ResourceLocation(nbt.getString("Type"))));
+			setType(BoatRegistry.INSTANCE.get(ResourceLocation.parse(nbt.getString("Type"))));
 		}
 	}
 
@@ -97,7 +97,7 @@ public class AtlasChestBoat extends ChestBoat {
 	@Override
 	public Item getDropItem() {
 		BoatRegistry.Type type = getAtlasType();
-		return type == null ? Items.OAK_CHEST_BOAT : BoatRegistry.INSTANCE.get(new ResourceLocation(entityData.get(DATA_ID_TYPE))).getChestBoat();
+		return type == null ? Items.OAK_CHEST_BOAT : BoatRegistry.INSTANCE.get(ResourceLocation.parse(entityData.get(DATA_ID_TYPE))).getChestBoat();
 	}
 
 	//override vanilla types
