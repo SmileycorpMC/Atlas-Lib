@@ -1,14 +1,14 @@
 package net.smileycorp.atlas.api.network;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.PacketListener;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.smileycorp.atlas.api.util.TextUtils;
 
 
-public class GenericTranslatableMessage extends AbstractMessage {
+public class GenericTranslatableMessage implements NetworkMessage {
 
 	public GenericTranslatableMessage() {}
 
@@ -22,9 +22,9 @@ public class GenericTranslatableMessage extends AbstractMessage {
 	}
 
 	public GenericTranslatableMessage(String key, String fallback, Object...args) {
-		this.key=key;
-		this.fallback=fallback;
-		this.args=args;
+		this.key = key;
+		this.fallback = fallback;
+		this.args = args;
 	}
 
 	public MutableComponent getComponent() {
@@ -38,7 +38,7 @@ public class GenericTranslatableMessage extends AbstractMessage {
 		buf.writeInt(args.length);
 		for (Object arg : args) buf.writeUtf(String.valueOf(arg));
 	}
-
+	
 	@Override
 	public void read(FriendlyByteBuf buf) {
 		key = buf.readUtf();
@@ -48,11 +48,13 @@ public class GenericTranslatableMessage extends AbstractMessage {
 	}
 
 	@Override
-	public void handle(PacketListener listener) {}
-
-	@Override
-	public void process(NetworkEvent.Context ctx) {
+	public void process(IPayloadContext ctx) {
 		throw new IllegalArgumentException("Please use the other register method, when using generic messages!");
 	}
-
+	
+	@Override
+	public Type<? extends CustomPacketPayload> type() {
+		return null;
+	}
+	
 }

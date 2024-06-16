@@ -1,11 +1,11 @@
 package net.smileycorp.atlas.api.network;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.PacketListener;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 
-public class GenericStringMessage extends AbstractMessage {
+public class GenericStringMessage implements NetworkMessage {
 
 	public GenericStringMessage() {}
 
@@ -30,11 +30,13 @@ public class GenericStringMessage extends AbstractMessage {
 	}
 
 	@Override
-	public void handle(PacketListener listener) {}
-
-	@Override
-	public void process(NetworkEvent.Context ctx) {
+	public void process(IPayloadContext ctx) {
 		throw new IllegalArgumentException("Please use the other register method, when using generic messages!");
 	}
-		
+	
+	@Override
+	public Type<? extends CustomPacketPayload> type() {
+		return null;
+	}
+	
 }
