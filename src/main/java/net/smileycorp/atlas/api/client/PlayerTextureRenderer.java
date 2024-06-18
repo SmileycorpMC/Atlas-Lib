@@ -32,7 +32,7 @@ public class PlayerTextureRenderer {
 			case SKIN:
 				return DefaultPlayerSkin.getDefaultTexture();
 			case ELYTRA:
-				return new ResourceLocation("textures/entity/elytra.png");
+				return ResourceLocation.withDefaultNamespace("textures/entity/elytra.png");
 			default:
 				return null;
 			}
@@ -65,7 +65,7 @@ public class PlayerTextureRenderer {
 			return textures.capeTexture();
 		case ELYTRA:
 			return textures.elytraTexture() != null ? textures.elytraTexture() : textures.capeTexture() != null ? textures.capeTexture()
-					: new ResourceLocation("textures/entity/elytra.png");
+					: ResourceLocation.withDefaultNamespace("textures/entity/elytra.png");
 		default:
 			return null;
 		}

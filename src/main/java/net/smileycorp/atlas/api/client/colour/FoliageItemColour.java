@@ -9,10 +9,7 @@ public class FoliageItemColour implements ItemColor {
 
 	@Override
 	public int getColor(ItemStack stack, int tintIndex) {
-		if (tintIndex==0) {
-			return 0xFF74B265;
-		}
-		return Color.WHITE.getRGB();
+		return tintIndex == 0 ? 0xFF74B265 : 0xFFFFFFFF;
 	}
 
 }

@@ -30,10 +30,10 @@ public class AtlasBoatRenderer extends BoatRenderer {
 	@Override
 	public Pair<ResourceLocation, ListModel<Boat>> getModelWithLocation(Boat boat) {
 		Type type = ((AtlasBoat) boat).getAtlasType();
-		ResourceLocation registry = type == null ? new ResourceLocation("oak") : type.getRegistryName();
-		ResourceLocation loc = new ResourceLocation(registry.getNamespace(), "textures/entity/boat/" + registry.getPath() + ".png");
-		return Pair.<ResourceLocation, ListModel<Boat>>of(loc, hasChest ? new BoatModel(ctx.bakeLayer(new ModelLayerLocation(new ResourceLocation("boat/oak"), "main"))) :
-				new ChestBoatModel(ctx.bakeLayer(new ModelLayerLocation(new ResourceLocation("boat/oak"), "main"))));
+		ResourceLocation registry = type == null ? ResourceLocation.withDefaultNamespace("oak") : type.getRegistryName();
+		ResourceLocation loc = ResourceLocation.fromNamespaceAndPath(registry.getNamespace(), "textures/entity/boat/" + registry.getPath() + ".png");
+		return Pair.of(loc, hasChest ? new BoatModel(ctx.bakeLayer(new ModelLayerLocation(ResourceLocation.withDefaultNamespace("boat/oak"), "main"))) :
+				new ChestBoatModel(ctx.bakeLayer(new ModelLayerLocation(ResourceLocation.withDefaultNamespace("boat/oak"), "main"))));
 	}
 
 	public static void register() {

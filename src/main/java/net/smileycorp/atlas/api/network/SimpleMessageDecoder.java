@@ -4,7 +4,7 @@ import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.function.Function;
 
-public class SimpleMessageDecoder<T extends NetworkMessage> implements Function<FriendlyByteBuf, T> {
+public class SimpleMessageDecoder<T extends NetworkMessage> implements FriendlyByteBuf.Reader {
 
 	protected final Class<T> clazz;
 

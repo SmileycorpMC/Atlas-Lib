@@ -15,6 +15,7 @@ import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.smileycorp.atlas.common.Constants;
 
 import java.util.Map;
 import java.util.function.Supplier;
@@ -27,13 +28,13 @@ public class ShapedBlock {
 	protected final Map<BlockShape, DeferredHolder<Block, Block>> BLOCKS = Maps.newHashMap();
 
 	public ShapedBlock(String name, Supplier<CreativeModeTab> tab, BlockBehaviour.Properties properties, DeferredRegister<Item> items, DeferredRegister<Block> blocks, boolean hasWall) {
-		this.name=name;
-		this.tab=tab;
+		this.name = name;
+		this.tab = tab;
 		register(items, blocks, () -> new Block(properties), BlockShape.BASE);
-		register(items, blocks, () -> new StairBlock(() -> getBase().defaultBlockState(), properties), BlockShape.STAIRS);
+		register(items, blocks, () -> new StairBlock(getBase().defaultBlockState(), properties), BlockShape.STAIRS);
 		register(items, blocks, () -> new SlabBlock(properties), BlockShape.SLAB);
 		if (hasWall) register(items, blocks, () -> new WallBlock(properties), BlockShape.WALL);
-		FMLJavaModLoadingContext.get().getModEventBus().register(this);
+		Constants.MOD_BUS.register(this);
 	}
 
 	protected void register(DeferredRegister<Item> items, DeferredRegister<Block> blocks, Supplier<Block> supplier, BlockShape shape) {

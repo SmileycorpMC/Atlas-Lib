@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.PathType;
 
 import java.util.EnumSet;
 
@@ -37,7 +37,7 @@ public class GoToPositionGoal extends Goal  {
 
 	@Override
 	public void start() {
-		waterCost = entity.getPathfindingMalus(BlockPathTypes.WATER);
+		waterCost = entity.getPathfindingMalus(PathType.WATER);
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class GoToPositionGoal extends Goal  {
 	@Override
 	public void stop() {
 		pather.stop();
-		entity.setPathfindingMalus(BlockPathTypes.WATER, waterCost);
+		entity.setPathfindingMalus(PathType.WATER, waterCost);
 	}
 
 	@Override

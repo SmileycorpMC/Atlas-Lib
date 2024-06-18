@@ -1,4 +1,4 @@
-package net.smileycorp.atlas.api.block;
+package net.smileycorp.atlas.api;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -27,18 +27,13 @@ public class FuelHandler {
 	}
 
 	public int getBurnTime(ItemStack fuel) {
-		if (FUEL_MAP.containsKey(fuel.getItem())) {
-			return FUEL_MAP.get(fuel.getItem());
-		}
-		return 0;
+		return FUEL_MAP.containsKey(fuel.getItem()) ? FUEL_MAP.get(fuel.getItem()) : 0;
 	}
 
 	@SubscribeEvent
 	public void BurnTimeEvent(FurnaceFuelBurnTimeEvent event) {
 		int burnTime = getBurnTime(event.getItemStack());
-		if (burnTime > 0) {
-			event.setBurnTime(burnTime);
-		}
+		if (burnTime > 0) event.setBurnTime(burnTime);
 	}
 
 }

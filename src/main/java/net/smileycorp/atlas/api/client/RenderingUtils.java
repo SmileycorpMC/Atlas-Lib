@@ -58,12 +58,12 @@ public class RenderingUtils {
 			float u = i < 2 ? texture.getU1() - (1F / 16F / 10000) : texture.getU0()+ (1F / 16F / 10000);
 			float v = i == 1 || i == 2 ? texture.getV1() - (1F / 16F / 10000) : texture.getV0() + (1F / 16F / 10000);
 
-			buffer.vertex(quadPos.x() + offset.x(), quadPos.y() + offset.y(), quadPos.z() + offset.z()).color(r, g, b, a).uv(u, v).endVertex();
+			buffer.addVertex((float) (quadPos.x() + offset.x()), (float) (quadPos.y() + offset.y()), (float) (quadPos.z() + offset.z())).setColor(r, g, b, a).setUv(u, v);
 		}
 	}
 
 	public static List<BakedQuad> getQuadsForCube(Color colour, TextureAtlasSprite sprite) {
-		List<BakedQuad> quads = new ArrayList<BakedQuad>();
+		List<BakedQuad> quads = Lists.newArrayList();
 		for (Direction facing : Direction.values()) {
 			quads.addAll(getQuadsForPlane(facing, colour, sprite));
 		}
@@ -78,7 +78,7 @@ public class RenderingUtils {
 		List<BakedQuad> quads = Lists.newArrayList();
 		Vec3[] vecs = PlanarQuadRenderer.getQuadsFor(facing);
 		//for(int i = 0; i < vecs.length; i++) vecs[i] = PlanarQuadRenderer.getOffsetFor(facing, vecs[i], layer);
-		QuadBakingVertexConsumer builder = new QuadBakingVertexConsumer(quads::add);
+		QuadBakingVertexConsumer builder = new QuadBakingVertexConsumer();
 		builder.setSprite(sprite);
 		builder.setDirection(facing);
 		Vec3 normal = new Vec3(vecs[2].x()-vecs[1].x(), vecs[2].y()-vecs[1].y(), vecs[2].z()-vecs[1].z());
@@ -92,12 +92,11 @@ public class RenderingUtils {
 	}
 
 	private static void addVertex(VertexConsumer builder, float x, float y, float z, float u, float v, Vec3 normal, Color colour, TextureAtlasSprite sprite) {
-		builder.vertex(x, y, z)
-				.uv(u, v)
-				.uv2(0, 0)
-				.color(colour.getRed(), colour.getGreen(), colour.getBlue(), colour.getAlpha())
-				.normal((float) normal.x(), (float) normal.y(), (float) normal.z())
-				.endVertex();
+		builder.addVertex(x, y, z)
+				.setUv(u, v)
+				.setUv2(0, 0)
+				.setColor(colour.getRed(), colour.getGreen(), colour.getBlue(), colour.getAlpha())
+				.setNormal((float) normal.x(), (float) normal.y(), (float) normal.z());
 	}
 
 	public static void drawText(PoseStack stack, Component text, float x, float y, int colour, boolean hasShadow) {
