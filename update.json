@@ -1,27 +1,10 @@
 {
 	"homepage": "https://www.curseforge.com/minecraft/mc-mods/atlas-lib",
-	"1.20": {
-		"1.1.9a": "fix translatable component generation, add copy file code",
-		"1.1.10": "Update direction utils to use Vec3 and RandomSource",
-		"1.1.10a": "Replace missing references to RandomSource insetad of Random",
-		"1.1.10b": "Fix directionutils picking locations outside of world",
-		"1.1.11": "update tabs to use suppliers in woodblock and shapedblock",
-		"1.1.11a": "update tabs to use suppliers in toolsets and armoursets",
-		"1.1.12": "add binary and unary operations"
-	},
-	"1.20.1": {
-		"1.1.9a": "fix translatable component generation, add copy file code",
-		"1.1.10": "Update direction utils to use Vec3 and RandomSource",
-		"1.1.10a": "Replace missing references to RandomSource insetad of Random",
-		"1.1.10b": "Fix directionutils picking locations outside of world",
-		"1.1.11": "update tabs to use suppliers in woodblock and shapedblock",
-		"1.1.11a": "update tabs to use suppliers in toolsets and armoursets",
-		"1.1.12": "add binary and unary operations"
-	},
+	"1.21": {
+		"1.1.13": "update to 1.21"
+	}
 	"promos": {
-		"1.20-latest": "1.1.12",
-		"1.20-recommended": "1.1.12",
-		"1.20.1-latest": "1.1.12",
-		"1.20.1-recommended": "1.1.12"
+		"1.21-latest": "1.1.13",
+		"1.21-recommended": "1.1.13"
 	}
 }

@@ -1,0 +1,27 @@
+modLoader="javafml" #mandatory
+loaderVersion="${loader_version_range}"
+license="GNU LESSER GENERAL PUBLIC LICENSE Version 2.1"
+
+[[mods]]
+	modId="atlaslib"
+	version="${mod_version}"
+	displayName="Atlas Lib"
+	displayURL="https://www.curseforge.com/minecraft/mc-mods/atlas-lib" #optional
+	updateJSONURL="https://raw.githubusercontent.com/SmileycorpMC/Atlas-Lib/1.21/update.json"
+	credits="Smileycorp" #optional
+	authors="Smileycorp" #optional
+	description=""
+	
+[[dependencies.atlaslib]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version}"
+    side="BOTH"
+[[dependencies.atlaslib]]
+    modId="neoforge"
+    type="required"
+    versionRange="${neo_version}"
+    side="BOTH"
+
+[[accessTransformers]]
+	file="META-INF/accesstransformer.cfg"
