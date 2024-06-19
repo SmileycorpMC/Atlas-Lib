@@ -3,8 +3,8 @@ package net.smileycorp.atlas.api.item;
 import com.google.common.collect.Maps;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.Item.Properties;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -25,20 +25,20 @@ public class ToolSet {
 
 	Map<ToolType, DeferredHolder<Item, Item>> tools = Maps.newHashMap();
 
-	public ToolSet(String name, Tier material, Supplier<CreativeModeTab> tab,  DeferredRegister<Item> registry) {
-		this(name, material, tab, tab, registry);
+	public ToolSet(String name, Tier material, Supplier<CreativeModeTab> tab, DeferredRegister<Item> registry, IEventBus modBus) {
+		this(name, material, tab, tab, registry, modBus);
 	}
 
-	public ToolSet(String name, Tier material, Supplier<CreativeModeTab> toolTab, Supplier<CreativeModeTab> weaponTab, DeferredRegister<Item> registry) {
-		this.name=name;
-		this.material=material;
+	public ToolSet(String name, Tier material, Supplier<CreativeModeTab> toolTab, Supplier<CreativeModeTab> weaponTab, DeferredRegister<Item> registry, IEventBus modBus) {
+		this.name = name;
+		this.material = material;
 		this.toolTab = toolTab;
 		this.weaponTab = weaponTab;
 		for (ToolType type : ToolType.values()) {
 			DeferredHolder<Item, Item> item = type.createItem(name, material, registry);
-			if (item!=null) tools.put(type, item);
+			if (item != null) tools.put(type, item);
 		}
-		FMLJavaModLoadingContext.get().getModEventBus().register(this);
+		modBus.register(this);
 	}
 
 	@SubscribeEvent
@@ -69,11 +69,11 @@ public class ToolSet {
 
 		static Set<ToolType> REGISTERED_TYPES = new HashSet<ToolType>();
 
-		public static ToolType SWORD = register("sword", (material, properties) -> new SwordItem(material, 0, 0, properties), true);
-		public static ToolType HOE = register("hoe", (material, properties) -> new HoeItem(material, 0, 0, properties));
-		public static ToolType PICKAXE = register("pickaxe", (material, properties) -> new PickaxeItem(material, 0, 0, properties));
-		public static ToolType AXE = register("axe", (material, properties) -> new AxeItem(material, 0, 0, properties));
-		public static ToolType SHOVEL = register("shovel", (material, properties) -> new ShovelItem(material, 0, 0, properties));
+		public static ToolType SWORD = register("sword", (material, properties) -> new SwordItem(material, properties), true);
+		public static ToolType HOE = register("hoe", (material, properties) -> new HoeItem(material, properties));
+		public static ToolType PICKAXE = register("pickaxe", (material, properties) -> new PickaxeItem(material, properties));
+		public static ToolType AXE = register("axe", (material, properties) -> new AxeItem(material, properties));
+		public static ToolType SHOVEL = register("shovel", (material, properties) -> new ShovelItem(material, properties));
 
 		final protected String name;
 		final protected BiFunction<Tier, Properties, TieredItem> function;

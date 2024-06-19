@@ -4,16 +4,16 @@ import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.function.Function;
 
-public class SimpleMessageDecoder<T extends NetworkMessage> implements FriendlyByteBuf.Reader {
+public class SimpleMessageDecoder<T extends NetworkMessage> implements Function<FriendlyByteBuf, T> {
 
 	protected final Class<T> clazz;
 
 	public SimpleMessageDecoder(Class<T> clazz) {
 		this.clazz = clazz;
 	}
-
-	@Override
+	
 	@SuppressWarnings("deprecation")
+	@Override
 	public T apply(FriendlyByteBuf buf) {
 		try {
 			T message = clazz.newInstance();

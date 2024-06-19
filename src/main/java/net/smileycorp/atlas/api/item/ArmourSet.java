@@ -7,8 +7,8 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
 import net.minecraft.world.item.Tier;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -24,24 +24,24 @@ import java.util.function.Supplier;
 public class ArmourSet {
 
 	final String name;
-	final Tiers material;
+	final Tier material;
 	protected final Supplier<CreativeModeTab> tab;
 
 	protected final Map<ArmourType, DeferredHolder<Item, ArmorItem>> armor = Maps.newHashMap();
 
-	public ArmourSet(String name, Tiers material, Supplier<CreativeModeTab> tab, DeferredRegister<Item> registry) {
-		this(name, material, tab, ArmorItem.class, registry);
+	public ArmourSet(String name, Tier material, Supplier<CreativeModeTab> tab, DeferredRegister<Item> registry, IEventBus modBus) {
+		this(name, material, tab, ArmorItem.class, registry, modBus);
 	}
 
-	public ArmourSet(String name, Tiers material, Supplier<CreativeModeTab> tab, Class<? extends ArmorItem> clazz, DeferredRegister<Item> registry) {
-		this.name=name;
-		this.material=material;
+	public ArmourSet(String name, Tier material, Supplier<CreativeModeTab> tab, Class<? extends ArmorItem> clazz, DeferredRegister<Item> registry, IEventBus modBus) {
+		this.name = name;
+		this.material = material;
 		this.tab = tab;
 		for (ArmourType type : ArmourType.values()) {
 			DeferredHolder<Item, ArmorItem> item = registry.register(name + "_" + type.name, () -> type.createItem(material, null));
 			armor.put(type, item);
 		}
-		FMLJavaModLoadingContext.get().getModEventBus().register(this);
+		modBus.register(this);
 	}
 
 	@SubscribeEvent

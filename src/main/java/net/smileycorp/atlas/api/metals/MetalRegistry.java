@@ -1,10 +1,11 @@
 package net.smileycorp.atlas.api.metals;
 
-import java.util.ArrayList;
+import org.apache.commons.compress.utils.Lists;
+
 import java.util.List;
 
 public class MetalRegistry {
 
-	private static List<MetalShape> SHAPES = new ArrayList<MetalShape>();
+	private static List<MetalShape> SHAPES = Lists.newArrayList();
 
 }

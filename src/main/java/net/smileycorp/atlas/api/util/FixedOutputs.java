@@ -1,5 +1,6 @@
 package net.smileycorp.atlas.api.util;
 
+import com.google.common.collect.Lists;
 import net.minecraft.util.RandomSource;
 
 import java.util.AbstractMap.SimpleEntry;
@@ -25,7 +26,7 @@ public class FixedOutputs<T> extends WeightedOutputs<T> {
 	}
 
 	public void addEntry(T t) {
-		entries.add(new SimpleEntry<T, Integer>(t, 1));
+		entries.add(new SimpleEntry<>(t, 1));
 	}
 
 	@Override
@@ -45,33 +46,25 @@ public class FixedOutputs<T> extends WeightedOutputs<T> {
 	@Override
 	public List<T> getResults(RandomSource rand, int tries) {
 		List<T> list = new ArrayList<T>();
-		for (int i = 0; i < tries*defaultTries; i++) {
-			getResult(list, i);
-		}
+		for (int i = 0; i < tries*defaultTries; i++) getResult(list, i);
 		return list;
 	}
 
 	private void getResult(List<T> list, int i) {
-		if (i < entries.size()) {
-			list.add(entries.get(i).getKey());
-		} else {
-			getResult(list, i-entries.size());
-		}
+		if (i < entries.size()) list.add(entries.get(i).getKey());
+		else getResult(list, i-entries.size());
 	}
 
 	private static <T> List<Entry<T, Integer>> mapCollection(Collection<T> entries) {
-		List<Entry<T, Integer>> result = new ArrayList<Entry<T, Integer>>();
-		for (T entry : entries) {
-			result.add(new SimpleEntry<T, Integer>(entry, 1));
-		}
+		List<Entry<T, Integer>> result = Lists.newArrayList();
+		for (T entry : entries) result.add(new SimpleEntry<>(entry, 1));
 		return result;
 	}
 
 	private static <T> List<Entry<T, Integer>> mapEntries(Collection<Entry<T, Integer>> entries) {
-		List<Entry<T, Integer>> result = new ArrayList<Entry<T, Integer>>();
-		for (Entry<T, Integer> entry : entries) {
-			result.add(new SimpleEntry<T, Integer>(entry.getKey(), 1));
-		}
+		List<Entry<T, Integer>> result = Lists.newArrayList();
+		for (Entry<T, Integer> entry : entries) result.add(new SimpleEntry<>(entry.getKey(), 1));
 		return result;
 	}
+	
 }

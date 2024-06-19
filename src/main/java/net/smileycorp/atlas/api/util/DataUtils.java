@@ -7,6 +7,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.fml.loading.moddiscovery.ModFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
@@ -34,9 +35,10 @@ public class DataUtils {
 		nbt.put("Inventory", nbtItems);
 	}
 
-	public static NonNullList<ItemStack> readItemsFromNBT(CompoundTag nbt) {
+	public static NonNullList<ItemStack> readItemsFromNBT(HolderLookup.Provider registryAccess, CompoundTag nbt) {
 		NonNullList<ItemStack> items = NonNullList.create();
-		for (Tag tag : nbt.getList("Inventory", 10)) if (tag instanceof CompoundTag) items.add(ItemStack.of((CompoundTag) tag));
+		for (Tag tag : nbt.getList("Inventory", 10)) if (tag instanceof CompoundTag)
+			items.add(ItemStack.parseOptional(registryAccess, (CompoundTag) tag));
 		return items;
 	}
 
@@ -44,7 +46,7 @@ public class DataUtils {
 		Logger logger = LogManager.getLogger(modid);
 		try {
 			ModFile mod = FMLLoader.getLoadingModList().getModFileById(modid).getFile();
-			File directory = NeoForge.CONFIGDIR.get().resolve(modid).toFile();
+			File directory = FMLPaths.CONFIGDIR.get().resolve(modid).toFile();
 			File output = new File(directory, path);
 			File dir = output.getParentFile();
 			if (dir != null) dir.mkdirs();

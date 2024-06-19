@@ -1,7 +1,5 @@
 package net.smileycorp.atlas.api.util;
 
-import java.lang.reflect.Executable;
-
 public class Func {
 
 	public static boolean True(Object... o) {

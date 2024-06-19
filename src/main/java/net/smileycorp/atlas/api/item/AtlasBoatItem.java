@@ -32,46 +32,36 @@ public class AtlasBoatItem extends Item {
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level p_40622_, Player p_40623_, InteractionHand p_40624_) {
-		ItemStack itemstack = p_40623_.getItemInHand(p_40624_);
-		HitResult hitresult = getPlayerPOVHitResult(p_40622_, p_40623_, ClipContext.Fluid.ANY);
-		if (hitresult.getType() == HitResult.Type.MISS) {
+	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+		ItemStack itemstack = player.getItemInHand(hand);
+		HitResult hitresult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
+		if (hitresult.getType() == HitResult.Type.MISS)
 			return InteractionResultHolder.pass(itemstack);
-		} else {
-			Vec3 vec3 = p_40623_.getViewVector(1.0F);
-			List<Entity> list = p_40622_.getEntities(p_40623_, p_40623_.getBoundingBox().expandTowards(vec3.scale(5.0D)).inflate(1.0D), ENTITY_PREDICATE);
+		else {
+			Vec3 vec3 = player.getViewVector(1.0F);
+			List<Entity> list = level.getEntities(player, player.getBoundingBox().expandTowards(vec3.scale(5.0D)).inflate(1.0D), ENTITY_PREDICATE);
 			if (!list.isEmpty()) {
-				Vec3 vec31 = p_40623_.getEyePosition();
-
+				Vec3 vec31 = player.getEyePosition();
 				for(Entity entity : list) {
 					AABB aabb = entity.getBoundingBox().inflate((double)entity.getPickRadius());
-					if (aabb.contains(vec31)) {
-						return InteractionResultHolder.pass(itemstack);
-					}
+					if (aabb.contains(vec31)) return InteractionResultHolder.pass(itemstack);
 				}
 			}
-
 			if (hitresult.getType() == HitResult.Type.BLOCK) {
-				AtlasBoat boat = new AtlasBoat(p_40622_, hitresult.getLocation().x, hitresult.getLocation().y, hitresult.getLocation().z);
+				AtlasBoat boat = new AtlasBoat(level, hitresult.getLocation().x, hitresult.getLocation().y, hitresult.getLocation().z);
 				boat.setType(type);
-				boat.setYRot(p_40623_.getYRot());
-				if (!p_40622_.noCollision(boat, boat.getBoundingBox())) {
-					return InteractionResultHolder.fail(itemstack);
-				} else {
-					if (!p_40622_.isClientSide) {
-						p_40622_.addFreshEntity(boat);
-						p_40622_.gameEvent(p_40623_, GameEvent.ENTITY_PLACE, BlockPos.containing(hitresult.getLocation()));
-						if (!p_40623_.getAbilities().instabuild) {
-							itemstack.shrink(1);
-						}
+				boat.setYRot(player.getYRot());
+				if (!level.noCollision(boat, boat.getBoundingBox())) return InteractionResultHolder.fail(itemstack);
+				else {
+					if (!level.isClientSide) {
+						level.addFreshEntity(boat);
+						level.gameEvent(player, GameEvent.ENTITY_PLACE, BlockPos.containing(hitresult.getLocation()));
+						if (!player.getAbilities().instabuild) itemstack.shrink(1);
 					}
-
-					p_40623_.awardStat(Stats.ITEM_USED.get(this));
-					return InteractionResultHolder.sidedSuccess(itemstack, p_40622_.isClientSide());
+					player.awardStat(Stats.ITEM_USED.get(this));
+					return InteractionResultHolder.sidedSuccess(itemstack, level.isClientSide());
 				}
-			} else {
-				return InteractionResultHolder.pass(itemstack);
-			}
+			} else return InteractionResultHolder.pass(itemstack);
 		}
 	}
 }
