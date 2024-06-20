@@ -8,20 +8,24 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.smileycorp.atlas.api.util.TextUtils;
 
 
-public class GenericTranslatableMessage implements NetworkMessage {
+public class GenericTranslatableMessage extends GenericMessage {
 
-	public GenericTranslatableMessage() {}
+	public GenericTranslatableMessage(Type<? extends GenericTranslatableMessage> type) {
+		super(type);
+	}
 
 	private String key, fallback;
 	private Object[] args = {};
 
-	public GenericTranslatableMessage(TranslatableContents contents) {
+	public GenericTranslatableMessage(TranslatableContents contents, Type<? extends GenericTranslatableMessage> type) {
+		super(type);
 		key = contents.getKey();
 		fallback = contents.getFallback();
 		args = contents.getArgs();
 	}
 
-	public GenericTranslatableMessage(String key, String fallback, Object...args) {
+	public GenericTranslatableMessage(Type<? extends GenericTranslatableMessage> type, String key, String fallback, Object...args) {
+		super(type);
 		this.key = key;
 		this.fallback = fallback;
 		this.args = args;
@@ -50,11 +54,6 @@ public class GenericTranslatableMessage implements NetworkMessage {
 	@Override
 	public void process(IPayloadContext ctx) {
 		throw new IllegalArgumentException("Please use the other register method, when using generic messages!");
-	}
-	
-	@Override
-	public Type<? extends CustomPacketPayload> type() {
-		return null;
 	}
 	
 }

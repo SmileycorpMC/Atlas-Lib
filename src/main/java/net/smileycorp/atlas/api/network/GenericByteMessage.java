@@ -5,14 +5,17 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 
-public class GenericByteMessage implements NetworkMessage {
-
-	public GenericByteMessage() {}
-
+public class GenericByteMessage extends GenericMessage {
+	
 	private byte[] data;
+	
+	public GenericByteMessage(Type<? extends GenericByteMessage> type) {
+		super(type);
+	}
 
-	public GenericByteMessage(byte[] data) {
-		this.data=data;
+	public GenericByteMessage(byte[] data, Type<GenericByteMessage> type) {
+		super(type);
+		this.data = data;
 	}
 
 	public byte[] getData() {
@@ -33,11 +36,6 @@ public class GenericByteMessage implements NetworkMessage {
 	@Override
 	public void process(IPayloadContext ctx) {
 		throw new IllegalArgumentException("Please use the other register method, when using generic messages!");
-	}
-	
-	@Override
-	public Type<? extends CustomPacketPayload> type() {
-		return null;
 	}
 	
 }
