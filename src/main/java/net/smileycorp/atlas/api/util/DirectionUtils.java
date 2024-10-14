@@ -5,7 +5,9 @@ import java.util.Random;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -17,20 +19,18 @@ import net.minecraft.world.World;
 public class DirectionUtils {
 
 	public static RayTraceResult rayTrace(World world, EntityLivingBase entity, float distance) {
-		Vec3d eyepos = entity.getPositionEyes(1f);
-		Vec3d lookangle = entity.getLook(1f);
-		Vec3d lastVec = eyepos.addVector(lookangle.x, lookangle.y, lookangle.z);
-		RayTraceResult blockRay = world.rayTraceBlocks(eyepos, eyepos.addVector(lookangle.x * distance, lookangle.y * distance, lookangle.z * distance), false, false, true);
-		for (int x = 0; x <16*distance; x++) {
-			float reach = x/16f;
-			Vec3d vec = eyepos.addVector(lookangle.x*reach, lookangle.y*reach, lookangle.z*reach);
-			if (blockRay == null || blockRay.hitVec == null) return new RayTraceResult(lookangle, null);
-			if (blockRay.hitVec.distanceTo(eyepos) < vec.distanceTo(eyepos)) break;
+		Vec3d pos = entity.getPositionVector().addVector(0, entity.posY, 0);
+		Vec3d dir = entity.getLookVec();
+		Vec3d lastVec = pos.addVector(dir.x, dir.y, dir.z);
+		RayTraceResult blockRay = world.rayTraceBlocks(pos, pos.addVector(dir.x * distance, dir.y * distance, dir.z * distance), false, false, true);
+		for (int x = 0; x < 16 * distance; x++) {
+			float reach = x * 0.0625f;
+			Vec3d vec = pos.addVector(dir.x * reach, dir.y * reach, dir.z * reach);
+			if (blockRay == null || blockRay.hitVec == null) return new RayTraceResult(dir, null);
+			if (blockRay.hitVec.distanceTo(pos) < vec.distanceTo(pos)) break;
 			AxisAlignedBB AABB = new AxisAlignedBB(lastVec.x, lastVec.y, lastVec.z, vec.x, vec.y, vec.z);
 			List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(entity, AABB);
-			if (!entities.isEmpty()) {
-				return new RayTraceResult(entities.get(0), lookangle);
-			}
+			if (!entities.isEmpty()) return new RayTraceResult(entities.get(0), dir);
 			lastVec = vec;
 		}
 		return blockRay;
@@ -38,8 +38,8 @@ public class DirectionUtils {
 
 	//use rayTrace instead
 	@Deprecated
-	public static RayTraceResult getPlayerRayTrace(World world, EntityPlayer player, float blockReach) {
-		return rayTrace(world, player, blockReach);
+	public static RayTraceResult getPlayerRayTrace(World world, EntityPlayer player, float distance) {
+		return rayTrace(world, player, distance);
 	}
 
 	public static EnumFacing getFacing(Vec3d vec) {
@@ -64,94 +64,69 @@ public class DirectionUtils {
 	}
 
 	public static int getXZMeta(EnumFacing facing) {
-		if (facing==EnumFacing.UP||facing==EnumFacing.DOWN) {
-			return facing.getIndex()+4;
-		}
-		return facing.getIndex()-2;
+		return facing.getIndex() + (facing == EnumFacing.UP || facing == EnumFacing.DOWN ? 4 : -2);
 	}
 
-	public static Vec3d getDirectionVecXZ(Vec3i startpos, Vec3i endpos) {
-		return getDirectionVecXZ(new Vec3d(startpos), new Vec3d(endpos));
+	public static Vec3d getDirectionVecXZ(Vec3i start, Vec3i end) {
+		return getDirectionVecXZ(centerOf(start), centerOf(end));
 	}
 
-	public static Vec3d getDirectionVecXZ(Vec3d startpos, Vec3d endpos) {
-		double dx = endpos.x-startpos.x;
-		double dz = endpos.z-startpos.z;
+	public static Vec3d getDirectionVecXZ(Vec3d start, Vec3d end) {
+		double dx = end.x-start.x;
+		double dz = end.z-start.z;
 		double angle = Math.atan2(dz, dx);
 		return getDirectionVecXZ(angle);
 	}
 
-	public static Vec3d getDirectionVecXZ(Entity entity1, Entity entity2) {
-		Vec3d startpos = entity1.getPositionVector();
-		Vec3d endpos = entity2.getPositionVector();
-		return getDirectionVecXZ(startpos, endpos);
+	public static Vec3d getDirectionVecXZ(Entity start, Entity end) {
+		return getDirectionVecXZ(start.getPositionVector(), end.getPositionVector());
 	}
 
 	public static Vec3d getDirectionVecXZDegrees(double angle) {
-		double rad = Math.toRadians(angle);
-		return getDirectionVecXZ(rad);
+		return getDirectionVecXZ(Math.toRadians(angle));
 	}
 
 	public static Vec3d getDirectionVecXZ(double angle) {
-		double x = Math.cos(angle);
-		double z = Math.sin(angle);
-		return new Vec3d(x, 0, z);
+		return new Vec3d(Math.cos(angle), 0, Math.sin(angle));
 	}
 
 	public static Vec3d getRandomDirectionVecXZ(Random rand) {
-		int angle = rand.nextInt(360);
-		return getDirectionVecXZDegrees(angle);
+		return getDirectionVecXZDegrees(rand.nextInt(360));
 	}
 
-	public static Vec3d getDirectionVec(Entity entity1, Entity entity2) {
-		Vec3d startpos = entity1.getPositionVector();
-		Vec3d endpos = entity2.getPositionVector();
-		return getDirectionVec(startpos, endpos);
+	public static Vec3d getDirectionVec(Entity start, Entity end) {
+		return getDirectionVec(start.getPositionVector(), end.getPositionVector());
 	}
 
-	public static Vec3d getDirectionVec(Vec3i startpos, Vec3i endpos) {
-		return getDirectionVec(new Vec3d(startpos), new Vec3d(endpos));
+	public static Vec3d getDirectionVec(Vec3i start, Vec3i end) {
+		return getDirectionVec(centerOf(start), centerOf(end));
 	}
 
-	public static Vec3d getDirectionVec(Vec3d startpos, Vec3d endpos) {
-		if (startpos.equals(endpos)) return new Vec3d(0,0,0);
-		double dx = endpos.x-startpos.x;
-		double dy = endpos.y-startpos.y;
-		double dz = endpos.z-startpos.z;
-		double magnitude = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2) + Math.pow(dz, 2));
-		double mx = (endpos.x-startpos.x)/magnitude;
-		double my = (endpos.y-startpos.y)/magnitude;
-		double mz = (endpos.z-startpos.z)/magnitude;
-		return new Vec3d(mx, my, mz);
-	}
-
-	public static double dotProduct(Vec3i vec1, Vec3i vec2) {
-		return dotProduct(new Vec3d(vec1), new Vec3d(vec2));
-	}
-
-	public static double dotProduct(Vec3d vec1, Vec3d vec2) {
-		double x = vec1.x * vec2.x;
-		double y = vec1.y * vec2.y;
-		double z = vec1.z * vec2.z;
-		return x + y+ z;
+	public static Vec3d getDirectionVec(Vec3d start, Vec3d end) {
+		if (start.equals(end)) return new Vec3d(0,0,0);
+		double dx = end.x - start.x;
+		double dy = end.y - start.y;
+		double dz = end.z - start.z;
+		double magnitude = Math.sqrt(dx * dx + dy * dy + dz * dz);
+		return new Vec3d(dx / magnitude, dy / magnitude, dz / magnitude);
 	}
 
 	public static BlockPos getClosestLoadedPos(World world, BlockPos basepos, Vec3d direction, double radius) {
-		BlockPos pos = world.getTopSolidOrLiquidBlock(basepos.add(direction.x*radius, 0, direction.z*radius));
+		BlockPos pos = world.getTopSolidOrLiquidBlock(basepos.add(direction.x * radius, 0, direction.z * radius));
 		while (!world.getChunkFromBlockCoords(pos).isLoaded()) {
-			if (radius==0) return basepos;
+			if (radius == 0) return basepos;
 			radius--;
-			pos = world.getTopSolidOrLiquidBlock(basepos.add(direction.x*radius, 0, direction.z*radius));
+			pos = world.getTopSolidOrLiquidBlock(basepos.add(direction.x * radius, 0, direction.z * radius));
 		}
 		return pos;
 	}
 
 	public static BlockPos getClosestLoadedPos(World world, BlockPos basepos, Vec3d direction, double radius, int maxlight, int minlight) {
-		BlockPos pos = world.getTopSolidOrLiquidBlock(basepos.add(direction.x*radius, 0, direction.z*radius));
+		BlockPos pos = world.getTopSolidOrLiquidBlock(basepos.add(direction.x * radius, 0, direction.z * radius));
 		while (!world.getChunkFromBlockCoords(pos).isLoaded() || !isBrightnessAllowed(world, basepos, maxlight, minlight)) {
-			if (radius==0) return basepos;
+			if (radius == 0) return basepos;
 			radius--;
-			pos = world.getTopSolidOrLiquidBlock(basepos.add(direction.x*radius, 0, direction.z*radius));
+			pos = world.getTopSolidOrLiquidBlock(basepos.add(direction.x * radius, 0, direction.z * radius));
 		}
 		return pos;
 	}
@@ -162,5 +137,21 @@ public class DirectionUtils {
 		if (blocklight < minlight) return false;
 		return true;
 	}
+	
+	public static Vec3d centerOf(Vec3i pos) {
+		return new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+	}
+	public static void throwItem(EntityLivingBase entity, ItemStack stack, Vec3d target) {
+		EntityItem item = new EntityItem(entity.world, entity.posX, entity.posY + entity.getEyeHeight() - 0.3, entity.posZ, stack);
+		item.setThrower(entity.getUniqueID().toString());
+		Vec3d vel = target.subtract(item.posX, item.posY, item.posZ)
+				.normalize().scale(0.3);
+		item.motionX = vel.x;
+		item.motionY = vel.y;
+		item.motionZ = vel.z;
+		item.setDefaultPickupDelay();
+		entity.world.spawnEntity(item);
+	}
+	
 
 }
