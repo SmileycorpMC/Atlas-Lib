@@ -1,7 +1,5 @@
 package net.smileycorp.atlas.api.block.wood;
 
-import java.util.List;
-
 import net.minecraft.block.BlockLog;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
@@ -17,6 +15,8 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.smileycorp.atlas.api.block.IBlockProperties;
 import net.smileycorp.atlas.api.block.PropertyString;
+
+import java.util.List;
 
 public class BlockBaseLog extends BlockLog implements IBlockProperties {
 	

@@ -1,11 +1,10 @@
 package net.smileycorp.atlas.api.block;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.common.base.Optional;
 import net.minecraft.block.properties.IProperty;
 
-import com.google.common.base.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PropertyString implements IProperty<String> {
 	

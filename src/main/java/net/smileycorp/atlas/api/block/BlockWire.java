@@ -1,10 +1,5 @@
 package net.smileycorp.atlas.api.block;
 
-import java.lang.reflect.Field;
-import java.util.Random;
-
-import javax.annotation.Nullable;
-
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -27,6 +22,10 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.smileycorp.atlas.api.item.ItemWireBlock;
+
+import javax.annotation.Nullable;
+import java.lang.reflect.Field;
+import java.util.Random;
 
 public class BlockWire extends BlockBase {
 	

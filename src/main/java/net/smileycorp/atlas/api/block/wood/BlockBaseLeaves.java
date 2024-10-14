@@ -1,11 +1,5 @@
 package net.smileycorp.atlas.api.block.wood;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import javax.annotation.Nonnull;
-
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockPlanks.EnumType;
 import net.minecraft.block.properties.IProperty;
@@ -25,6 +19,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.smileycorp.atlas.api.block.IBlockProperties;
 import net.smileycorp.atlas.api.block.PropertyString;
 import net.smileycorp.atlas.api.item.DummyItemBlock;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class BlockBaseLeaves extends BlockLeaves implements IBlockProperties {
 

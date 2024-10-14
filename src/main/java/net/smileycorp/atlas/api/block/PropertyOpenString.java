@@ -1,8 +1,8 @@
 package net.smileycorp.atlas.api.block;
 
-import java.util.function.Predicate;
-
 import net.minecraftforge.common.property.IUnlistedProperty;
+
+import java.util.function.Predicate;
 
 public class PropertyOpenString implements IUnlistedProperty<String> {
 	

@@ -1,9 +1,9 @@
 package net.smileycorp.atlas.api.client.colour;
 
-import java.awt.Color;
-
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.item.ItemStack;
+
+import java.awt.*;
 
 public class ItemFoliageColour implements IItemColor {
 

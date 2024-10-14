@@ -1,10 +1,10 @@
 package net.smileycorp.atlas.api.util;
 
-import java.util.List;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.oredict.OreDictionary;
+
+import java.util.List;
 
 public class RecipeUtils {
 

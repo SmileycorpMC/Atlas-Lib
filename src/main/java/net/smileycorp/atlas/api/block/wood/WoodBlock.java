@@ -1,10 +1,6 @@
 package net.smileycorp.atlas.api.block.wood;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -24,7 +20,10 @@ import net.smileycorp.atlas.api.block.BlockMetaBase;
 import net.smileycorp.atlas.api.block.BlockStairsBase;
 import net.smileycorp.atlas.api.item.ItemBlockMeta;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class WoodBlock {
 

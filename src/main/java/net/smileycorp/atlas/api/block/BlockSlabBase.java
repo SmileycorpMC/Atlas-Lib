@@ -1,9 +1,5 @@
 package net.smileycorp.atlas.api.block;
 
-import java.util.Random;
-
-import org.apache.commons.lang3.text.WordUtils;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.material.Material;
@@ -18,8 +14,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
 import net.smileycorp.atlas.api.DummyEnum;
+import org.apache.commons.lang3.text.WordUtils;
+
+import java.util.Random;
 
 public class BlockSlabBase extends BlockSlab {
 	

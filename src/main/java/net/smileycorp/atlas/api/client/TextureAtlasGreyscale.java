@@ -1,18 +1,16 @@
 package net.smileycorp.atlas.api.client;
 
-import java.awt.Color;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.function.Function;
-
 import com.google.common.collect.ImmutableList;
-
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
-
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.awt.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.function.Function;
 
 @SideOnly(Side.CLIENT)
 public class TextureAtlasGreyscale extends TextureAtlasSprite {

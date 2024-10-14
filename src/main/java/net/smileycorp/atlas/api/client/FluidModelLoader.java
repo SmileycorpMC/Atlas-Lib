@@ -1,7 +1,5 @@
 package net.smileycorp.atlas.api.client;
 
-import java.util.function.Predicate;
-
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ICustomModelLoader;
@@ -10,6 +8,8 @@ import net.minecraftforge.client.model.ModelFluid;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.resource.IResourceType;
 import net.minecraftforge.fluids.FluidRegistry;
+
+import java.util.function.Predicate;
 
 public class FluidModelLoader implements ICustomModelLoader {
 	

@@ -1,14 +1,13 @@
 package net.smileycorp.atlas.api.entity.ai;
 
 
-import java.util.List;
-
+import com.google.common.base.Predicate;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIFindEntityNearest;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
-import com.google.common.base.Predicate;
+import java.util.List;
 
 public class EntityAIFindNearestTargetPredicate extends EntityAIFindEntityNearest {
 	
