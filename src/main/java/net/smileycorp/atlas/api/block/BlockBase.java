@@ -9,7 +9,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
-public class BlockBase extends Block implements IBlockProperties {
+public class BlockBase extends Block implements BlockProperties {
 
 	protected String name;
 	protected final String modid;

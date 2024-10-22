@@ -13,12 +13,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.smileycorp.atlas.api.block.IBlockProperties;
+import net.smileycorp.atlas.api.block.BlockProperties;
 import net.smileycorp.atlas.api.block.PropertyString;
 
 import java.util.List;
 
-public class BlockBaseLog extends BlockLog implements IBlockProperties {
+public class BlockBaseLog extends BlockLog implements BlockProperties {
 	
 	//fake static property to bypass blockstate validation
 	protected static PropertyString staticProp;
