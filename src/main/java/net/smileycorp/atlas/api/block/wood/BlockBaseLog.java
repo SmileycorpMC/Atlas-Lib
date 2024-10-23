@@ -1,112 +1,163 @@
 package net.smileycorp.atlas.api.block.wood;
 
+import com.google.common.collect.Sets;
 import net.minecraft.block.BlockLog;
-import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.MapColor;
+import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.smileycorp.atlas.api.block.BlockProperties;
-import net.smileycorp.atlas.api.block.PropertyString;
 
-import java.util.List;
+import javax.annotation.Nullable;
+import java.util.Collection;
 
-public class BlockBaseLog extends BlockLog implements BlockProperties {
+public class BlockBaseLog<T extends Enum<T> & WoodEnum> extends BlockLog implements WoodVariant<T> {
 	
 	//fake static property to bypass blockstate validation
-	protected static PropertyString staticProp;
+	private static PropertyEnum staticProp;
+	private final Class<T> types;
+	private final int ordinal;
+	private PropertyEnum<T> type;
 	
-	protected PropertyString prop;
-	
-	public boolean isFlamable;
-
-	protected BlockBaseLog(String name, String modid, CreativeTabs tab, List<String> variants, boolean isFlamable) {
+	private BlockBaseLog(String name, String modid, CreativeTabs tab, Class<T> types, int ordinal) {
 		super();
-		name = name.isEmpty() ? "Log":"Log_"+name;
+		this.types = types;
+		this.ordinal = ordinal;
+		setRegistryName(new ResourceLocation(modid, name));
+		setUnlocalizedName(modid + "." + name);
 		setCreativeTab(tab);
-		setRegistryName(new ResourceLocation(modid, name.toLowerCase()));
-		setUnlocalizedName(modid+"."+name.replace("_", ""));
-		this.isFlamable = isFlamable;
-		this.setDefaultState(this.blockState.getBaseState().withProperty(LOG_AXIS, BlockLog.EnumAxis.Y).withProperty(prop, variants.get(0)));
-	}
-	
-	public static BlockBaseLog create(String name, String modid, CreativeTabs tab, List<String> variants, boolean isFlamable) {
-		staticProp = new PropertyString("property", variants);
-		return new BlockBaseLog(name, modid, tab, variants, isFlamable);
-	}
-
-	public PropertyString getProperty() {
-		return prop;
+		setDefaultState(blockState.getBaseState().withProperty(type, types.getEnumConstants()[ordinal * 4]));
 	}
 	
 	@Override
 	protected BlockStateContainer createBlockState() {
-		prop=staticProp;
-		return new BlockStateContainer(this, new IProperty[]{prop, LOG_AXIS});
-	}
-	
-	@Override
-	public IBlockState getStateFromMeta(int meta) {
-		List<String> variants = prop.getAllowedValues();
-		IBlockState state = this.getDefaultState();
-		int varMeta = meta%4;
-		int dirMeta = meta - meta%4;
-    	if (varMeta>variants.size()-1) varMeta=0;
-    	BlockLog.EnumAxis axis;
-        switch (dirMeta) {
-        case 0:
-            	axis = BlockLog.EnumAxis.Y;
-		case 4:
-            	axis = BlockLog.EnumAxis.X;
-		case 8:
-            	axis = BlockLog.EnumAxis.Z;
-		default:
-            	axis = BlockLog.EnumAxis.NONE;
-        }
-		return state.withProperty(prop, variants.get(varMeta)).withProperty(LOG_AXIS, axis);
+		type = staticProp;
+		return new BlockStateContainer(this, type, LOG_AXIS);
 	}
 	
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		String variant = (String) state.getProperties().get(prop);
-		List<String> variants = prop.getAllowedValues();
-		int varMeta = variants.contains(variant) ? variants.indexOf(variant) : 0;
+		int meta = state.getValue(type).ordinal() % 4;
 		switch (state.getValue(LOG_AXIS)) {
-	    	case Y:
-	    			return varMeta;
 			case X:
-	                 return varMeta + 4;
+				return 4 + meta;
+			case Y:
+				return meta;
 			case Z:
-	            	return varMeta + 8;
+				return 8 + meta;
 			default:
-	            	return varMeta + 12;
-	        }
-    }
-	
-	@Override
-	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
-		return new ItemStack(this, 1, this.getMetaFromState(state));
+				return 12 + meta;
+		}
 	}
 	
 	@Override
-	public int getMaxMeta(){
-		return prop.getAllowedValues().size();
+	public IBlockState getStateFromMeta(int meta) {
+		EnumAxis axis = EnumAxis.NONE;
+		if (meta < 4) axis = EnumAxis.Y;
+		else if (meta < 8) axis = EnumAxis.X;
+		else if (meta < 12) axis = EnumAxis.Z;
+		return getDefaultState().withProperty(type, types.getEnumConstants()[ordinal * 4 + meta % 4])
+				.withProperty(LOG_AXIS, axis);
+	}
+	
+	@Override
+	public int getMaxMeta() {
+		return type.getAllowedValues().size();
+	}
+	
+	@Override
+	public String byMeta(int meta) {
+		return byState(getStateFromMeta(meta));
+	}
+	
+	@Override
+	public String byState(IBlockState state) {
+		String name = state.getValue(type).getName();
+		return name + (state.getValue(LOG_AXIS) == EnumAxis.NONE ? (name.contains("wood") ? "" : "_wood") : "_log");
+	}
+	
+	@Override
+	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
+		return new ItemStack(this, 1, getMetaFromState(state) % 4);
+	}
+	
+	@Override
+	public MapColor getMapColor(IBlockState state, IBlockAccess world, BlockPos pos) {
+		return state.getValue(type).logColour();
+	}
+	
+	@Override
+	public boolean isFlammable(IBlockAccess world, BlockPos pos, EnumFacing face) {
+		return world.getBlockState(pos).getValue(type).isFlammable();
 	}
 	
 	@Override
 	public int getFlammability(IBlockAccess world, BlockPos pos, EnumFacing facing) {
-		return isFlamable ? 20 : super.getFlammability(world, pos, facing);
+		return isFlammable(world, pos, facing) ? 20 : super.getFlammability(world, pos, facing);
 	}
 	
 	@Override
 	public int getFireSpreadSpeed(IBlockAccess world, BlockPos pos, EnumFacing facing) {
-		return isFlamable ? 5 : super.getFireSpreadSpeed(world, pos, facing);
+		return isFlammable(world, pos, facing) ? 5 : super.getFireSpreadSpeed(world, pos, facing);
 	}
+	
+	@Override
+	public SoundType getSoundType(IBlockState state, World world, BlockPos pos, @Nullable Entity entity) {
+		return state.getValue(type).getSoundType();
+	}
+	
+	@Override
+	public float getBlockHardness(IBlockState state, World world, BlockPos pos) {
+		return state.getValue(type).getHardness();
+	}
+	
+	@Override
+	public float getExplosionResistance(World world, BlockPos pos, @Nullable Entity exploder, Explosion explosion) {
+		return world.getBlockState(pos).getValue(type).getResistance() / 5f;
+	}
+	
+	@Override
+	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
+		for (int i = 0; i < type.getAllowedValues().size(); i++) {
+			items.add(new ItemStack(this, 1, i));
+			items.add(new ItemStack(this, 1, i + 12));
+		}
+	}
+	
+	@Override
+	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand) {
+		ItemStack stack = placer.getHeldItem(hand);
+		return (stack.getMetadata() < 12) ? super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand)
+				: getStateFromMeta(12 + stack.getMetadata() % 4);
+	}
+	
+	@Override
+	public PropertyEnum<T> typeProperty() {
+		return type;
+	}
+	
+	public static <T extends Enum<T> & WoodEnum> BlockBaseLog<T> create(String name, String modid, CreativeTabs tab, Class<T> clazz, int ordinal) {
+		Collection<T> types = Sets.newHashSet();
+		for (int i = ordinal * 4; i < (ordinal + 1) * 4; i++) {
+			if (i >= clazz.getEnumConstants().length) break;
+			types.add(clazz.getEnumConstants()[i]);
+		}
+		staticProp = PropertyEnum.create("type", clazz, types);
+		return new BlockBaseLog<>(name, modid, tab, clazz, ordinal);
+	}
+	
 }

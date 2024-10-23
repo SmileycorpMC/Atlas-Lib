@@ -1,40 +1,35 @@
 package net.smileycorp.atlas.api.block.wood;
 
 import com.google.common.collect.Sets;
-import net.minecraft.block.BlockPlanks;
+import net.minecraft.block.BlockBush;
 import net.minecraft.block.BlockSapling;
+import net.minecraft.block.IGrowable;
 import net.minecraft.block.SoundType;
-import net.minecraft.block.material.EnumPushReaction;
-import net.minecraft.block.material.MapColor;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockProperties;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.*;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenerator;
 import net.minecraftforge.event.terraingen.TerrainGen;
-import net.smileycorp.atlas.api.block.BlockProperties;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Random;
 
-public class BlockBaseSapling<T extends Enum<T> & WoodEnum> extends BlockSapling implements BlockProperties {
+public class BlockBaseSapling<T extends Enum<T> & WoodEnum> extends BlockBush implements WoodVariant<T>, IGrowable {
+    
+    protected static final AxisAlignedBB SAPLING_AABB = new AxisAlignedBB(0.09999999403953552D, 0.0D, 0.09999999403953552D, 0.8999999761581421D, 0.800000011920929D, 0.8999999761581421D);
     
     //fake static property to bypass blockstate validation
     private static PropertyEnum staticProp;
@@ -55,18 +50,18 @@ public class BlockBaseSapling<T extends Enum<T> & WoodEnum> extends BlockSapling
     @Override
     protected BlockStateContainer createBlockState() {
         type = staticProp;
-        return new BlockStateContainer(this, type, STAGE);
+        return new BlockStateContainer(this, type, BlockSapling.STAGE);
     }
     
     @Override
     public int getMetaFromState(IBlockState state) {
-        return state.getValue(type).ordinal() % 4 + state.getValue(STAGE) * 4;
+        return state.getValue(type).ordinal() % 4 + state.getValue(BlockSapling.STAGE) * 4;
     }
     
     @Override
     public IBlockState getStateFromMeta(int meta) {
         return getDefaultState().withProperty(type, types.getEnumConstants()[ordinal * 4 + meta % 4])
-                .withProperty(STAGE, meta / 4);
+                .withProperty(BlockSapling.STAGE, meta / 4);
     }
     
     @Override
@@ -81,7 +76,12 @@ public class BlockBaseSapling<T extends Enum<T> & WoodEnum> extends BlockSapling
     
     @Override
     public String byState(IBlockState state) {
-        return state.getValue(type).name();
+        return state.getValue(type).getName() + "_sapling";
+    }
+    
+    @Override
+    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
+        return new ItemStack(this, 1, getMetaFromState(state) % 4);
     }
     
     @Override
@@ -96,6 +96,25 @@ public class BlockBaseSapling<T extends Enum<T> & WoodEnum> extends BlockSapling
     }
     
     @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
+    {
+        return SAPLING_AABB;
+    }
+    
+    @Override
+    public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
+        if (world.isRemote) return;
+        super.updateTick(world, pos, state, rand);
+        if (!world.isAreaLoaded(pos, 1)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light
+        if (world.getLightFromNeighbors(pos.up()) < 9 || rand.nextInt(7) > 0) return;
+        grow(world, pos, state, rand);
+    }
+    
+    public void grow(World world, BlockPos pos, IBlockState state, Random rand) {
+        if (state.getValue(BlockSapling.STAGE).intValue() == 0) world.setBlockState(pos, state.cycleProperty(BlockSapling.STAGE), 4);
+        else generateTree(world, pos, state, rand);
+    }
+    
     public void generateTree(World world, BlockPos pos, IBlockState state, Random rand) {
         if (!TerrainGen.saplingGrowTree(world, rand, pos)) return;
         T type = state.getValue(this.type);
@@ -143,6 +162,23 @@ public class BlockBaseSapling<T extends Enum<T> & WoodEnum> extends BlockSapling
         return state.getBlock() == this && state.getValue(this.type) == type;
     }
     
+    @Override
+    public boolean canGrow(World world, BlockPos pos, IBlockState state, boolean isClient)
+    {
+        return true;
+    }
+    
+    @Override
+    public boolean canUseBonemeal(World world, Random rand, BlockPos pos, IBlockState state) {
+        return world.rand.nextFloat() < 0.45D;
+    }
+    
+    @Override
+    public void grow(World world, Random rand, BlockPos pos, IBlockState state) {
+        grow(world, pos, state, rand);
+    }
+    
+    @Override
     public PropertyEnum<T> typeProperty() {
         return type;
     }

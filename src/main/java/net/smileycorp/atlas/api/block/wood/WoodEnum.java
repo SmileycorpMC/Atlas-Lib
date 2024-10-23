@@ -7,7 +7,6 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.world.gen.feature.WorldGenerator;
 
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.Map;
 
 public interface WoodEnum extends IStringSerializable {

@@ -10,20 +10,21 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.smileycorp.atlas.api.block.BlockProperties;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 
-public class BlockBasePlank<T extends Enum<T> & WoodEnum> extends Block implements BlockProperties {
+public class BlockBasePlank<T extends Enum<T> & WoodEnum> extends Block implements WoodVariant<T> {
     
     //fake static property to bypass blockstate validation
     private static PropertyEnum staticProp;
@@ -69,7 +70,12 @@ public class BlockBasePlank<T extends Enum<T> & WoodEnum> extends Block implemen
     
     @Override
     public String byState(IBlockState state) {
-        return state.getValue(type).name();
+        return state.getValue(type).getName() + "_planks";
+    }
+    
+    @Override
+    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
+        return new ItemStack(this, 1, getMetaFromState(state) % 16);
     }
     
     @Override
@@ -112,6 +118,7 @@ public class BlockBasePlank<T extends Enum<T> & WoodEnum> extends Block implemen
         for (int i = 0; i < type.getAllowedValues().size(); i++) items.add(new ItemStack(this, 1, i));
     }
     
+    @Override
     public PropertyEnum<T> typeProperty() {
         return type;
     }

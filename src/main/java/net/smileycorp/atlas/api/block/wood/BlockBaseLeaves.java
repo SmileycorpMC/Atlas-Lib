@@ -6,33 +6,33 @@ import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockPlanks.EnumType;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.MapColor;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.smileycorp.atlas.api.block.BlockProperties;
-import net.smileycorp.atlas.api.block.PropertyString;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
-public class BlockBaseLeaves<T extends Enum<T> & WoodEnum>  extends BlockLeaves implements BlockProperties {
+public class BlockBaseLeaves<T extends Enum<T> & WoodEnum>  extends BlockLeaves implements WoodVariant<T> {
 
 	//fake static property to bypass blockstate validation
 	private static PropertyEnum staticProp;
@@ -52,7 +52,7 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum>  extends BlockLeaves 
 	@Override
 	protected BlockStateContainer createBlockState() {
 		type = staticProp;
-		return new BlockStateContainer(this, type);
+		return new BlockStateContainer(this, type, DECAYABLE, CHECK_DECAY);
 	}
 	
 	@Override
@@ -74,7 +74,6 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum>  extends BlockLeaves 
 		return type.getAllowedValues().size();
 	}
 	
-	
 	@Override
 	public String byMeta(int meta) {
 		return byState(getStateFromMeta(meta));
@@ -82,7 +81,12 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum>  extends BlockLeaves 
 	
 	@Override
 	public String byState(IBlockState state) {
-		return state.getValue(type).name();
+		return state.getValue(type).getName() + "_leaves";
+	}
+	
+	@Override
+	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
+		return new ItemStack(this, 1, getMetaFromState(state) % 4);
 	}
 	
 	@Override
@@ -155,6 +159,7 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum>  extends BlockLeaves 
 	    return Blocks.LEAVES.getBlockLayer();
 	}
 	
+	@Override
 	public PropertyEnum<T> typeProperty() {
 		return type;
 	}

@@ -2,7 +2,6 @@ package net.smileycorp.atlas.api.data;
 
 import com.google.gson.JsonElement;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Map;
