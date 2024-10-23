@@ -16,6 +16,8 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.smileycorp.atlas.api.client.WoodStateMapper;
@@ -34,15 +36,19 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 	private final List<BlockBaseSapling<T>> saplings = Lists.newArrayList();
 	
 	public WoodBlock(String modid, CreativeTabs tab, Class<T> types) {
+		this(modid, tab, types, false);
+	}
+	
+	public WoodBlock(String modid, CreativeTabs tab, Class<T> types, boolean forceSimpleNames) {
 		this.modid = modid;
 		this.types = types.getEnumConstants();
 		int size = this.types.length;
 		for (int i = 0; i <= (size - 1) / 16; i++) {
-			planks.add(BlockBasePlank.create("plank_" + (size - 2 > i * 16 ?  i : this.types[i * 16].getName()),
+			planks.add(BlockBasePlank.create("plank_" + ((forceSimpleNames || size - 2 > i * 16) ? i : this.types[i * 16].getName()),
 					modid, tab, types, i));
 		}
 		for (int i = 0; i <= (size - 1) / 4; i++) {
-			String name = (size - 2 > i * 4 ? String.valueOf(i) : this.types[i * 4].getName());
+			String name = (forceSimpleNames || (size - 2 > i * 4) ? String.valueOf(i) : this.types[i * 4].getName());
 			logs.add(BlockBaseLog.create("log_" + name, modid, tab, types, i));
 			BlockBaseSapling sapling = BlockBaseSapling.create("sapling_" + name, modid, tab, types, i);
 			leaves.add(BlockBaseLeaves.create("leaves_" + name, modid, tab, sapling, types, i));
@@ -76,6 +82,10 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 		return new ItemStack(leaves.get(type.ordinal() / 4), amount, type.ordinal() % 4);
 	}
 	
+	public IBlockState getLeavesState(T type) {
+		return getLeavesState(type, true, true);
+	}
+	
 	public IBlockState getLeavesState(T type, boolean decayable, boolean check_decay) {
 		BlockBaseLeaves leaf = leaves.get(type.ordinal() / 4);
 		return leaf.getDefaultState().withProperty(leaf.typeProperty(), type).withProperty(BlockLeaves.DECAYABLE, decayable)
@@ -85,6 +95,10 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 	public ItemStack getSaplingStack(T type, int amount) {
 		BlockBaseSapling sapling = saplings.get(type.ordinal() / 4);
 		return sapling == null |! type.hasSapling() ? ItemStack.EMPTY : new ItemStack(sapling, amount, type.ordinal() % 4);
+	}
+	
+	public IBlockState getSaplingState(T type) {
+		return getSaplingState(type, 0);
 	}
 	
 	public IBlockState getSaplingState(T type, int stage) {
@@ -107,6 +121,7 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 		for (BlockBaseSapling sapling : saplings) if (sapling != null) registry.register(new ItemBlockMeta(sapling));
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public void registerModels() {
 		for (BlockBasePlank plank : planks) {
 			ModelLoader.setCustomStateMapper(plank, new WoodStateMapper(plank));
@@ -131,10 +146,12 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 		}
 	}
 	
+	@SideOnly(Side.CLIENT)
 	private void registerModel(Block block) {
 		registerModel(Item.getItemFromBlock(block));
 	}
 	
+	@SideOnly(Side.CLIENT)
 	private void registerModel(Item item) {
 		for (int i = 0; i < ((IMetaItem)item).getMaxMeta(); i++) {
 			ModelResourceLocation loc = new ModelResourceLocation(modid + ":" + ((IMetaItem) item).byMeta(i));

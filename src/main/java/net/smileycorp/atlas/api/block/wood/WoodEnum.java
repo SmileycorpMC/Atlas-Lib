@@ -8,14 +8,15 @@ import net.minecraft.world.gen.feature.WorldGenerator;
 
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public interface WoodEnum extends IStringSerializable {
     
     @Nullable
-    WorldGenerator getTree();
+    Supplier<WorldGenerator> getTree();
     
     @Nullable
-    WorldGenerator getLargeTree();
+    Supplier<WorldGenerator> getLargeTree();
     
     default boolean hasTree() {
         return getTree() != null;
@@ -57,6 +58,6 @@ public interface WoodEnum extends IStringSerializable {
     
     float saplingDropChance();
     
-    Map<Float, ItemStack> getLeafDrops();
+    Map<ItemStack, Float> getLeafDrops();
     
 }

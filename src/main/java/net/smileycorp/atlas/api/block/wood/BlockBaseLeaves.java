@@ -3,6 +3,7 @@ package net.smileycorp.atlas.api.block.wood;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.minecraft.block.BlockLeaves;
+import net.minecraft.block.BlockOldLeaf;
 import net.minecraft.block.BlockPlanks.EnumType;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.MapColor;
@@ -47,6 +48,8 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum>  extends BlockLeaves 
 		setRegistryName(new ResourceLocation(modid, name));
 		setUnlocalizedName(modid + "." + name);
 		setCreativeTab(tab);
+		this.sapling = sapling;
+		setDefaultState(blockState.getBaseState().withProperty(type, types.getEnumConstants()[ordinal]));
 	}
 	
 	@Override
@@ -91,7 +94,7 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum>  extends BlockLeaves 
 	
 	@Override
 	public MapColor getMapColor(IBlockState state, IBlockAccess world, BlockPos pos) {
-		return state.getValue(type).plankColour();
+		return state.getValue(type).leavesColour();
 	}
 	
 	@Override
@@ -128,8 +131,14 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum>  extends BlockLeaves 
 	public void getDrops(NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
 		Random rand = world instanceof World ? ((World)world).rand : RANDOM;
 		T type = state.getValue(this.type);
-		if (type.hasSapling() && rand.nextFloat() < type.saplingDropChance()) drops.add(new ItemStack(sapling, 1, type.ordinal() % 4));
-		for (Map.Entry<Float, ItemStack> drop : type.getLeafDrops().entrySet()) if (rand.nextFloat() < drop.getKey()) drops.add(drop.getValue());
+		if (type.hasSapling() && rand.nextFloat() < getModifiedChance(type.saplingDropChance(), fortune))
+			drops.add(new ItemStack(sapling, 1, type.ordinal() % 4));
+		for (Map.Entry<ItemStack, Float> drop : type.getLeafDrops().entrySet()) if (rand.nextFloat() < getModifiedChance(drop.getValue(), fortune))
+			drops.add(drop.getKey());
+	}
+	
+	private float getModifiedChance(float base, int fortune) {
+        return Math.max(1f, 0.01f * (float) (fortune * fortune) + base);
 	}
 	
 	@Override

@@ -120,7 +120,7 @@ public class BlockBaseSapling<T extends Enum<T> & WoodEnum> extends BlockBush im
         T type = state.getValue(this.type);
         if (type.hasLargeTree()) if (generateLargeTree(world, pos, state, rand, type)) return;
         else if (!type.hasTree()) return;
-        WorldGenerator worldgenerator = type.getTree();
+        WorldGenerator worldgenerator = type.getTree().get();
         IBlockState air = Blocks.AIR.getDefaultState();
         world.setBlockState(pos, air, 4);
         world.setBlockToAir(pos);
@@ -131,7 +131,7 @@ public class BlockBaseSapling<T extends Enum<T> & WoodEnum> extends BlockBush im
         for (int i = 0; i >= -1; --i) {
             for (int j = 0; j >= -1; --j) {
                 if (!isTwoByTwoOfType(world, pos, i, j, type)) continue;
-                WorldGenerator worldgenerator = type.getLargeTree();
+                WorldGenerator worldgenerator = type.getLargeTree().get();
                 IBlockState air = Blocks.AIR.getDefaultState();
                 world.setBlockState(pos.add(i, 0, j), air, 4);
                 world.setBlockState(pos.add(i + 1, 0, j), air, 4);

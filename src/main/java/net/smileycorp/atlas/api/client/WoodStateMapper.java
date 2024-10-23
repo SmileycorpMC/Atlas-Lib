@@ -2,15 +2,13 @@ package net.smileycorp.atlas.api.client;
 
 import com.google.common.collect.Maps;
 import net.minecraft.block.BlockLeaves;
+import net.minecraft.block.BlockLog;
 import net.minecraft.block.BlockSapling;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
-import net.smileycorp.atlas.api.block.wood.BlockBaseLeaves;
-import net.smileycorp.atlas.api.block.wood.BlockBaseSapling;
-import net.smileycorp.atlas.api.block.wood.WoodEnum;
-import net.smileycorp.atlas.api.block.wood.WoodVariant;
+import net.smileycorp.atlas.api.block.wood.*;
 
 import java.util.Map;
 
@@ -31,6 +29,7 @@ public class WoodStateMapper<T extends Enum<T> & WoodEnum> extends StateMapperBa
             properties.remove(BlockLeaves.DECAYABLE);
             properties.remove(BlockLeaves.CHECK_DECAY);
         }
+        if (variant instanceof BlockBaseLog && state.getValue(BlockLog.LOG_AXIS) == BlockLog.EnumAxis.NONE) properties.remove(BlockLog.LOG_AXIS);
         return new ModelResourceLocation(state.getBlock().getRegistryName().getResourceDomain()
                 + ":" + variant.byState(state), getPropertyString(properties));
     }
