@@ -10,9 +10,11 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -74,8 +76,18 @@ public class BlockBasePlank<T extends Enum<T> & WoodEnum> extends Block implemen
     }
     
     @Override
+    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand) {
+        return getDefaultState().withProperty(type, types.getEnumConstants()[ordinal * 16 + placer.getHeldItem(hand).getMetadata() % 16]);
+    }
+    
+    @Override
+    public int damageDropped(IBlockState state) {
+        return state.getValue(type).ordinal() % 16;
+    }
+    
+    @Override
     public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
-        return new ItemStack(this, 1, getMetaFromState(state) % 16);
+        return new ItemStack(this, 1, state.getValue(type).ordinal() % 16);
     }
     
     @Override
@@ -119,7 +131,7 @@ public class BlockBasePlank<T extends Enum<T> & WoodEnum> extends Block implemen
     }
     
     @Override
-    public PropertyEnum<T> typeProperty() {
+    public PropertyEnum<T> getVariantProperty() {
         return type;
     }
     

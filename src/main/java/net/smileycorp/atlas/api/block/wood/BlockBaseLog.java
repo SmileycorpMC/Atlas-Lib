@@ -91,6 +91,19 @@ public class BlockBaseLog<T extends Enum<T> & WoodEnum> extends BlockLog impleme
 	}
 	
 	@Override
+	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand) {
+		ItemStack stack = placer.getHeldItem(hand);
+		return (stack.getMetadata() < 12 ? super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand)
+				: getDefaultState().withProperty(LOG_AXIS, EnumAxis.NONE))
+				.withProperty(type, types.getEnumConstants()[ordinal * 4 + stack.getMetadata() % 4]);
+	}
+	
+	@Override
+	public int damageDropped(IBlockState state) {
+		return state.getValue(type).ordinal() % 4;
+	}
+	
+	@Override
 	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
 		return new ItemStack(this, 1, getMetaFromState(state) % 4);
 	}
@@ -139,14 +152,7 @@ public class BlockBaseLog<T extends Enum<T> & WoodEnum> extends BlockLog impleme
 	}
 	
 	@Override
-	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand) {
-		ItemStack stack = placer.getHeldItem(hand);
-		return (stack.getMetadata() < 12) ? super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand)
-				: getStateFromMeta(12 + stack.getMetadata() % 4);
-	}
-	
-	@Override
-	public PropertyEnum<T> typeProperty() {
+	public PropertyEnum<T> getVariantProperty() {
 		return type;
 	}
 	

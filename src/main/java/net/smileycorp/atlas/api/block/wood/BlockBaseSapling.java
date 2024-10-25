@@ -10,9 +10,12 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -80,8 +83,18 @@ public class BlockBaseSapling<T extends Enum<T> & WoodEnum> extends BlockBush im
     }
     
     @Override
+    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand) {
+        return getDefaultState().withProperty(type, types.getEnumConstants()[ordinal * 4 + placer.getHeldItem(hand).getMetadata() % 4]);
+    }
+    
+    @Override
+    public int damageDropped(IBlockState state) {
+        return state.getValue(type).ordinal() % 4;
+    }
+    
+    @Override
     public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
-        return new ItemStack(this, 1, getMetaFromState(state) % 4);
+        return new ItemStack(this, 1, state.getValue(type).ordinal() % 4);
     }
     
     @Override
@@ -118,9 +131,10 @@ public class BlockBaseSapling<T extends Enum<T> & WoodEnum> extends BlockBush im
     public void generateTree(World world, BlockPos pos, IBlockState state, Random rand) {
         if (!TerrainGen.saplingGrowTree(world, rand, pos)) return;
         T type = state.getValue(this.type);
+        System.out.println(type);
         if (type.hasLargeTree()) if (generateLargeTree(world, pos, state, rand, type)) return;
         else if (!type.hasTree()) return;
-        WorldGenerator worldgenerator = type.getTree().get();
+        WorldGenerator worldgenerator = type.getTree().apply(rand);
         IBlockState air = Blocks.AIR.getDefaultState();
         world.setBlockState(pos, air, 4);
         world.setBlockToAir(pos);
@@ -131,7 +145,7 @@ public class BlockBaseSapling<T extends Enum<T> & WoodEnum> extends BlockBush im
         for (int i = 0; i >= -1; --i) {
             for (int j = 0; j >= -1; --j) {
                 if (!isTwoByTwoOfType(world, pos, i, j, type)) continue;
-                WorldGenerator worldgenerator = type.getLargeTree().get();
+                WorldGenerator worldgenerator = type.getLargeTree().apply(rand);
                 IBlockState air = Blocks.AIR.getDefaultState();
                 world.setBlockState(pos.add(i, 0, j), air, 4);
                 world.setBlockState(pos.add(i + 1, 0, j), air, 4);
@@ -179,7 +193,7 @@ public class BlockBaseSapling<T extends Enum<T> & WoodEnum> extends BlockBush im
     }
     
     @Override
-    public PropertyEnum<T> typeProperty() {
+    public PropertyEnum<T> getVariantProperty() {
         return type;
     }
     

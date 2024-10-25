@@ -5,6 +5,6 @@ import net.smileycorp.atlas.api.block.BlockProperties;
 
 public interface WoodVariant<T extends Enum<T> & WoodEnum> extends BlockProperties {
     
-    PropertyEnum<T> typeProperty();
+    PropertyEnum<T> getVariantProperty();
     
 }
