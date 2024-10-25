@@ -10,27 +10,24 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import org.apache.commons.lang3.text.WordUtils;
 
+import java.util.Locale;
+
 public class BlockStairsBase extends BlockStairs {
 
 	public BlockStairsBase(Block base) {
-		super(base.getDefaultState());
-		useNeighborBrightness=true;
-		setCreativeTab(base.getCreativeTabToDisplayOn());
-		String modid = base.getRegistryName().getResourceDomain();
-		String name = WordUtils.capitalize(base.getRegistryName().getResourcePath(), '_')+"_Stairs";
-		setRegistryName(new ResourceLocation(modid, name.toLowerCase()));
-		setUnlocalizedName(modid+"."+name.replace("_", ""));
+		this(base.getRegistryName().getResourcePath(), base.getDefaultState());
 	}
 	
 	public BlockStairsBase(String name, IBlockState state) {
 		super(state);
-		useNeighborBrightness=true;
+		useNeighborBrightness = true;
 		Block base = state.getBlock();
+		setSoundType(base.getSoundType(state, null, null, null));
 		setCreativeTab(base.getCreativeTabToDisplayOn());
 		String modid = base.getRegistryName().getResourceDomain();
-		name = name+"_Stairs";
-		setRegistryName(new ResourceLocation(modid, name.toLowerCase()));
-		setUnlocalizedName(modid+"."+name.replace("_", ""));
+		name = name + "_stairs";
+		setRegistryName(new ResourceLocation(modid, name));
+		setUnlocalizedName(modid + "." + name);
 	}
 
 	@Override

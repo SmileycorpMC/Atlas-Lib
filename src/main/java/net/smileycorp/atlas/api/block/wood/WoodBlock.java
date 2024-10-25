@@ -25,6 +25,7 @@ import net.smileycorp.atlas.api.block.BlockStairsBase;
 import net.smileycorp.atlas.api.client.WoodStateMapper;
 import net.smileycorp.atlas.api.item.IMetaItem;
 import net.smileycorp.atlas.api.item.ItemBlockMeta;
+import net.smileycorp.atlas.api.item.ItemSlabMeta;
 
 import java.util.List;
 
@@ -62,9 +63,7 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 			leaves.add(BlockBaseLeaves.create("leaves_" + name, modid, tab, sapling, types, i));
 			saplings.add(sapling);
 		}
-		for (T type : this.types) {
-			stairs.add(new BlockStairsBase(type.name() + "_stairs", getPlankState(type)));
-		}
+		for (T type : this.types) stairs.add(new BlockStairsBase(type.getName(), getPlankState(type)));
 	}
 
 	public ItemStack getPlankStack(T type, int amount) {
@@ -159,13 +158,7 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 		for (BlockBaseLog<T> log : logs) registry.register(new ItemBlockMeta(log));
 		for (BlockBaseLeaves<T> leaves : leaves) registry.register(new ItemBlockMeta(leaves));
 		for (BlockBaseSapling<T> sapling : saplings) if (sapling != null) registry.register(new ItemBlockMeta(sapling));
-		for (Tuple<BlockWoodSlab<T>, BlockWoodSlab<T>> slab : slabs) {
-			BlockWoodSlab<T> single = slab.getFirst();
-			ItemSlab item = new ItemSlab(single, single, slab.getSecond());
-			item.setRegistryName(single.getRegistryName());
-			item.setUnlocalizedName(single.getUnlocalizedName());
-			registry.register(item);
-		}
+		for (Tuple<BlockWoodSlab<T>, BlockWoodSlab<T>> slab : slabs) registry.register(new ItemSlabMeta(slab.getFirst(), slab.getSecond()));
 		for (BlockStairsBase stair : stairs) {
 			ItemBlock item = new ItemBlock(stair);
 			item.setRegistryName(stair.getRegistryName());
@@ -208,10 +201,12 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 	
 	@SideOnly(Side.CLIENT)
 	private void registerModel(Item item) {
-		for (int i = 0; i < ((IMetaItem)item).getMaxMeta(); i++) {
-			ModelResourceLocation loc = new ModelResourceLocation(modid + ":" + ((IMetaItem) item).byMeta(i));
-			ModelLoader.setCustomModelResourceLocation(item, i, loc);
-		}
+		if (item instanceof IMetaItem) {
+			for (int i = 0; i < ((IMetaItem)item).getMaxMeta(); i++) {
+				ModelResourceLocation loc = new ModelResourceLocation(modid + ":" + ((IMetaItem) item).byMeta(i));
+				ModelLoader.setCustomModelResourceLocation(item, i, loc);
+			}
+		} else ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
 	}
 	
 	public void registerRecipes() {

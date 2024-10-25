@@ -29,7 +29,7 @@ public class BlockSlabBase extends BlockSlab {
 	@SuppressWarnings("deprecation")
 	public BlockSlabBase(Block base, float h, float r, String tool, int harvestLevel, boolean isDouble) {
 		super(base.getDefaultState().getMaterial());
-		this.isDouble=isDouble;
+		this.isDouble = isDouble;
 		if(!isDouble) {
 			useNeighborBrightness=true;
 			setCreativeTab(base.getCreativeTabToDisplayOn());

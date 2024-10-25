@@ -10,8 +10,8 @@ public class PropertyOpenString implements IUnlistedProperty<String> {
 	private Predicate<String> allowedValues;
 	
 	public PropertyOpenString(String name, Predicate<String> predicate) {
-		this.name=name;
-		this.allowedValues=predicate;
+		this.name = name;
+		this.allowedValues = predicate;
 	}
 	
 	@Override

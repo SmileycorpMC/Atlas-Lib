@@ -9,6 +9,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
+import java.util.Locale;
+
 public class BlockBase extends Block implements BlockProperties {
 
 	protected String name;
@@ -17,15 +19,16 @@ public class BlockBase extends Block implements BlockProperties {
 
 	public BlockBase(String name, String modid, Material material, SoundType sound, float h, float r, String tool, int level, CreativeTabs tab) {
 		super(material);
+		name = name.toLowerCase(Locale.US);
 		setResistance(r);
 		setHardness(h);
 		setHarvestLevel(tool, level);
-		setRegistryName(new ResourceLocation(modid, name.toLowerCase()));
-		setUnlocalizedName(modid+"."+name.replace("_", ""));
+		setRegistryName(new ResourceLocation(modid, name.toLowerCase(Locale.US)));
+		setUnlocalizedName(modid + "." + name);
 		setCreativeTab(tab);
 		setSoundType(sound);
-		this.name=name;
-		this.modid=modid;
+		this.name = name;
+		this.modid = modid;
 		if (material == Material.WOOD) this.isFlamable = true;
 	}
 

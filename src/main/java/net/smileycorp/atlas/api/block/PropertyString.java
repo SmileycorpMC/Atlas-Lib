@@ -12,8 +12,8 @@ public class PropertyString implements IProperty<String> {
 	private List<String> allowedValues;
 	
 	public PropertyString(String name, List<String> allowedValues) {
-		this.name=name;
-		this.allowedValues=allowedValues;
+		this.name = name;
+		this.allowedValues = allowedValues;
 	}
 	
 	public PropertyString(String name) {

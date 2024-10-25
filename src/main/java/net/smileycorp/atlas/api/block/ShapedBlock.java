@@ -29,8 +29,8 @@ public class ShapedBlock {
 	Block[] blocks;
 	
 	public ShapedBlock(String name, String modid, Material material, SoundType sound, float h, float r, String tool, int level, CreativeTabs tab) {
-		this.name=name;
-		this.modid=modid;
+		this.name = name;
+		this.modid = modid;
 		base = new BlockBase(name, modid, material, sound, h, r, tool, level, tab);
 		stairs = new BlockStairsBase(base);
 		slab = new BlockSlabBase(base, h, r, tool, level, false);
@@ -59,8 +59,8 @@ public class ShapedBlock {
 	}
 	
 	public void registerBlocks(IForgeRegistry<Block> registry) {
-		slab.half=slab;
-		doubleSlab.half=slab;
+		slab.half = slab;
+		doubleSlab.half = slab;
 		registry.registerAll(blocks);
 	}
 	
@@ -80,7 +80,7 @@ public class ShapedBlock {
 	
 	public void registerModels() {
 		for (Block block : blocks) {
-			if (block==doubleSlab) continue;
+			if (block == doubleSlab) continue;
 			final ResourceLocation loc = ForgeRegistries.BLOCKS.getKey(block);
 			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0, new ModelResourceLocation(loc, "normal"));
 		}

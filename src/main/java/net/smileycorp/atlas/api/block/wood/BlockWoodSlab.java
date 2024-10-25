@@ -48,7 +48,7 @@ public class BlockWoodSlab<T extends Enum<T> & WoodEnum> extends BlockSlab imple
     @Override
     protected BlockStateContainer createBlockState() {
         type = staticProp;
-        return new BlockStateContainer(this, type);
+        return new BlockStateContainer(this, type, HALF);
     }
     
     @Override
@@ -68,7 +68,7 @@ public class BlockWoodSlab<T extends Enum<T> & WoodEnum> extends BlockSlab imple
     
     @Override
     public String byMeta(int meta) {
-        return byState(getStateFromMeta(meta));
+        return byState(getStateFromMeta(meta)) + "_slab";
     }
     
     @Override
@@ -123,7 +123,7 @@ public class BlockWoodSlab<T extends Enum<T> & WoodEnum> extends BlockSlab imple
     
     @Override
     public String getUnlocalizedName(int meta) {
-        return "tile." + getRegistryName().getResourceDomain() + byMeta(meta) + "_slab";
+        return "tile." + getRegistryName().getResourceDomain() + byMeta(meta);
     }
     
     @Override
