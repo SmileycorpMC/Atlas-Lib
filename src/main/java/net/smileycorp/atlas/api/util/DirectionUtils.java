@@ -137,6 +137,7 @@ public class DirectionUtils {
 	public static Vec3d centerOf(Vec3i pos) {
 		return new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
 	}
+	
 	public static void throwItem(EntityLivingBase entity, ItemStack stack, Vec3d target) {
 		EntityItem item = new EntityItem(entity.world, entity.posX, entity.posY + entity.getEyeHeight() - 0.3, entity.posZ, stack);
 		item.setThrower(entity.getUniqueID().toString());
@@ -149,5 +150,13 @@ public class DirectionUtils {
 		entity.world.spawnEntity(item);
 	}
 	
+	public static Vec2f getProjectedPos(Vec3d pos, Vec3d cameraPos, float yaw, float pitch, int screenWidth, int screenHeight, float fov) {
+		double scaledFov = Math.tan(Math.toRadians(fov) / 2f);
+		double aspectRatio = (double) screenWidth / (double) screenHeight;
+		pos = pos.subtract(cameraPos);
+		pos.rotateYaw(-yaw);
+		pos.rotatePitch(-pitch);
+		return new Vec2f((float) (pos.x / (-pos.z * scaledFov)) * screenWidth, (float) ((pos.y * aspectRatio) / (-pos.z * scaledFov)) * screenHeight);
+	}
 
 }
