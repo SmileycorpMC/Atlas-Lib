@@ -9,7 +9,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemSlab;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.EnumFacing;
@@ -203,7 +202,7 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 	private void registerModel(Item item) {
 		if (item instanceof IMetaItem) {
 			for (int i = 0; i < ((IMetaItem)item).getMaxMeta(); i++) {
-				ModelResourceLocation loc = new ModelResourceLocation(modid + ":" + ((IMetaItem) item).byMeta(i));
+				ModelResourceLocation loc = new ModelResourceLocation(modid + ":" + ((IMetaItem) item).byMeta(i), "inventory");
 				ModelLoader.setCustomModelResourceLocation(item, i, loc);
 			}
 		} else ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
