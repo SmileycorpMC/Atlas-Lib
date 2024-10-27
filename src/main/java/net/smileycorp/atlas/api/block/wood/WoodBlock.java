@@ -189,7 +189,12 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 			ModelLoader.setCustomStateMapper(sapling, new WoodStateMapper(sapling));
 			registerModel(sapling);
 		}
-		for (Tuple<BlockWoodSlab<T>, BlockWoodSlab<T>> slab : slabs) registerModel(slab.getFirst());
+		for (Tuple<BlockWoodSlab<T>, BlockWoodSlab<T>> slab : slabs) {
+			BlockWoodSlab<T> single = slab.getFirst();
+			ModelLoader.setCustomStateMapper(single, new WoodStateMapper(single));
+			ModelLoader.setCustomStateMapper(slab.getSecond(), new WoodStateMapper(single));
+			registerModel(single);
+		}
 		for (BlockStairsBase stair : stairs) registerModel(stair);
 	}
 	

@@ -24,6 +24,10 @@ public class WoodStateMapper<T extends Enum<T> & WoodEnum> extends StateMapperBa
     protected ModelResourceLocation getModelResourceLocation(IBlockState state) {
         Map<IProperty<?>, Comparable<?>> properties = Maps.newHashMap(state.getProperties());
         properties.remove(variant.getVariantProperty());
+        if (variant instanceof BlockWoodSlab && ((BlockWoodSlab<T>) state.getBlock()).isDouble()) {
+            return new ModelResourceLocation(state.getBlock().getRegistryName().getResourceDomain()
+                    + ":" + variant.byState(state), "half=both");
+        }
         if (variant instanceof BlockBaseSapling) properties.remove(BlockSapling.STAGE);
         if (variant instanceof BlockBaseLeaves) {
             properties.remove(BlockLeaves.DECAYABLE);

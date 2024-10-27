@@ -68,12 +68,12 @@ public class BlockWoodSlab<T extends Enum<T> & WoodEnum> extends BlockSlab imple
     
     @Override
     public String byMeta(int meta) {
-        return byState(getStateFromMeta(meta)) + "_slab";
+        return byState(getStateFromMeta(meta));
     }
     
     @Override
     public String byState(IBlockState state) {
-        return state.getValue(type).getName();
+        return state.getValue(type).getName() + "_slab";
     }
     
     @Override
