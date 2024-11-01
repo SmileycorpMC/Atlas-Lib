@@ -41,6 +41,8 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 	private final List<BlockStairsBase> stairs = Lists.newArrayList();
 	private final List<BlockWoodDoor<T>> doors = Lists.newArrayList();
 	private final List<BlockWoodTrapdoor<T>> trapdoors = Lists.newArrayList();
+	private final List<BlockWoodFence<T>> fences = Lists.newArrayList();
+	private final List<BlockWoodFenceGate<T>> gates = Lists.newArrayList();
 	
 	public WoodBlock(String modid, CreativeTabs tab, Class<T> types) {
 		this(modid, tab, types, false);
@@ -69,6 +71,8 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 			stairs.add(new BlockStairsBase(type.getName(), getPlankState(type)));
 			doors.add(new BlockWoodDoor(modid, type, tab));
 			trapdoors.add(new BlockWoodTrapdoor(modid, type, tab));
+			fences.add(new BlockWoodFence<>(modid, type, tab));
+			gates.add(new BlockWoodFenceGate<>(modid, type, tab));
 		}
 	}
 
@@ -155,7 +159,7 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 		return new ItemStack(doors.get(type.ordinal()).getItem(), amount);
 	}
 	
-	public BlockWoodTrapdoor getTrapdoor(T type) {
+	public BlockWoodTrapdoor<T> getTrapdoor(T type) {
 		return trapdoors.get(type.ordinal());
 	}
 	
@@ -163,18 +167,36 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 		return new ItemStack(trapdoors.get(type.ordinal()), amount);
 	}
 	
+	public BlockWoodFence<T> getFence(T type) {
+		return fences.get(type.ordinal());
+	}
+	
+	public ItemStack getFenceStack(T type, int amount) {
+		return new ItemStack(fences.get(type.ordinal()), amount);
+	}
+	
+	public BlockWoodFenceGate<T> getFenceGate(T type) {
+		return gates.get(type.ordinal());
+	}
+	
+	public ItemStack getFenceGateStack(T type, int amount) {
+		return new ItemStack(gates.get(type.ordinal()), amount);
+	}
+	
 	public void registerBlocks(IForgeRegistry<Block> registry) {
-		for (BlockBasePlank<T> plank : planks) registry.register(plank);
-		for (BlockBaseLog<T> log : logs) registry.register(log);
-		for (BlockBaseLeaves<T> leaves : leaves) registry.register(leaves);
+		planks.forEach(registry::register);
+		logs.forEach(registry::register);
+		leaves.forEach(registry::register);
 		for (BlockBaseSapling<T> sapling : saplings) if (sapling != null) registry.register(sapling);
 		for (Tuple<BlockWoodSlab<T>, BlockWoodSlab<T>> slab : slabs) {
 			registry.register(slab.getFirst());
 			registry.register(slab.getSecond());
 		}
-		for (BlockStairsBase stair : stairs) registry.register(stair);
-		for (BlockWoodDoor<T> door : doors) registry.register(door);
-		for (BlockWoodTrapdoor<T> trapdoor: trapdoors) registry.register(trapdoor);
+		stairs.forEach(registry::register);
+		doors.forEach(registry::register);
+		trapdoors.forEach(registry::register);
+		fences.forEach(registry::register);
+		gates.forEach(registry::register);
 	}
 	
 	public void registerItems(IForgeRegistry<Item> registry) {
@@ -194,6 +216,18 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 			ItemBlock item = new ItemBlock(trapdoor);
 			item.setRegistryName(trapdoor.getRegistryName());
 			item.setUnlocalizedName(trapdoor.getUnlocalizedName());
+			registry.register(item);
+		}
+		for (BlockWoodFence<T> fence : fences) {
+			ItemBlock item = new ItemBlock(fence);
+			item.setRegistryName(fence.getRegistryName());
+			item.setUnlocalizedName(fence.getUnlocalizedName());
+			registry.register(item);
+		}
+		for (BlockWoodFenceGate<T> gate : gates) {
+			ItemBlock item = new ItemBlock(gate);
+			item.setRegistryName(gate.getRegistryName());
+			item.setUnlocalizedName(gate.getUnlocalizedName());
 			registry.register(item);
 		}
 	}
@@ -232,7 +266,12 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 			ModelLoader.setCustomStateMapper(door, new StateMap.Builder().ignore(BlockDoor.POWERED).build());
 			registerModel(door.getItem());
 		}
-		for (BlockWoodTrapdoor<T> trapdoor : trapdoors) registerModel(trapdoor);
+		fences.forEach(this::registerModel);
+		for (BlockWoodFenceGate<T> gate : gates) {
+			ModelLoader.setCustomStateMapper(gate, new StateMap.Builder().ignore(BlockDoor.POWERED).build());
+			registerModel(gate);
+		}
+		gates.forEach(this::registerModel);
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -276,6 +315,10 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 					"##", "##", "##", '#', getPlankStack(type, 1));
 			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name + "_trapdoor"), new ResourceLocation(modid, name), getTrapDoorStack(type, 2),
 					"###", "###", '#', getPlankStack(type, 1));
+			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name + "_fence"), new ResourceLocation(modid, name), getFenceStack(type, 3),
+					"#S#", "#S#", '#', getPlankStack(type, 1), 'S', "stickWood");
+			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name + "_fence_gate"), new ResourceLocation(modid, name), getFenceGateStack(type, 1),
+					"S#S", "S#S", '#', getPlankStack(type, 1), 'S', "stickWood");
 		}
 	}
 	
