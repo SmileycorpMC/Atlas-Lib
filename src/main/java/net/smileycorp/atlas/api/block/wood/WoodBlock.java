@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -38,6 +39,8 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 	private final List<BlockBaseSapling<T>> saplings = Lists.newArrayList();
 	private final List<Tuple<BlockWoodSlab<T>, BlockWoodSlab<T>>> slabs = Lists.newArrayList();
 	private final List<BlockStairsBase> stairs = Lists.newArrayList();
+	private final List<BlockWoodDoor<T>> doors = Lists.newArrayList();
+	private final List<BlockWoodTrapdoor<T>> trapdoors = Lists.newArrayList();
 	
 	public WoodBlock(String modid, CreativeTabs tab, Class<T> types) {
 		this(modid, tab, types, false);
@@ -62,7 +65,11 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 			leaves.add(BlockBaseLeaves.create("leaves_" + name, modid, tab, sapling, types, i));
 			saplings.add(sapling);
 		}
-		for (T type : this.types) stairs.add(new BlockStairsBase(type.getName(), getPlankState(type)));
+		for (T type : this.types) {
+			stairs.add(new BlockStairsBase(type.getName(), getPlankState(type)));
+			doors.add(new BlockWoodDoor(modid, type, tab));
+			trapdoors.add(new BlockWoodTrapdoor(modid, type, tab));
+		}
 	}
 
 	public ItemStack getPlankStack(T type, int amount) {
@@ -140,6 +147,22 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 				.withProperty(BlockStairs.SHAPE, shape).withProperty(BlockStairs.FACING, facing);
 	}
 	
+	public BlockWoodDoor<T> getDoor(T type) {
+		return doors.get(type.ordinal());
+	}
+	
+	public ItemStack getDoorStack(T type, int amount) {
+		return new ItemStack(doors.get(type.ordinal()).getItem(), amount);
+	}
+	
+	public BlockWoodTrapdoor getTrapdoor(T type) {
+		return trapdoors.get(type.ordinal());
+	}
+	
+	public ItemStack getTrapDoorStack(T type, int amount) {
+		return new ItemStack(trapdoors.get(type.ordinal()), amount);
+	}
+	
 	public void registerBlocks(IForgeRegistry<Block> registry) {
 		for (BlockBasePlank<T> plank : planks) registry.register(plank);
 		for (BlockBaseLog<T> log : logs) registry.register(log);
@@ -150,6 +173,8 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 			registry.register(slab.getSecond());
 		}
 		for (BlockStairsBase stair : stairs) registry.register(stair);
+		for (BlockWoodDoor<T> door : doors) registry.register(door);
+		for (BlockWoodTrapdoor<T> trapdoor: trapdoors) registry.register(trapdoor);
 	}
 	
 	public void registerItems(IForgeRegistry<Item> registry) {
@@ -162,6 +187,13 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 			ItemBlock item = new ItemBlock(stair);
 			item.setRegistryName(stair.getRegistryName());
 			item.setUnlocalizedName(stair.getUnlocalizedName());
+			registry.register(item);
+		}
+		for (BlockWoodDoor<T> door : doors) registry.register(door.getItem());
+		for (BlockWoodTrapdoor<T> trapdoor: trapdoors) {
+			ItemBlock item = new ItemBlock(trapdoor);
+			item.setRegistryName(trapdoor.getRegistryName());
+			item.setUnlocalizedName(trapdoor.getUnlocalizedName());
 			registry.register(item);
 		}
 	}
@@ -196,6 +228,11 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 			registerModel(single);
 		}
 		for (BlockStairsBase stair : stairs) registerModel(stair);
+		for (BlockWoodDoor<T> door : doors) {
+			ModelLoader.setCustomStateMapper(door, new StateMap.Builder().ignore(BlockDoor.POWERED).build());
+			registerModel(door.getItem());
+		}
+		for (BlockWoodTrapdoor<T> trapdoor : trapdoors) registerModel(trapdoor);
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -235,6 +272,10 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 					 "###", '#', getPlankStack(type, 1));
 			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name + "_stair"), new ResourceLocation(modid, name), getStairStack(type, 4),
 					"  #", " ##", "###", '#', getPlankStack(type, 1));
+			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name + "_door"), new ResourceLocation(modid, name), getDoorStack(type, 3),
+					"##", "##", "##", '#', getPlankStack(type, 1));
+			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name + "_trapdoor"), new ResourceLocation(modid, name), getTrapDoorStack(type, 2),
+					"###", "###", '#', getPlankStack(type, 1));
 		}
 	}
 	
