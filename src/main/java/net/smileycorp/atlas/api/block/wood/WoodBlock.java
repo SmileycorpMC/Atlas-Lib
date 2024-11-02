@@ -266,6 +266,7 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 			ModelLoader.setCustomStateMapper(door, new StateMap.Builder().ignore(BlockDoor.POWERED).build());
 			registerModel(door.getItem());
 		}
+		trapdoors.forEach(this::registerModel);
 		fences.forEach(this::registerModel);
 		for (BlockWoodFenceGate<T> gate : gates) {
 			ModelLoader.setCustomStateMapper(gate, new StateMap.Builder().ignore(BlockDoor.POWERED).build());
