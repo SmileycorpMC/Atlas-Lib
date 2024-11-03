@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class BlockBaseLeaves<T extends Enum<T> & WoodEnum>  extends BlockLeaves implements WoodVariant<T> {
+public class BlockBaseLeaves<T extends Enum<T> & WoodEnum> extends BlockLeaves implements WoodVariant<T> {
 
 	//fake static property to bypass blockstate validation
 	private static PropertyEnum staticProp;
@@ -46,7 +46,8 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum>  extends BlockLeaves 
 		setUnlocalizedName(modid + "." + name);
 		setCreativeTab(tab);
 		this.sapling = sapling;
-		setDefaultState(blockState.getBaseState().withProperty(type, types.getEnumConstants()[ordinal]));
+		setDefaultState(blockState.getBaseState().withProperty(type, types.getEnumConstants()[ordinal])
+				.withProperty(DECAYABLE, false).withProperty(CHECK_DECAY, false));
 	}
 	
 	@Override
@@ -147,12 +148,6 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum>  extends BlockLeaves 
 	public EnumType getWoodType(int meta) {
 		return null;
 	}
-	
-	@Override
-	public boolean shouldSideBeRendered(@Nonnull IBlockState blockState, @Nonnull IBlockAccess blockAccess, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
-	    leavesFancy = !Blocks.LEAVES.isOpaqueCube(blockState);
-	    return super.shouldSideBeRendered(blockState, blockAccess, pos, side);
-	}
 	  
 	@Override
 	public boolean isLeaves(IBlockState state, IBlockAccess world, BlockPos pos) {
@@ -160,14 +155,22 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum>  extends BlockLeaves 
 	}
 	
 	@Override
-	public boolean isOpaqueCube(IBlockState state) {
-	    return Blocks.LEAVES.isOpaqueCube(state);
-	  }
+	public int getLightOpacity(IBlockState state, IBlockAccess world, BlockPos pos) {
+		return state.getValue(type).solidLeaves() ? 255 : super.getLightOpacity(state, world, pos);
+	}
 	
-	@SideOnly(Side.CLIENT)
+	@Override
+	public boolean isOpaqueCube(IBlockState state) {
+		return false;
+	}
+	
 	@Override
 	public BlockRenderLayer getBlockLayer() {
-	    return Blocks.LEAVES.getBlockLayer();
+		return BlockRenderLayer.CUTOUT_MIPPED;
+	}
+	
+	public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
+		return !blockAccess.getBlockState(pos.offset(side)).doesSideBlockRendering(blockAccess, pos.offset(side), side.getOpposite());
 	}
 	
 	@Override

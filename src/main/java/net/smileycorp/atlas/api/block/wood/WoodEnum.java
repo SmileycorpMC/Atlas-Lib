@@ -59,6 +59,10 @@ public interface WoodEnum extends IStringSerializable {
     
     float saplingDropChance();
     
+    default boolean solidLeaves() {
+        return false;
+    }
+    
     Map<ItemStack, Float> getLeafDrops();
     
 }
