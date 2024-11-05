@@ -131,7 +131,6 @@ public class BlockBaseSapling<T extends Enum<T> & WoodEnum> extends BlockBush im
     public void generateTree(World world, BlockPos pos, IBlockState state, Random rand) {
         if (!TerrainGen.saplingGrowTree(world, rand, pos)) return;
         T type = state.getValue(this.type);
-        System.out.println(type);
         if (type.hasLargeTree()) if (generateLargeTree(world, pos, state, rand, type)) return;
         else if (!type.hasTree()) return;
         WorldGenerator worldgenerator = type.getTree().apply(rand);
