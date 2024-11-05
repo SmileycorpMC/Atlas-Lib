@@ -141,7 +141,7 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum> extends BlockLeaves i
 	}
 	
 	private float getModifiedChance(float base, int fortune) {
-        return Math.max(1f, 0.01f * (float) (fortune * fortune) + base);
+        return Math.min(1f, 0.01f * (float) (fortune * fortune) + base);
 	}
 	
 	@Override
