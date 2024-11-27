@@ -14,7 +14,7 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.function.Function;
 
-public class BlockGrassBase extends BlockGrass {
+public class BlockGrassBase extends BlockGrass implements BlockProperties {
     
     private final Function<IBlockState, IBlockState> base;
     
