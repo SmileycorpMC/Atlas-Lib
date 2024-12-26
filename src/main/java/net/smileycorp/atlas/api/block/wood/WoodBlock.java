@@ -291,18 +291,14 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 	}
 	
 	public void registerRecipes() {
-		//oredict/furnace
-		for (BlockBasePlank plank : planks) OreDictionary.registerOre("plankWood", plank);
-		for (BlockBaseLog log : logs) {
-			OreDictionary.registerOre("logWood", log);
-			GameRegistry.addSmelting(log, new ItemStack(Items.COAL, 1, 1), 0.15f);
-		}
-		for (BlockBaseLeaves leaf : leaves) OreDictionary.registerOre("treeLeaves", leaf);
-		for (BlockBaseSapling sapling : saplings) OreDictionary.registerOre("treeSapling", sapling);
-		for (Tuple<BlockWoodSlab<T>, BlockWoodSlab<T>> slab : slabs) OreDictionary.registerOre("slabWood", slab.getFirst());
-		for (BlockStairsBase stair : stairs) OreDictionary.registerOre("stairWood", stair);
-		//crafting recipes
 		for (T type : types) {
+			OreDictionary.registerOre("plankWood", getPlankStack(type, 1));
+			OreDictionary.registerOre("logWood", getLogStack(type, 1));
+			GameRegistry.addSmelting(getLogStack(type, 1), new ItemStack(Items.COAL, 1, 1), 0.15f);
+			OreDictionary.registerOre("treeLeaves", getLeavesStack(type, 1));
+			OreDictionary.registerOre("treeSapling", getSaplingStack(type, 1));
+			OreDictionary.registerOre("slabWood", getSlabStack(type, 1));
+			OreDictionary.registerOre("stairWood", getStairStack(type, 1));
 			String name = type.getName();
 			GameRegistry.addShapelessRecipe(new ResourceLocation(modid, name + "_plank"), new ResourceLocation(modid, name), getPlankStack(type, 4),
 					Ingredient.fromStacks(getLogStack(type, 1)));
