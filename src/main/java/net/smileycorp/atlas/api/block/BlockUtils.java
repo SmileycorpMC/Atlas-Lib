@@ -12,6 +12,5 @@ public class BlockUtils {
 		int drops = (Math.max(0, rand.nextInt(fortune + 2) - 1) + 1 + fortune)*base;
 		return drops;
 	}
-
 	
 }

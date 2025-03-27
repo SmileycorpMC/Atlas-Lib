@@ -157,7 +157,7 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum> extends BlockLeaves i
 	
 	@Override
 	public boolean isOpaqueCube(IBlockState state) {
-		return false;
+		return state.getValue(type).solidLeaves();
 	}
 	
 	@Override
@@ -165,8 +165,14 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum> extends BlockLeaves i
 		return BlockRenderLayer.CUTOUT_MIPPED;
 	}
 	
-	public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
-		return !blockAccess.getBlockState(pos.offset(side)).doesSideBlockRendering(blockAccess, pos.offset(side), side.getOpposite());
+	@Override
+	public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
+		return (state.getValue(type).solidLeaves() ? BlockRenderLayer.SOLID : BlockRenderLayer.CUTOUT_MIPPED) == layer;
+	}
+	
+	@Override
+	public boolean shouldSideBeRendered(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+		return !world.getBlockState(pos.offset(side)).doesSideBlockRendering(world, pos.offset(side), side.getOpposite());
 	}
 	
 	@Override

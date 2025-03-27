@@ -24,6 +24,7 @@ public class BlockGrassBase extends BlockGrass implements BlockProperties {
         setRegistryName(new ResourceLocation(modid, name.toLowerCase(Locale.US)));
         setUnlocalizedName(modid + "." + name);
         setCreativeTab(tab);
+        setSoundType(SoundType.PLANT);
         this.base = base;
     }
     
