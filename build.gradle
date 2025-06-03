@@ -1,12 +1,15 @@
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url "https://repo.spongepowered.org/repository/maven-public/" }
         jcenter()
         mavenCentral()
         gradlePluginPortal()
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
     }
 }
 
@@ -14,6 +17,7 @@ apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 version = "1.12.2-1.1.7"
 group = "net.smileycorp.atlas"
@@ -53,8 +57,19 @@ configurations {
     compile.extendsFrom(embed)
 }
 
+repositories {
+    maven { url = 'https://repo.spongepowered.org/maven' }
+}
+
+configurations {
+    embed
+    compile.extendsFrom(embed)
+}
+
 dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2860'
+    implementation "org.spongepowered:mixin:0.8.7"
+    implementation "io.github.llamalad7:mixinextras-common:0.4.1"
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
@@ -67,11 +82,34 @@ jar {
                 "Implementation-Title": project.name,
                 "Implementation-Version": "${version}",
                 "Implementation-Vendor" :"smileycorp",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "FMLCorePlugin": "net.smileycorp.atlas.common.MixinLoader",
+                "ForceLoadAsMod": true,
+                "FMLAT": "raids_at.cfg",
+                "FMLCorePluginContainsFMLMod": true,
+                "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
+                "MixinConfigs": "mixins.raids.json"
         ])
 
     }
 }
+
+shadowJar {
+    classifier = ''
+    exclude 'LICENSE.txt'
+    dependencies {
+        include(dependency("org.spongepowered:mixin:0.8"))
+        include(dependency("io.github.llamalad7:mixinextras-common:0.4.1"))
+    }
+}
+
+build.dependsOn(shadowJar)
+
+reobf {
+    shadowJar {}
+}
+
+build.dependsOn(reobf)
 
 processResources {
     inputs.property "version", project.version
