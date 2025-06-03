@@ -1,8 +1,9 @@
 package net.smileycorp.atlas.common;
 
+import com.llamalad7.mixinextras.MixinExtrasBootstrap;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.spongepowered.asm.launch.MixinBootstrap;
-import com.llamalad7.mixinextras.MixinExtrasBootstrap;
+
 import javax.annotation.Nullable;
 import java.util.Map;
 
