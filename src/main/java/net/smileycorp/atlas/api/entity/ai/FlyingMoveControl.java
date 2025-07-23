@@ -14,9 +14,18 @@ public class FlyingMoveControl extends EntityMoveHelper {
     }
 
     public void onUpdateMoveHelper() {
-        if (action != Action.MOVE_TO) return;
+        if (action != Action.MOVE_TO) {
+            entity.motionX = 0;
+            entity.motionY = 0;
+            entity.motionZ = 0;
+            return;
+        }
         if (entity.posX == entity.prevPosX && entity.posY == entity.prevPosY && entity.posZ == entity.prevPosZ) {
             if (ticksStuck++ >= 40) {
+                entity.motionX = 0;
+                entity.motionY = 0;
+                entity.motionZ = 0;
+                ticksStuck = 0;
                 action = Action.WAIT;
                 return;
             }
