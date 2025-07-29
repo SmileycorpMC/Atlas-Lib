@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
-import net.minecraft.item.Item.ToolMaterial;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.ResourceLocation;
@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.OreIngredient;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.smileycorp.atlas.api.util.Func;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Collection;
@@ -20,50 +21,48 @@ import java.util.Locale;
 import java.util.Map;
 
 @SuppressWarnings("deprecation")
-public class ToolSet {
+public class ArmourSet {
 
 	final String modid;
 	final String name;
-	final ToolMaterial material;
-	
-	Map<ToolType, Item> tools = Maps.newEnumMap(ToolType.class);
-	
-	public ToolSet(String modid, String name, ToolMaterial material, CreativeTabs tab) {
+	final ItemArmor.ArmorMaterial material;
+
+	Map<ArmorType, Item> tools = Maps.newEnumMap(ArmorType.class);
+
+	public ArmourSet(String modid, String name, ItemArmor.ArmorMaterial material, CreativeTabs tab) {
+		this(modid, name, material, tab, -1);
+	}
+
+	public ArmourSet(String modid, String name, ItemArmor.ArmorMaterial material, CreativeTabs tab, int horseArmourStrength) {
 		this.name = name;
 		this.modid = modid;
 		this.material = material;
-		for (ToolType type : ToolType.values()) {
+		for (ArmorType type : ArmorType.values()) {
+			if (type == ArmorType.HORSE) {
+				if (horseArmourStrength >= 0) tools.put(type, new ItemHorseArmourBase(modid, name, horseArmourStrength, tab));
+				continue;
+			}
 			Item item = type.createItem(modid, name, material, tab);
 			if (item != null) tools.put(type, item);
 		}
 	}
-	
-	public ToolSet(String modid, String name, ToolMaterial material, CreativeTabs tab, float axedamage, float axespeed) {
-		this.name = name;
-		this.modid = modid;
-		this.material = material;
-		for (ToolType type : ToolType.values()) {
-			Item item = type == ToolType.AXE ? new ItemToolAxe(modid, name, material, tab, axedamage, axespeed) : type.createItem(modid, name, material, tab);
-			if (item != null) tools.put(type, item);
-		}
-	}
-	
+
 	public String getModID() {
 		return modid;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
-	public ToolMaterial getMaterial() {
+
+	public ItemArmor.ArmorMaterial getMaterial() {
 		return material;
 	}
-	
-	public Item getItem(ToolType type) {
+
+	public Item getItem(ArmorType type) {
 		return tools.get(type);
 	}
-	
+
 	public Collection<Item> getItems() {
 		return tools.values();
 	}
@@ -71,57 +70,58 @@ public class ToolSet {
 	public void registerItems(IForgeRegistry<Item> registry) {
 		tools.values().forEach(registry::register);
 	}
-	
+
 	public void registerModels() {
 		tools.entrySet().forEach(entry ->
 			ModelLoader.setCustomModelResourceLocation(entry.getValue(), 0,
 					new ModelResourceLocation(modid + ":items/"
-					+ name.toLowerCase()+"_tools", entry.getKey().name().toLowerCase(Locale.US))));
+					+ name.toLowerCase() + "_armour", entry.getKey().name().toLowerCase(Locale.US))));
 	}
 
 	public void registerRecipes() {
 		registerRecipes(true);
 	}
-	
+
 	public void registerRecipes(boolean oredict) {
 		ItemStack stack = material.getRepairItemStack();
 		int[] ores = oredict ? OreDictionary.getOreIDs(stack) : new int[0];
 		Ingredient ingredient = ores.length == 0 ? Ingredient.fromStacks(stack) : new OreIngredient(OreDictionary.getOreName(ores[0]));
 		tools.entrySet().forEach(entry -> entry.getKey().registerRecipe(modid, name, entry.getValue(), ingredient));
 	}
-	
-	public enum ToolType {
-		SWORD("sword", ItemToolSword::new, "M", "M", "S"),
-		HOE("hoe", ItemToolHoe::new, "MM", " S", " S"),
-		PICKAXE("pickaxe", ItemToolPickaxe::new, "MMM", " S ", " S "),
-		AXE("axe", ItemToolAxe::new, "MM", "MS", " S"),
-		SPADE("shovel", ItemToolShovel::new, "M", "S", "S");
-		
+
+	public enum ArmorType {
+		HELMET("helmet", ItemArmourBase::helmet, "MMM", "M M"),
+		CHESTPLATE("chestplate", ItemArmourBase::chestplate, "M M", "MMM", "MMM"),
+		LEGGINGS("leggings",ItemArmourBase::leggings, "MMM", "M M", "M M"),
+		BOOTS("boots", ItemArmourBase::boots, "M M", "M M"),
+		HORSE("horse_armour", Func::Null);
+
 		final String name;
-		final ToolConstructor constructor;
+		final ArmourConstructor constructor;
 		final Object[] pattern;
-		
-		ToolType(String name, ToolConstructor constructor, Object... pattern) {
+
+		ArmorType(String name, ArmourConstructor constructor, Object... pattern) {
 			this.name = name;
 			this.constructor = constructor;
 			this.pattern = pattern;
 		}
-		
-		public Item createItem(String modid, String name, ToolMaterial material, CreativeTabs tab) {
+
+		public Item createItem(String modid, String name, ItemArmor.ArmorMaterial material, CreativeTabs tab) {
 			return constructor.create(modid, name, material, tab);
 		}
-		
+
 		public void registerRecipe(String modid, String material, Item item, Ingredient ingredient) {
-			Object[] recipe = {'M', ingredient, 'S', new OreIngredient("stickWood")};
+			if (pattern.length < 1) return;
+			Object[] recipe = {'M', ingredient, 'S'};
 			GameRegistry.addShapedRecipe(new ResourceLocation(modid, material.toLowerCase(Locale.US) + "_" + name),
 					new ResourceLocation(modid, material.toLowerCase(Locale.US) + "_" + name),
 					new ItemStack(item), ArrayUtils.addAll(pattern, recipe));
 		}
 	}
 
-	private interface ToolConstructor {
+	private interface ArmourConstructor {
 
-		Item create(String modid, String name, ToolMaterial material, CreativeTabs tab);
+		Item create(String modid, String name, ItemArmor.ArmorMaterial material, CreativeTabs tab);
 
 	}
 	

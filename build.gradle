@@ -19,7 +19,7 @@ apply plugin: 'eclipse'
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-version = "1.12.2-1.1.7"
+version = "1.12.2-1.1.8"
 group = "net.smileycorp.atlas"
 archivesBaseName = "Atlas-Lib"
 
@@ -87,8 +87,7 @@ jar {
                 "ForceLoadAsMod": true,
                 "FMLAT": "raids_at.cfg",
                 "FMLCorePluginContainsFMLMod": true,
-                "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
-                "MixinConfigs": "mixins.raids.json"
+                "TweakClass": "org.spongepowered.asm.launch.MixinTweaker"
         ])
 
     }

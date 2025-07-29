@@ -7,7 +7,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.smileycorp.atlas.common.ModDefinitions;
+import net.smileycorp.atlas.common.Constants;
 
 @SideOnly(Side.CLIENT)
 public class FluidStateMapper extends StateMapperBase {
@@ -21,7 +21,7 @@ public class FluidStateMapper extends StateMapperBase {
 	
 	@Override
 	protected ModelResourceLocation getModelResourceLocation(IBlockState state) {
-        return new ModelResourceLocation(new ResourceLocation(ModDefinitions.modid, fluid.getName() + ".atlasfluid"), getPropertyString(state.getProperties()));
+        return new ModelResourceLocation(new ResourceLocation(Constants.MODID, fluid.getName() + ".atlasfluid"), getPropertyString(state.getProperties()));
     }
 
 }
