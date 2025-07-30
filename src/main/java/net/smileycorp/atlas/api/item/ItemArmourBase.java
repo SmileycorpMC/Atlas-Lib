@@ -1,14 +1,17 @@
 package net.smileycorp.atlas.api.item;
 
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nullable;
 import java.util.Locale;
 
-public class ItemArmourBase extends ItemArmor {
+public class ItemArmourBase extends ItemArmor implements IMetaItem {
 
     public ItemArmourBase(String modid, String name, ArmorMaterial material, CreativeTabs tab, EntityEquipmentSlot slot) {
         super(material, 0, slot);

@@ -6,7 +6,7 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.Locale;
 
-public class ItemToolAxe extends ItemAxe {
+public class ItemToolAxe extends ItemAxe implements IMetaItem {
 
 	public ItemToolAxe(String modid, String name, ToolMaterial material, CreativeTabs tab) {
 		this(modid, name, material, tab, 8, (material.getAttackDamage() / 10f) -3.3f);

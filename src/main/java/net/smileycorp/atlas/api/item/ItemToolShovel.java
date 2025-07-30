@@ -6,7 +6,7 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.Locale;
 
-public class ItemToolShovel extends ItemSpade {
+public class ItemToolShovel extends ItemSpade implements IMetaItem {
 
 	public ItemToolShovel(String modid, String name, ToolMaterial material, CreativeTabs tab) {
 		super(material);

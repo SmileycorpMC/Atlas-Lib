@@ -6,7 +6,7 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.Locale;
 
-public class ItemToolHoe extends ItemHoe {
+public class ItemToolHoe extends ItemHoe implements IMetaItem {
 
 	public ItemToolHoe(String modid, String name, ToolMaterial material, CreativeTabs tab) {
 		super(material);

@@ -6,7 +6,7 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.Locale;
 
-public class ItemToolSword extends ItemSword {
+public class ItemToolSword extends ItemSword implements IMetaItem {
 
 	public ItemToolSword(String modid, String name, ToolMaterial material, CreativeTabs tab) {
 		super(material);

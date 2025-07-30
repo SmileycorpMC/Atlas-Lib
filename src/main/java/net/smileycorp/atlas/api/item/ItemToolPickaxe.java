@@ -6,7 +6,7 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.Locale;
 
-public class ItemToolPickaxe extends ItemPickaxe {
+public class ItemToolPickaxe extends ItemPickaxe implements IMetaItem {
 
 	public ItemToolPickaxe(String modid, String name, ToolMaterial material, CreativeTabs tab) {
 		super(material);
