@@ -15,7 +15,7 @@ import java.util.Random;
 public class DirectionUtils {
 
 	public static RayTraceResult rayTrace(World world, EntityLivingBase entity, float distance) {
-		Vec3d pos = entity.getPositionVector().addVector(0, entity.posY, 0);
+		Vec3d pos = entity.getPositionVector().addVector(0, entity.getEyeHeight(), 0);
 		Vec3d dir = entity.getLookVec();
 		Vec3d lastVec = pos.addVector(dir.x, dir.y, dir.z);
 		RayTraceResult blockRay = world.rayTraceBlocks(pos, pos.addVector(dir.x * distance, dir.y * distance, dir.z * distance), false, false, true);
