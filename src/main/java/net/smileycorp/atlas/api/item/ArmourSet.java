@@ -28,7 +28,7 @@ public class ArmourSet {
 	final String name;
 	final ItemArmor.ArmorMaterial material;
 
-	Map<ArmorType, Item> tools = Maps.newEnumMap(ArmorType.class);
+	Map<ArmourType, Item> tools = Maps.newEnumMap(ArmourType.class);
 
 	public ArmourSet(String modid, String name, ItemArmor.ArmorMaterial material, CreativeTabs tab) {
 		this(modid, name, material, tab, -1);
@@ -38,8 +38,8 @@ public class ArmourSet {
 		this.name = name;
 		this.modid = modid;
 		this.material = material;
-		for (ArmorType type : ArmorType.values()) {
-			if (type == ArmorType.HORSE) {
+		for (ArmourType type : ArmourType.values()) {
+			if (type == ArmourType.HORSE) {
 				if (horseArmourStrength >= 0) tools.put(type, new ItemHorseArmourBase(modid, name, horseArmourStrength, tab));
 				continue;
 			}
@@ -60,36 +60,36 @@ public class ArmourSet {
 		return material;
 	}
 
-	public Item getItem(ArmorType type) {
+	public Item getItem(ArmourType type) {
 		return tools.get(type);
 	}
 
 	public Item getItem(EntityEquipmentSlot slot) {
-		return tools.get(ArmorType.get(slot));
+		return tools.get(ArmourType.get(slot));
 	}
 
 	public Item getHelmet() {
-		return getItem(ArmorType.HELMET);
+		return getItem(ArmourType.HELMET);
 	}
 
 	public Item getChestplate() {
-		return getItem(ArmorType.CHESTPLATE);
+		return getItem(ArmourType.CHESTPLATE);
 	}
 
 	public Item getLeggings() {
-		return getItem(ArmorType.LEGGINGS);
+		return getItem(ArmourType.LEGGINGS);
 	}
 
 	public Item getBoots() {
-		return getItem(ArmorType.BOOTS);
+		return getItem(ArmourType.BOOTS);
 	}
 
 	public boolean hasHorseArmour() {
-		return tools.containsKey(ArmorType.HORSE);
+		return tools.containsKey(ArmourType.HORSE);
 	}
 
 	public Item getHorseArmour() {
-		return getItem(ArmorType.HORSE);
+		return getItem(ArmourType.HORSE);
 	}
 
 	public Collection<Item> getItems() {
@@ -118,7 +118,7 @@ public class ArmourSet {
 		tools.entrySet().forEach(entry -> entry.getKey().registerRecipe(modid, name, entry.getValue(), ingredient));
 	}
 
-	public enum ArmorType {
+	public enum ArmourType {
 		HELMET("helmet", ItemArmourBase::helmet, EntityEquipmentSlot.HEAD, "MMM", "M M"),
 		CHESTPLATE("chestplate", ItemArmourBase::chestplate, EntityEquipmentSlot.CHEST, "M M", "MMM", "MMM"),
 		LEGGINGS("leggings",ItemArmourBase::leggings, EntityEquipmentSlot.LEGS, "MMM", "M M", "M M"),
@@ -130,7 +130,7 @@ public class ArmourSet {
 		final EntityEquipmentSlot slot;
 		final Object[] pattern;
 
-		ArmorType(String name, ArmourConstructor constructor, EntityEquipmentSlot slot, Object... pattern) {
+		ArmourType(String name, ArmourConstructor constructor, EntityEquipmentSlot slot, Object... pattern) {
 			this.name = name;
 			this.constructor = constructor;
 			this.slot = slot;
@@ -149,8 +149,8 @@ public class ArmourSet {
 					new ItemStack(item), ArrayUtils.addAll(pattern, recipe));
 		}
 
-		public static ArmorType get(EntityEquipmentSlot slot) {
-			for (ArmorType type : values()) if (type.slot == slot) return type;
+		public static ArmourType get(EntityEquipmentSlot slot) {
+			for (ArmourType type : values()) if (type.slot == slot) return type;
 			return null;
 		}
 
