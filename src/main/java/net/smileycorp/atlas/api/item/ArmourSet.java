@@ -3,6 +3,7 @@ package net.smileycorp.atlas.api.item;
 import com.google.common.collect.Maps;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
@@ -63,6 +64,34 @@ public class ArmourSet {
 		return tools.get(type);
 	}
 
+	public Item getItem(EntityEquipmentSlot slot) {
+		return tools.get(ArmorType.get(slot));
+	}
+
+	public Item getHelmet() {
+		return getItem(ArmorType.HELMET);
+	}
+
+	public Item getChestplate() {
+		return getItem(ArmorType.CHESTPLATE);
+	}
+
+	public Item getLeggings() {
+		return getItem(ArmorType.LEGGINGS);
+	}
+
+	public Item getBoots() {
+		return getItem(ArmorType.BOOTS);
+	}
+
+	public boolean hasHorseArmour() {
+		return tools.containsKey(ArmorType.HORSE);
+	}
+
+	public Item getHorseArmour() {
+		return getItem(ArmorType.HORSE);
+	}
+
 	public Collection<Item> getItems() {
 		return tools.values();
 	}
@@ -90,19 +119,21 @@ public class ArmourSet {
 	}
 
 	public enum ArmorType {
-		HELMET("helmet", ItemArmourBase::helmet, "MMM", "M M"),
-		CHESTPLATE("chestplate", ItemArmourBase::chestplate, "M M", "MMM", "MMM"),
-		LEGGINGS("leggings",ItemArmourBase::leggings, "MMM", "M M", "M M"),
-		BOOTS("boots", ItemArmourBase::boots, "M M", "M M"),
-		HORSE("horse_armour", Func::Null);
+		HELMET("helmet", ItemArmourBase::helmet, EntityEquipmentSlot.HEAD, "MMM", "M M"),
+		CHESTPLATE("chestplate", ItemArmourBase::chestplate, EntityEquipmentSlot.CHEST, "M M", "MMM", "MMM"),
+		LEGGINGS("leggings",ItemArmourBase::leggings, EntityEquipmentSlot.LEGS, "MMM", "M M", "M M"),
+		BOOTS("boots", ItemArmourBase::boots, EntityEquipmentSlot.FEET, "M M", "M M"),
+		HORSE("horse_armour", Func::Null, null);
 
 		final String name;
 		final ArmourConstructor constructor;
+		final EntityEquipmentSlot slot;
 		final Object[] pattern;
 
-		ArmorType(String name, ArmourConstructor constructor, Object... pattern) {
+		ArmorType(String name, ArmourConstructor constructor, EntityEquipmentSlot slot, Object... pattern) {
 			this.name = name;
 			this.constructor = constructor;
+			this.slot = slot;
 			this.pattern = pattern;
 		}
 
@@ -117,6 +148,12 @@ public class ArmourSet {
 					new ResourceLocation(modid, material.toLowerCase(Locale.US) + "_" + name),
 					new ItemStack(item), ArrayUtils.addAll(pattern, recipe));
 		}
+
+		public static ArmorType get(EntityEquipmentSlot slot) {
+			for (ArmorType type : values()) if (type.slot == slot) return type;
+			return null;
+		}
+
 	}
 
 	private interface ArmourConstructor {

@@ -26,13 +26,13 @@ public class ToolSet {
 	final String name;
 	final ToolMaterial material;
 	
-	Map<ToolType, Item> tools = Maps.newEnumMap(ToolType.class);
+	Map<ToolType, Item> tools = Maps.newLinkedHashMap();
 	
 	public ToolSet(String modid, String name, ToolMaterial material, CreativeTabs tab) {
 		this.name = name;
 		this.modid = modid;
 		this.material = material;
-		for (ToolType type : ToolType.values()) {
+		for (ToolType type : ToolType.getTypes()) {
 			Item item = type.createItem(modid, name, material, tab);
 			if (item != null) tools.put(type, item);
 		}
@@ -42,7 +42,7 @@ public class ToolSet {
 		this.name = name;
 		this.modid = modid;
 		this.material = material;
-		for (ToolType type : ToolType.values()) {
+		for (ToolType type : ToolType.getTypes()) {
 			Item item = type == ToolType.AXE ? new ItemToolAxe(modid, name, material, tab, axedamage, axespeed) : type.createItem(modid, name, material, tab);
 			if (item != null) tools.put(type, item);
 		}
@@ -63,6 +63,26 @@ public class ToolSet {
 	public Item getItem(ToolType type) {
 		return tools.get(type);
 	}
+
+	public Item getSword() {
+		return getItem(ToolType.SWORD);
+	}
+
+	public Item getHoe() {
+		return getItem(ToolType.HOE);
+	}
+
+	public Item getPickaxe() {
+		return getItem(ToolType.PICKAXE);
+	}
+
+	public Item getAxe() {
+		return getItem(ToolType.AXE);
+	}
+
+	public Item getSpade() {
+		return getItem(ToolType.SPADE);
+	}
 	
 	public Collection<Item> getItems() {
 		return tools.values();
@@ -76,7 +96,7 @@ public class ToolSet {
 		tools.entrySet().forEach(entry ->
 			ModelLoader.setCustomModelResourceLocation(entry.getValue(), 0,
 					new ModelResourceLocation(modid + ":items/"
-					+ name.toLowerCase()+"_tools", entry.getKey().name().toLowerCase(Locale.US))));
+					+ name.toLowerCase()+"_tools", entry.getKey().getName().toLowerCase(Locale.US))));
 	}
 
 	public void registerRecipes() {
@@ -90,21 +110,28 @@ public class ToolSet {
 		tools.entrySet().forEach(entry -> entry.getKey().registerRecipe(modid, name, entry.getValue(), ingredient));
 	}
 	
-	public enum ToolType {
-		SWORD("sword", ItemToolSword::new, "M", "M", "S"),
-		HOE("hoe", ItemToolHoe::new, "MM", " S", " S"),
-		PICKAXE("pickaxe", ItemToolPickaxe::new, "MMM", " S ", " S "),
-		AXE("axe", ItemToolAxe::new, "MM", "MS", " S"),
-		SPADE("shovel", ItemToolShovel::new, "M", "S", "S");
+	public static class ToolType {
+
+		private static final Map<String, ToolType> TYPES = Maps.newLinkedHashMap();
+
+		public static final ToolType SWORD = register("sword", ItemToolSword::new, "M", "M", "S");
+		public static final ToolType HOE = register("hoe", ItemToolHoe::new, "MM", " S", " S");
+		public static final ToolType PICKAXE = register("pickaxe", ItemToolPickaxe::new, "MMM", " S ", " S ");
+		public static final ToolType AXE = register("axe", ItemToolAxe::new, "MM", "MS", " S");
+		public static final ToolType SPADE = register("shovel", ItemToolShovel::new, "M", "S", "S");
 		
-		final String name;
-		final ToolConstructor constructor;
-		final Object[] pattern;
+		private final String name;
+		private final ToolConstructor constructor;
+		private final Object[] pattern;
 		
-		ToolType(String name, ToolConstructor constructor, Object... pattern) {
+		private ToolType(String name, ToolConstructor constructor, Object... pattern) {
 			this.name = name;
 			this.constructor = constructor;
 			this.pattern = pattern;
+		}
+
+		public String getName() {
+			return name;
 		}
 		
 		public Item createItem(String modid, String name, ToolMaterial material, CreativeTabs tab) {
@@ -112,14 +139,26 @@ public class ToolSet {
 		}
 		
 		public void registerRecipe(String modid, String material, Item item, Ingredient ingredient) {
+			if (pattern.length < 1) return;
 			Object[] recipe = {'M', ingredient, 'S', new OreIngredient("stickWood")};
 			GameRegistry.addShapedRecipe(new ResourceLocation(modid, material.toLowerCase(Locale.US) + "_" + name),
 					new ResourceLocation(modid, material.toLowerCase(Locale.US) + "_" + name),
 					new ItemStack(item), ArrayUtils.addAll(pattern, recipe));
 		}
+
+		public static ToolType register(String name, ToolConstructor constructor, Object... pattern) {
+			ToolType type = new ToolType(name, constructor, pattern);
+			TYPES.put(name, type);
+			return type;
+		}
+
+		public static Collection<ToolType> getTypes() {
+			return TYPES.values();
+		}
+
 	}
 
-	private interface ToolConstructor {
+	public interface ToolConstructor {
 
 		Item create(String modid, String name, ToolMaterial material, CreativeTabs tab);
 
