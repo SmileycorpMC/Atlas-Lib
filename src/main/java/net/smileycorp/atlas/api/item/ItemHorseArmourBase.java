@@ -15,7 +15,7 @@ public class ItemHorseArmourBase extends Item implements IMetaItem {
 
     public ItemHorseArmourBase(String modid, String name, int strength, CreativeTabs tab) {
         name = name.toLowerCase(Locale.US);
-        type = EnumHelper.addHorseArmor(name, modid + ":textures/entity/horse/armor/horse_armor_" + name + ".png", strength);
+        type = EnumHelper.addHorseArmor(name, modid + ":textures/entities/horse/armor/horse_armor_" + name + ".png", strength);
         name += "_horse_armour";
         setRegistryName(new ResourceLocation(modid, name));
         setUnlocalizedName(modid + "." + name);
