@@ -35,10 +35,7 @@ public class EntityAttributesEntry {
         AbstractAttributeMap map = entity.getAttributeMap();
         map.getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(movementSpeed);
         map.getAttributeInstance(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(followRange);
-        if (attackDamage != 0) {
-            map.registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
-            map.getAttributeInstance(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(attackDamage);
-        }
+        if (attackDamage != 0) map.getAttributeInstance(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(attackDamage);
         map.getAttributeInstance(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(maxHealth);
         map.getAttributeInstance(SharedMonsterAttributes.ARMOR).setBaseValue(armor);
         map.getAttributeInstance(SharedMonsterAttributes.ARMOR_TOUGHNESS).setBaseValue(armorToughness);
