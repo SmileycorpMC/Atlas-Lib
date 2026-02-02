@@ -46,6 +46,7 @@ public class BlockGrassBase extends BlockGrass implements BlockProperties {
         setUnlocalizedName(modid + "." + name);
         setCreativeTab(tab);
         setSoundType(SoundType.PLANT);
+        setHarvestLevel("shovel", 0);
         this.base = base;
         this.farmland = farmland;
         if (!registered && farmland != null) {
