@@ -19,7 +19,7 @@ apply plugin: 'eclipse'
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-version = "1.12.2-1.1.9"
+version = "1.12.2-1.1.10"
 group = "net.smileycorp.atlas"
 archivesBaseName = "Atlas-Lib"
 
@@ -70,6 +70,7 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2860'
     implementation "org.spongepowered:mixin:0.8"
     implementation "io.github.llamalad7:mixinextras-common:0.4.1"
+    annotationProcessor 'io.github.llamalad7:mixinextras-common:0.5.0'
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
@@ -100,6 +101,7 @@ shadowJar {
         include(dependency("org.spongepowered:mixin:0.8"))
         include(dependency("io.github.llamalad7:mixinextras-common:0.4.1"))
     }
+    mergeServiceFiles()
 }
 
 build.dependsOn(shadowJar)
