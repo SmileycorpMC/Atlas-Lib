@@ -42,7 +42,7 @@ public class BlockWoodSlab<T extends Enum<T> & WoodEnum> extends BlockSlab imple
         setRegistryName(new ResourceLocation(modid, name));
         setUnlocalizedName(modid + "." + name);
         setCreativeTab(tab);
-        setDefaultState(blockState.getBaseState().withProperty(type, types.getEnumConstants()[ordinal * 16]));
+        setDefaultState(blockState.getBaseState().withProperty(type, types.getEnumConstants()[ordinal * 8]));
     }
     
     @Override
@@ -50,17 +50,18 @@ public class BlockWoodSlab<T extends Enum<T> & WoodEnum> extends BlockSlab imple
         type = staticProp;
         return new BlockStateContainer(this, type, HALF);
     }
-    
-    @Override
-    public int getMetaFromState(IBlockState state) {
-        return state.getValue(type).ordinal() % 16;
-    }
-    
+
     @Override
     public IBlockState getStateFromMeta(int meta) {
-        return getDefaultState().withProperty(type, types.getEnumConstants()[ordinal * 16 + meta]);
+        return (isDouble() ? getDefaultState() : getDefaultState().withProperty(HALF, meta >= 8 ? EnumBlockHalf.TOP : EnumBlockHalf.BOTTOM))
+                .withProperty(type, types.getEnumConstants()[meta % 8 + ordinal]); }
+
+    @Override
+    public int getMetaFromState(IBlockState state) {
+        return (isDouble() ? 0 : (state.getValue(HALF) == EnumBlockHalf.TOP ? 8 : 0)) + state.getValue(type).ordinal() - ordinal;
     }
-    
+
+
     @Override
     public int getMaxMeta() {
         return type.getAllowedValues().size();

@@ -1,17 +1,18 @@
 package net.smileycorp.atlas.api.item;
 
 import net.minecraft.block.BlockSlab;
+import net.minecraft.block.state.IBlockProperties;
 import net.minecraft.item.ItemSlab;
 import net.minecraft.item.ItemStack;
 import net.smileycorp.atlas.api.block.BlockProperties;
 
-public class ItemSlabMeta extends ItemSlab implements IMetaItem {
+public class ItemSlabMeta<T extends BlockSlab & BlockProperties> extends ItemSlab implements IMetaItem {
 
-	public ItemSlabMeta(BlockSlab singleSlab, BlockSlab doubleSlab) {
-		super(singleSlab, singleSlab, doubleSlab);
+	public ItemSlabMeta(T half, T full) {
+		super(half, half, full);
 		setRegistryName(block.getRegistryName());
 		setUnlocalizedName(block.getUnlocalizedName());
-		setHasSubtypes(true);
+		if (half.getMaxMeta() > 0) setHasSubtypes(true);
 	}
 	
 	@Override
@@ -23,10 +24,10 @@ public class ItemSlabMeta extends ItemSlab implements IMetaItem {
 	public String byMeta(int meta) {
 		return ((BlockProperties)block).byMeta(meta);
 	}
-	
+
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
-		return "tile." + block.getRegistryName().getResourceDomain() + "." + byMeta(stack.getMetadata());
+		return ((BlockSlab) block).getUnlocalizedName(stack.getMetadata());
 	}
 
 }
