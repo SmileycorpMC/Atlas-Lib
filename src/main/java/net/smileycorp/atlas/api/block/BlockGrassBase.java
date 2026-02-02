@@ -6,13 +6,16 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.Item;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.EnumPlantType;
@@ -88,6 +91,18 @@ public class BlockGrassBase extends BlockGrass implements BlockProperties {
     }
 
     @Override
+    public Item getItemDropped(IBlockState state, Random rand, int fortune) {
+        IBlockState state1 = base.apply(state);
+        return state1.getBlock().getItemDropped(state1, rand, fortune);
+    }
+
+    @Override
+    public int damageDropped(IBlockState state) {
+        IBlockState state1 = base.apply(state);
+        return state1.getBlock().damageDropped(state1);
+    }
+
+    @Override
     public boolean canSustainPlant(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing direction, IPlantable plant) {
         EnumPlantType type = plant.getPlantType(world, pos.offset(direction));
         if (type == EnumPlantType.Plains) return true;
@@ -95,6 +110,17 @@ public class BlockGrassBase extends BlockGrass implements BlockProperties {
         if (type == EnumPlantType.Beach) for (EnumFacing facing : EnumFacing.HORIZONTALS)
             if (world.getBlockState(pos.offset(facing)).getMaterial() == Material.WATER) return true;
         return false;
+    }
+
+    @Override
+    public float getBlockHardness(IBlockState state, World world, BlockPos pos) {
+        return base.apply(state).getBlockHardness(world, pos);
+    }
+
+    @Override
+    public float getExplosionResistance(World world, BlockPos pos, @Nullable Entity entity, Explosion explosion) {
+        IBlockState state = base.apply(world.getBlockState(pos));
+        return state.getBlock().getExplosionResistance(world, pos, entity, explosion);
     }
 
     private static class EventHandler {
