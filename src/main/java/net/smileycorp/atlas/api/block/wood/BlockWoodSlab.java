@@ -11,6 +11,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
@@ -21,11 +22,14 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.smileycorp.atlas.api.block.BlockProperties;
+import net.smileycorp.atlas.api.item.ItemSlabMeta;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Random;
 
-public class BlockWoodSlab<T extends Enum<T> & WoodEnum> extends BlockSlab implements WoodVariant<T> {
+public class BlockWoodSlab<T extends Enum<T> & WoodEnum> extends BlockSlab implements BlockProperties, WoodVariant<T> {
     
     //fake static property to bypass blockstate validation
     private static PropertyEnum staticProp;
@@ -33,6 +37,8 @@ public class BlockWoodSlab<T extends Enum<T> & WoodEnum> extends BlockSlab imple
     private final int ordinal;
     private final boolean isDouble;
     private PropertyEnum<T> type;
+
+    private ItemSlabMeta<BlockWoodSlab<T>> item;
     
     private BlockWoodSlab(String name, String modid, CreativeTabs tab, Class<T> types, int ordinal, boolean isDouble) {
         super(Material.WOOD);
@@ -43,6 +49,7 @@ public class BlockWoodSlab<T extends Enum<T> & WoodEnum> extends BlockSlab imple
         setUnlocalizedName(modid + "." + name);
         setCreativeTab(tab);
         setDefaultState(blockState.getBaseState().withProperty(type, types.getEnumConstants()[ordinal * 8]));
+        if(!isDouble) useNeighborBrightness = true;
     }
     
     @Override
@@ -61,7 +68,6 @@ public class BlockWoodSlab<T extends Enum<T> & WoodEnum> extends BlockSlab imple
         return (isDouble() ? 0 : (state.getValue(HALF) == EnumBlockHalf.TOP ? 8 : 0)) + state.getValue(type).ordinal() - ordinal;
     }
 
-
     @Override
     public int getMaxMeta() {
         return type.getAllowedValues().size();
@@ -79,9 +85,14 @@ public class BlockWoodSlab<T extends Enum<T> & WoodEnum> extends BlockSlab imple
     
     @Override
     public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
-        return new ItemStack(this, 1, getMetaFromState(state) % 8);
+        return new ItemStack(getItemDropped(state, player.getRNG(), 0), 1, getMetaFromState(state) % 8);
     }
-    
+
+    @Override
+    public Item getItemDropped(IBlockState state, Random random, int fortune) {
+        return item;
+    }
+
     @Override
     public MapColor getMapColor(IBlockState state, IBlockAccess world, BlockPos pos) {
         return state.getValue(type).plankColour();
@@ -121,10 +132,15 @@ public class BlockWoodSlab<T extends Enum<T> & WoodEnum> extends BlockSlab imple
     public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
         for (int i = 0; i < type.getAllowedValues().size(); i++) items.add(new ItemStack(this, 1, i));
     }
+
+    @Override
+    public int damageDropped(IBlockState state) {
+        return getMetaFromState(state) % 8;
+    }
     
     @Override
     public String getUnlocalizedName(int meta) {
-        return "tile." + getRegistryName().getResourceDomain() + byMeta(meta);
+        return "tile." + getRegistryName().getResourceDomain() + "." + byMeta(meta);
     }
     
     @Override
@@ -140,6 +156,14 @@ public class BlockWoodSlab<T extends Enum<T> & WoodEnum> extends BlockSlab imple
     @Override
     public Comparable<?> getTypeForItem(ItemStack stack) {
         return types.getEnumConstants()[ordinal * 8 + stack.getMetadata() % 8];
+    }
+
+    public ItemSlabMeta<BlockWoodSlab<T>> getItem() {
+        return item;
+    }
+
+    public void setItem(ItemSlabMeta<BlockWoodSlab<T>> item) {
+        this.item = item;
     }
     
     public static <T extends Enum<T> & WoodEnum> Tuple<BlockWoodSlab<T>, BlockWoodSlab<T>> create(String name, String modid, CreativeTabs tab, Class<T> clazz, int ordinal) {

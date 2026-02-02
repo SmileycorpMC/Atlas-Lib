@@ -204,7 +204,12 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 		for (BlockBaseLog<T> log : logs) registry.register(new ItemBlockMeta(log));
 		for (BlockBaseLeaves<T> leaves : leaves) registry.register(new ItemBlockMeta(leaves));
 		for (BlockBaseSapling<T> sapling : saplings) if (sapling != null) registry.register(new ItemBlockMeta(sapling));
-		for (Tuple<BlockWoodSlab<T>, BlockWoodSlab<T>> slab : slabs) registry.register(new ItemSlabMeta(slab.getFirst(), slab.getSecond()));
+		for (Tuple<BlockWoodSlab<T>, BlockWoodSlab<T>> slab : slabs) {
+			ItemSlabMeta item = new ItemSlabMeta(slab.getFirst(), slab.getSecond());
+			registry.register(item);
+			slab.getFirst().setItem(item);
+			slab.getSecond().setItem(item);
+		}
 		for (BlockStairsBase stair : stairs) {
 			ItemBlock item = new ItemBlock(stair);
 			item.setRegistryName(stair.getRegistryName());
