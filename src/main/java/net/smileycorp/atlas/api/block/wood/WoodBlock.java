@@ -57,7 +57,7 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 					modid, tab, types, i));
 		}
 		for (int i = 0; i <= (size - 1) / 8; i++) {
-			slabs.add(BlockWoodSlab.create("slab_" + (forceSimpleNames || (size - 2 > i * 8) ? String.valueOf(i) : this.types[i * 8].getName()),
+			slabs.add(BlockWoodSlab.create((forceSimpleNames || (size - 2 > i * 8) ? "wooden_slab_" + i : "slab_" + this.types[i * 8].getName()),
 					modid, tab, types, i));
 		}
 		for (int i = 0; i <= (size - 1) / 4; i++) {
