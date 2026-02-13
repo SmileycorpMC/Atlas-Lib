@@ -55,8 +55,8 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum> extends BlockLeaves i
 	@Override
 	public int getMetaFromState(IBlockState state) {
 		int meta = state.getValue(type).ordinal() % 4;
-		if (!state.getValue(DECAYABLE)) meta += 4;
-		if (state.getValue(CHECK_DECAY)) meta += 8;
+		//if (!state.getValue(DECAYABLE)) meta += 4;
+		//if (state.getValue(CHECK_DECAY)) meta += 8;
 		return meta;
 	}
 	
@@ -103,12 +103,12 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum> extends BlockLeaves i
 	
 	@Override
 	public int getFlammability(IBlockAccess world, BlockPos pos, EnumFacing facing) {
-		return isFlammable(world, pos, facing) ? 20 : super.getFlammability(world, pos, facing);
+		return isFlammable(world, pos, facing) ? 60 : super.getFlammability(world, pos, facing);
 	}
 	
 	@Override
 	public int getFireSpreadSpeed(IBlockAccess world, BlockPos pos, EnumFacing facing) {
-		return isFlammable(world, pos, facing) ? 5 : super.getFireSpreadSpeed(world, pos, facing);
+		return isFlammable(world, pos, facing) ? 30 : super.getFireSpreadSpeed(world, pos, facing);
 	}
 	
 	@Override
