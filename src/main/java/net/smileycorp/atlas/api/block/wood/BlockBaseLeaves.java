@@ -63,7 +63,8 @@ public class BlockBaseLeaves<T extends Enum<T> & WoodEnum> extends BlockLeaves i
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		return getDefaultState().withProperty(type, types.getEnumConstants()[ordinal * 4 + meta % 4])
-				.withProperty(DECAYABLE, meta % 8 < 4).withProperty(CHECK_DECAY, meta >= 8);
+				.withProperty(DECAYABLE, true);
+				//.withProperty(DECAYABLE, meta % 8 < 4).withProperty(CHECK_DECAY, meta >= 8);
 	}
 	
 	@Override
