@@ -308,7 +308,7 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 			GameRegistry.addShapelessRecipe(new ResourceLocation(modid, name + "_plank"), new ResourceLocation(modid, name), getPlankStack(type, 4),
 					Ingredient.fromStacks(getLogStack(type, 1)));
 			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name + "_wood"), new ResourceLocation(modid, name), getWoodStack(type, 3),
-                    "  #", " ##", "###", '#', getLogStack(type, 1));
+                    "##", " ##", '#', getLogStack(type, 1));
 			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name + "_slab"), new ResourceLocation(modid, name), getSlabStack(type, 6),
 					 "###", '#', getPlankStack(type, 1));
 			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name + "_stair"), new ResourceLocation(modid, name), getStairStack(type, 4),
