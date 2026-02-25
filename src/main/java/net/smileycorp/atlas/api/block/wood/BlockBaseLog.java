@@ -11,16 +11,17 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.stats.StatList;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.smileycorp.atlas.api.data.Pair;
+import net.smileycorp.atlas.api.util.Sounds;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -31,9 +32,11 @@ public class BlockBaseLog<T extends Enum<T> & WoodEnum> extends BlockLog impleme
 	private static PropertyEnum staticProp;
 	private final Class<T> types;
 	private final int ordinal;
+	private final boolean log;
+	private final BlockBaseLog<T> stripped;
 	private PropertyEnum<T> type;
 	
-	private BlockBaseLog(String name, String modid, CreativeTabs tab, Class<T> types, int ordinal) {
+	private BlockBaseLog(String name, String modid, CreativeTabs tab, Class<T> types, int ordinal, boolean log, @Nullable BlockBaseLog<T> stripped) {
 		super();
 		this.types = types;
 		this.ordinal = ordinal;
@@ -41,6 +44,8 @@ public class BlockBaseLog<T extends Enum<T> & WoodEnum> extends BlockLog impleme
 		setUnlocalizedName(modid + "." + name);
 		setCreativeTab(tab);
 		setDefaultState(blockState.getBaseState().withProperty(type, types.getEnumConstants()[ordinal * 4]));
+		this.log = log;
+		this.stripped = stripped;
 	}
 	
 	@Override
@@ -86,8 +91,9 @@ public class BlockBaseLog<T extends Enum<T> & WoodEnum> extends BlockLog impleme
 	
 	@Override
 	public String byState(IBlockState state) {
-		String name = state.getValue(type).getName();
-		return name + (state.getValue(LOG_AXIS) == EnumAxis.NONE ? (name.contains("wood") ? "" : "_wood") : "_log");
+		String name = state.getValue(type).getName() + "_log";
+		if (stripped == null) name = "stripped_" + name;
+		return name;
 	}
 	
 	@Override
@@ -110,7 +116,8 @@ public class BlockBaseLog<T extends Enum<T> & WoodEnum> extends BlockLog impleme
 	
 	@Override
 	public MapColor getMapColor(IBlockState state, IBlockAccess world, BlockPos pos) {
-		return state.getValue(type).logColour();
+		T type = state.getValue(this.type);
+		return stripped == null || (log && state.getValue(AXIS) == EnumFacing.Axis.Y) ? type.plankColour() : type.logColour();
 	}
 	
 	@Override
@@ -145,10 +152,22 @@ public class BlockBaseLog<T extends Enum<T> & WoodEnum> extends BlockLog impleme
 	
 	@Override
 	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
-		for (int i = 0; i < type.getAllowedValues().size(); i++) {
-			items.add(new ItemStack(this, 1, i));
-			items.add(new ItemStack(this, 1, i + 12));
-		}
+		for (int i = 0; i < type.getAllowedValues().size(); i++) items.add(new ItemStack(this, 1, i));
+	}
+
+	@Override
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+		if (stripped == null || player.isSneaking()) return false;
+		ItemStack stack = player.getHeldItem(hand);
+		if (!stack.getItem().getToolClasses(stack).contains("axe")) return false;
+		if (!world.setBlockState(pos, stripped.getDefaultState().withProperty(type, state.getValue(type))
+				.withProperty(AXIS, state.getValue(AXIS)), 3)) return false;
+		world.playSound(null, pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, Sounds.STRIP_LOG, SoundCategory.BLOCKS, 1, 1);
+		player.swingArm(hand);
+		if (world.isRemote) return true;
+		if (!player.isCreative()) stack.damageItem(1, player);
+		player.addStat(StatList.getObjectUseStats(stack.getItem()));
+		return true;
 	}
 	
 	@Override
@@ -156,14 +175,15 @@ public class BlockBaseLog<T extends Enum<T> & WoodEnum> extends BlockLog impleme
 		return type;
 	}
 	
-	public static <T extends Enum<T> & WoodEnum> BlockBaseLog<T> create(String name, String modid, CreativeTabs tab, Class<T> clazz, int ordinal) {
+	public static <T extends Enum<T> & WoodEnum> Pair<BlockBaseLog<T>, BlockBaseLog<T>> create(String name, String modid, CreativeTabs tab, Class<T> clazz, int ordinal, boolean log) {
 		Collection<T> types = Sets.newHashSet();
 		for (int i = ordinal * 4; i < (ordinal + 1) * 4; i++) {
 			if (i >= clazz.getEnumConstants().length) break;
 			types.add(clazz.getEnumConstants()[i]);
 		}
 		staticProp = PropertyEnum.create("type", clazz, types);
-		return new BlockBaseLog<>(name, modid, tab, clazz, ordinal);
+		BlockBaseLog<T> stripped = new BlockBaseLog<>("stripped_" + name, modid, tab, clazz, ordinal, log, null);
+		return Pair.of(new BlockBaseLog<>(name, modid, tab, clazz, ordinal, log, stripped), stripped);
 	}
 	
 }

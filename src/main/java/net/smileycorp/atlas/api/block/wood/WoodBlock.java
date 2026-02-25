@@ -23,6 +23,8 @@ import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.smileycorp.atlas.api.block.BlockStairsBase;
 import net.smileycorp.atlas.api.client.WoodStateMapper;
+import net.smileycorp.atlas.api.data.Pair;
+import net.smileycorp.atlas.api.entity.boat.ItemAtlasBoat;
 import net.smileycorp.atlas.api.item.IMetaItem;
 import net.smileycorp.atlas.api.item.ItemBlockMeta;
 import net.smileycorp.atlas.api.item.ItemSlabMeta;
@@ -35,6 +37,9 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 	private final T[] types;
 	private final List<BlockBasePlank<T>> planks = Lists.newArrayList();
 	private final List<BlockBaseLog<T>> logs = Lists.newArrayList();
+	private final List<BlockBaseLog<T>> strippedLogs = Lists.newArrayList();
+	private final List<BlockBaseLog<T>> wood = Lists.newArrayList();
+	private final List<BlockBaseLog<T>> strippedWood = Lists.newArrayList();
 	private final List<BlockBaseLeaves<T>> leaves = Lists.newArrayList();
 	private final List<BlockBaseSapling<T>> saplings = Lists.newArrayList();
 	private final List<Tuple<BlockWoodSlab<T>, BlockWoodSlab<T>>> slabs = Lists.newArrayList();
@@ -43,7 +48,8 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 	private final List<BlockWoodTrapdoor<T>> trapdoors = Lists.newArrayList();
 	private final List<BlockWoodFence<T>> fences = Lists.newArrayList();
 	private final List<BlockWoodFenceGate<T>> gates = Lists.newArrayList();
-	
+	private final List<ItemAtlasBoat<T>> boats = Lists.newArrayList();
+
 	public WoodBlock(String modid, CreativeTabs tab, Class<T> types) {
 		this(modid, tab, types, false);
 	}
@@ -55,6 +61,8 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 		for (int i = 0; i <= (size - 1) / 16; i++) {
 			planks.add(BlockBasePlank.create("plank_" + ((forceSimpleNames || size - 2 > i * 16) ? i : this.types[i * 16].getName()),
 					modid, tab, types, i));
+			boats.add(new ItemAtlasBoat<>(modid, "boat_" + ((forceSimpleNames || size - 2 > i * 16) ? i : this.types[i * 16].getName()), tab,
+					Lists.newArrayList(this.types).subList(i * 16, Math.min(size, (i + 1) * 16))));
 		}
 		for (int i = 0; i <= (size - 1) / 8; i++) {
 			slabs.add(BlockWoodSlab.create((forceSimpleNames || (size - 2 > i * 8) ? "wooden_slab_" + i : "slab_" + this.types[i * 8].getName()),
@@ -62,15 +70,20 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 		}
 		for (int i = 0; i <= (size - 1) / 4; i++) {
 			String name = (forceSimpleNames || (size - 2 > i * 4) ? String.valueOf(i) : this.types[i * 4].getName());
-			logs.add(BlockBaseLog.create("log_" + name, modid, tab, types, i));
+			Pair<BlockBaseLog<T>, BlockBaseLog<T>> pair = BlockBaseLog.create("log_" + name, modid, tab, types, i, true);
+			logs.add(pair.getFirst());
+			strippedLogs.add(pair.getSecond());
+			pair = BlockBaseLog.create("wood_" + name, modid, tab, types, i, false);
+			wood.add(pair.getFirst());
+			strippedWood.add(pair.getSecond());
 			BlockBaseSapling<T> sapling = BlockBaseSapling.create("sapling_" + name, modid, tab, types, i);
 			leaves.add(BlockBaseLeaves.create("leaves_" + name, modid, tab, sapling, types, i));
 			saplings.add(sapling);
 		}
 		for (T type : this.types) {
 			stairs.add(new BlockStairsBase(type.getName(), getPlankState(type)));
-			doors.add(new BlockWoodDoor(modid, type, tab));
-			trapdoors.add(new BlockWoodTrapdoor(modid, type, tab));
+			doors.add(new BlockWoodDoor<>(modid, type, tab));
+			trapdoors.add(new BlockWoodTrapdoor<>(modid, type, tab));
 			fences.add(new BlockWoodFence<>(modid, type, tab));
 			gates.add(new BlockWoodFenceGate<>(modid, type, tab));
 		}
@@ -81,7 +94,7 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 	}
 	
 	public IBlockState getPlankState(T type) {
-		BlockBasePlank plank = planks.get(type.ordinal() / 16);
+		BlockBasePlank<T> plank = planks.get(type.ordinal() / 16);
 		return plank.getDefaultState().withProperty(plank.getVariantProperty(), type);
 	}
 	
@@ -89,12 +102,35 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 		return new ItemStack(logs.get(type.ordinal() / 4), amount, type.ordinal() % 4);
 	}
 	
-	public ItemStack getWoodStack(T type, int amount) {
-		return new ItemStack(logs.get(type.ordinal() / 4), amount, (type.ordinal() % 4) + 12);
-	}
-	
 	public IBlockState getLogState(T type, BlockLog.EnumAxis axis) {
-		BlockBaseLog log = logs.get(type.ordinal() / 4);
+		BlockBaseLog<T> log = logs.get(type.ordinal() / 4);
+		return log.getDefaultState().withProperty(log.getVariantProperty(), type).withProperty(BlockLog.LOG_AXIS, axis);
+	}
+
+	public ItemStack getStrippedLogStack(T type, int amount) {
+		return new ItemStack(strippedLogs.get(type.ordinal() / 4), amount, type.ordinal() % 4);
+	}
+
+	public IBlockState getStrippedLogState(T type, BlockLog.EnumAxis axis) {
+		BlockBaseLog<T> log = strippedLogs.get(type.ordinal() / 4);
+		return log.getDefaultState().withProperty(log.getVariantProperty(), type).withProperty(BlockLog.LOG_AXIS, axis);
+	}
+
+	public ItemStack getWoodStack(T type, int amount) {
+		return new ItemStack(wood.get(type.ordinal() / 4), amount, (type.ordinal() % 4));
+	}
+
+	public IBlockState getWoodState(T type, BlockLog.EnumAxis axis) {
+		BlockBaseLog<T> log = wood.get(type.ordinal() / 4);
+		return log.getDefaultState().withProperty(log.getVariantProperty(), type).withProperty(BlockLog.LOG_AXIS, axis);
+	}
+
+	public ItemStack getStrippedWoodStack(T type, int amount) {
+		return new ItemStack(strippedWood.get(type.ordinal() / 4), amount, (type.ordinal() % 4));
+	}
+
+	public IBlockState getStrippedWoodState(T type, BlockLog.EnumAxis axis) {
+		BlockBaseLog<T> log = strippedWood.get(type.ordinal() / 4);
 		return log.getDefaultState().withProperty(log.getVariantProperty(), type).withProperty(BlockLog.LOG_AXIS, axis);
 	}
 	
@@ -107,13 +143,13 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 	}
 	
 	public IBlockState getLeavesState(T type, boolean decayable, boolean check_decay) {
-		BlockBaseLeaves leaf = leaves.get(type.ordinal() / 4);
+		BlockBaseLeaves<T> leaf = leaves.get(type.ordinal() / 4);
 		return leaf.getDefaultState().withProperty(leaf.getVariantProperty(), type).withProperty(BlockLeaves.DECAYABLE, decayable)
 				.withProperty(BlockLeaves.CHECK_DECAY, check_decay);
 	}
 	
 	public ItemStack getSaplingStack(T type, int amount) {
-		BlockBaseSapling sapling = saplings.get(type.ordinal() / 4);
+		BlockBaseSapling<T> sapling = saplings.get(type.ordinal() / 4);
 		return sapling == null |! type.hasSapling() ? ItemStack.EMPTY : new ItemStack(sapling, amount, type.ordinal() % 4);
 	}
 	
@@ -122,7 +158,7 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 	}
 	
 	public IBlockState getSaplingState(T type, int stage) {
-		BlockBaseSapling sapling = saplings.get(type.ordinal() / 4);
+		BlockBaseSapling<T> sapling = saplings.get(type.ordinal() / 4);
 		return sapling == null |! type.hasSapling() ? Blocks.AIR.getDefaultState() :
 				sapling.getDefaultState().withProperty(sapling.getVariantProperty(), type).withProperty(BlockSapling.STAGE, stage % 4);
 	}
@@ -182,10 +218,17 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 	public ItemStack getFenceGateStack(T type, int amount) {
 		return new ItemStack(gates.get(type.ordinal()), amount);
 	}
+
+	public ItemStack getBoat(T type, int amount) {
+		return new ItemStack(boats.get(type.ordinal() / 16), amount, type.ordinal() % 16);
+	}
 	
 	public void registerBlocks(IForgeRegistry<Block> registry) {
 		planks.forEach(registry::register);
 		logs.forEach(registry::register);
+		strippedLogs.forEach(registry::register);
+		wood.forEach(registry::register);
+		strippedWood.forEach(registry::register);
 		leaves.forEach(registry::register);
 		for (BlockBaseSapling<T> sapling : saplings) if (sapling != null) registry.register(sapling);
 		for (Tuple<BlockWoodSlab<T>, BlockWoodSlab<T>> slab : slabs) {
@@ -202,10 +245,13 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 	public void registerItems(IForgeRegistry<Item> registry) {
 		for (BlockBasePlank<T> plank : planks) registry.register(new ItemBlockMeta(plank));
 		for (BlockBaseLog<T> log : logs) registry.register(new ItemBlockMeta(log));
+		for (BlockBaseLog<T> log : strippedLogs) registry.register(new ItemBlockMeta(log));
+		for (BlockBaseLog<T> wood : wood) registry.register(new ItemBlockMeta(wood));
+		for (BlockBaseLog<T> wood : strippedWood) registry.register(new ItemBlockMeta(wood));
 		for (BlockBaseLeaves<T> leaves : leaves) registry.register(new ItemBlockMeta(leaves));
 		for (BlockBaseSapling<T> sapling : saplings) if (sapling != null) registry.register(new ItemBlockMeta(sapling));
 		for (Tuple<BlockWoodSlab<T>, BlockWoodSlab<T>> slab : slabs) {
-			ItemSlabMeta item = new ItemSlabMeta(slab.getFirst(), slab.getSecond());
+			ItemSlabMeta<BlockWoodSlab<T>> item = new ItemSlabMeta<>(slab.getFirst(), slab.getSecond());
 			registry.register(item);
 			slab.getFirst().setItem(item);
 			slab.getSecond().setItem(item);
@@ -235,6 +281,7 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 			item.setUnlocalizedName(gate.getUnlocalizedName());
 			registry.register(item);
 		}
+		boats.forEach(registry::register);
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -278,6 +325,7 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 			registerModel(gate);
 		}
 		gates.forEach(this::registerModel);
+		boats.forEach(this::registerModel);
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -300,15 +348,29 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 			OreDictionary.registerOre("plankWood", getPlankStack(type, 1));
 			OreDictionary.registerOre("logWood", getLogStack(type, 1));
 			GameRegistry.addSmelting(getLogStack(type, 1), new ItemStack(Items.COAL, 1, 1), 0.15f);
+			OreDictionary.registerOre("logWood", getStrippedLogStack(type, 1));
+			GameRegistry.addSmelting(getStrippedLogStack(type, 1), new ItemStack(Items.COAL, 1, 1), 0.15f);
+			OreDictionary.registerOre("logWood", getWoodStack(type, 1));
+			GameRegistry.addSmelting(getWoodStack(type, 1), new ItemStack(Items.COAL, 1, 1), 0.15f);
+			OreDictionary.registerOre("logWood", getStrippedWoodStack(type, 1));
+			GameRegistry.addSmelting(getStrippedWoodStack(type, 1), new ItemStack(Items.COAL, 1, 1), 0.15f);
 			OreDictionary.registerOre("treeLeaves", getLeavesStack(type, 1));
 			OreDictionary.registerOre("treeSapling", getSaplingStack(type, 1));
 			OreDictionary.registerOre("slabWood", getSlabStack(type, 1));
 			OreDictionary.registerOre("stairWood", getStairStack(type, 1));
 			String name = type.getName();
-			GameRegistry.addShapelessRecipe(new ResourceLocation(modid, name + "_plank"), new ResourceLocation(modid, name), getPlankStack(type, 4),
+			GameRegistry.addShapelessRecipe(new ResourceLocation(modid, name + "_plank_from_log"), new ResourceLocation(modid, name), getPlankStack(type, 4),
 					Ingredient.fromStacks(getLogStack(type, 1)));
+			GameRegistry.addShapelessRecipe(new ResourceLocation(modid, name + "_plank_from_stripped_log"), new ResourceLocation(modid, name), getPlankStack(type, 4),
+					Ingredient.fromStacks(getStrippedLogStack(type, 1)));
+			GameRegistry.addShapelessRecipe(new ResourceLocation(modid, name + "_plank_from_wood"), new ResourceLocation(modid, name), getPlankStack(type, 4),
+					Ingredient.fromStacks(getWoodStack(type, 1)));
+			GameRegistry.addShapelessRecipe(new ResourceLocation(modid, name + "_plank_from_stripped_wood"), new ResourceLocation(modid, name), getPlankStack(type, 4),
+					Ingredient.fromStacks(getStrippedWoodStack(type, 1)));
 			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name + "_wood"), new ResourceLocation(modid, name), getWoodStack(type, 3),
-                    "##", " ##", '#', getLogStack(type, 1));
+                    "##", "##", '#', getLogStack(type, 1));
+			GameRegistry.addShapedRecipe(new ResourceLocation(modid, "stripped_" + name + "_wood"), new ResourceLocation(modid, name), getStrippedWoodStack(type, 3),
+					"##", "##", '#', getStrippedLogStack(type, 1));
 			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name + "_slab"), new ResourceLocation(modid, name), getSlabStack(type, 6),
 					 "###", '#', getPlankStack(type, 1));
 			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name + "_stair"), new ResourceLocation(modid, name), getStairStack(type, 4),
@@ -321,6 +383,8 @@ public class WoodBlock<T extends Enum<T> & WoodEnum> {
 					"#S#", "#S#", '#', getPlankStack(type, 1), 'S', "stickWood");
 			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name + "_fence_gate"), new ResourceLocation(modid, name), getFenceGateStack(type, 1),
 					"S#S", "S#S", '#', getPlankStack(type, 1), 'S', "stickWood");
+			GameRegistry.addShapedRecipe(new ResourceLocation(modid, name + "_boat"), new ResourceLocation(modid, name), getBoat(type, 1),
+					"# #", "###", '#', getPlankStack(type, 1));
 		}
 	}
 	
