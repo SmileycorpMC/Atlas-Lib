@@ -19,8 +19,8 @@ public class BiomeGenEntry {
 
     public BiomeGenEntry(Configuration config, String name, String[] biomes, String[] biomeBlacklist) {
         this.name = name;
-        generationBiomesStr = config.get("generation", "generationBiomes", biomes, "Which biomes can " + name + " generate in (Can specify either biomes names or Biome Dictionaries)?").getStringList();
-        generationBiomesBlacklistStr = config.get("generation", "generationBiomesBlacklist", biomeBlacklist, "Which biomes can " + name + " can never generate in (Overrides generationBiomes, Can specify either biomes names or Biome Dictionaries)?").getStringList();
+        generationBiomesStr = config.get(name, "generationBiomes", biomes, "Which biomes can " + name + " generate in (Can specify either biomes names or Biome Dictionaries)?").getStringList();
+        generationBiomesBlacklistStr = config.get(name, "generationBiomesBlacklist", biomeBlacklist, "Which biomes can " + name + " can never generate in (Overrides generationBiomes, Can specify either biomes names or Biome Dictionaries)?").getStringList();
     }
 
     public List<Biome> getGenerationBiomes(ModLogger logger) {
