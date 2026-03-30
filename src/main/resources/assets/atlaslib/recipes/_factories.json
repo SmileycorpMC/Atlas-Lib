@@ -1,0 +1,6 @@
+{  
+    "recipes": {
+        "shaped_tool": "net.smileycorp.atlas.api.recipe.RecipeTool$Factory",
+        "shapeless_tool": "net.smileycorp.atlas.api.recipe.RecipeTool$Factory"
+    }
+}
