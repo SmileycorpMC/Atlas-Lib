@@ -3,6 +3,7 @@ package net.smileycorp.atlas.api.config;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
+import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraftforge.common.config.Configuration;
 
 public class EntityAttributesEntry {
@@ -33,17 +34,51 @@ public class EntityAttributesEntry {
 
     public void applyAttributes(EntityLivingBase entity) {
         AbstractAttributeMap map = entity.getAttributeMap();
-        map.getAttributeInstance(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(movementSpeed);
-        map.getAttributeInstance(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(followRange);
-        if (attackDamage != 0) map.getAttributeInstance(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(attackDamage);
-        map.getAttributeInstance(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(maxHealth);
-        map.getAttributeInstance(SharedMonsterAttributes.ARMOR).setBaseValue(armor);
-        map.getAttributeInstance(SharedMonsterAttributes.ARMOR_TOUGHNESS).setBaseValue(armorToughness);
-        map.getAttributeInstance(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(knockbackResistance);
-        if (flyingSpeed != 0) {
-            map.registerAttribute(SharedMonsterAttributes.FLYING_SPEED);
-            map.getAttributeInstance(SharedMonsterAttributes.FLYING_SPEED).setBaseValue(flyingSpeed);
-        }
+        setAttribute(map, SharedMonsterAttributes.MOVEMENT_SPEED, movementSpeed);
+        setAttribute(map, SharedMonsterAttributes.FOLLOW_RANGE, followRange);
+        if (attackDamage != 0) setAttribute(map, SharedMonsterAttributes.ATTACK_DAMAGE, attackDamage);
+        setAttribute(map, SharedMonsterAttributes.MAX_HEALTH, maxHealth);
+        setAttribute(map, SharedMonsterAttributes.ARMOR, armor);
+        setAttribute(map, SharedMonsterAttributes.ARMOR_TOUGHNESS, armorToughness);
+        setAttribute(map, SharedMonsterAttributes.KNOCKBACK_RESISTANCE, knockbackResistance);
+        if (flyingSpeed != 0) setAttribute(map, SharedMonsterAttributes.FLYING_SPEED, flyingSpeed);
+    }
+
+    private void setAttribute(AbstractAttributeMap map, IAttribute attribute, double value) {
+        if (map.getAttributeInstance(attribute) == null) map.registerAttribute(attribute);
+        map.getAttributeInstance(attribute).setBaseValue(value);
+    }
+
+    public double getMovementSpeed() {
+        return movementSpeed;
+    }
+
+    public double getFlyingSpeed() {
+        return flyingSpeed;
+    }
+
+    public double getFollowRange() {
+        return followRange;
+    }
+
+    public double getAttackDamage() {
+        return attackDamage;
+    }
+
+    public double getMaxHealth() {
+        return maxHealth;
+    }
+
+    public double getArmor() {
+        return armor;
+    }
+
+    public double getArmorToughness() {
+        return armorToughness;
+    }
+
+    public double getKnockbackResistance() {
+        return knockbackResistance;
     }
     
 }
