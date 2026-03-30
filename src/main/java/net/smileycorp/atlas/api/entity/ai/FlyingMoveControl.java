@@ -45,12 +45,7 @@ public class FlyingMoveControl extends EntityMoveHelper {
             entity.motionX += d0 / d3 * speed;
             entity.motionY += d1 / d3 * speed;
             entity.motionZ += d2 / d3 * speed;
-            if (entity.getAttackTarget() == null) entity.rotationYaw = -((float)MathHelper.atan2(entity.motionX, entity.motionZ)) * 57.295776F;
-            else {
-                double d4 = entity.getAttackTarget().posX - entity.posX;
-                double d5 = entity.getAttackTarget().posZ - entity.posZ;
-                entity.rotationYaw = -((float)MathHelper.atan2(d4, d5)) * 57.295776F;
-            }
+            entity.rotationYaw = -((float)MathHelper.atan2(entity.motionX, entity.motionZ)) * 57.295776F;
             entity.renderYawOffset = entity.rotationYaw;
         }
     }
