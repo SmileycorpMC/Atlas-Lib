@@ -2,14 +2,16 @@ package net.smileycorp.atlas.api.data;
 
 import net.minecraft.util.Tuple;
 
+import java.util.AbstractMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class Pair<T, U> {
 
-    private T first;
-    private U second;
+    private final T first;
+    private final U second;
 
     private Pair(T first, U second) {
         this.first = first;
@@ -52,6 +54,10 @@ public class Pair<T, U> {
         return new Tuple<>(first, second);
     }
 
+    public Map.Entry<T, U> toEntry() {
+        return new AbstractMap.SimpleEntry<>(first, second);
+    }
+
     public static <T, U> Pair<T, U> of(T first, U second) {
         return new Pair<>(first, second);
     }
@@ -62,6 +68,10 @@ public class Pair<T, U> {
 
     public static <T, U> Pair<T, U> of(Tuple<T, U> tuple) {
         return of(tuple.getFirst(), tuple.getSecond());
+    }
+
+    public static <T, U> Pair<T, U> of (Map.Entry<T, U> entry) {
+        return of(entry.getKey(), entry.getValue());
     }
 
 }
