@@ -19,7 +19,7 @@ apply plugin: 'eclipse'
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-version = "1.12.2-1.1.11"
+version = "1.12.2-1.1.11a-dev1"
 group = "net.smileycorp.atlas"
 archivesBaseName = "Atlas-Lib"
 

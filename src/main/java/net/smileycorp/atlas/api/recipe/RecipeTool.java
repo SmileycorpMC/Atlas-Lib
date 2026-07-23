@@ -53,9 +53,7 @@ public abstract class RecipeTool extends IForgeRegistryEntry.Impl<IRecipe> imple
             stack = stack.copy();
             stack.setItemDamage(0);
         }
-        boolean matches = ingredient.apply(stack);
-        System.out.println(matches + ", " + stack + ", " + ingredient);
-        return matches;
+        return ingredient.apply(stack);
     }
 
     public NonNullList<Ingredient> getIngredients() {
@@ -189,9 +187,7 @@ public abstract class RecipeTool extends IForgeRegistryEntry.Impl<IRecipe> imple
 
         @Override
         public IRecipe parse(JsonContext ctx, JsonObject json) {
-            IRecipe recipe = json.get("type").getAsString().contains("shaped") ? Shaped.deserialize(ctx, json) : Shapeless.deserialize(ctx, json);
-            System.out.println(recipe + ", " + json);
-            return recipe;
+            return json.get("type").getAsString().contains("shaped") ? Shaped.deserialize(ctx, json) : Shapeless.deserialize(ctx, json);
         }
 
     }
