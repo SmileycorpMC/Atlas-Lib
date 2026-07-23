@@ -4,6 +4,11 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
+/**
+ * NBTExplorers are used to find a value on specified path within a nbt compound structure, where the value is either the value to a key in a {@link NBTTagCompound} or an {@link NBTTagCompound} with a correctly named value for a `Name` key.
+ * @param <T> type of value to find.
+ *          Can be any @class {@link Comparable} that has a registered {@link DataType} with nbt read handling.
+ */
 public class NBTExplorer<T extends Comparable<T>> {
 
     private final String target;
@@ -14,6 +19,12 @@ public class NBTExplorer<T extends Comparable<T>> {
         this.returnType = returnType;
     }
 
+    /**
+     * Method to retrieve the specified value from a give nbt compound.
+     * @param compound Nbt compound to find the specified value in.
+     * @return
+     * @throws Exception
+     */
     public T findValue(NBTTagCompound compound) throws Exception {
         String[] directory = target.split("\\.");
         NBTBase nbt = compound;
