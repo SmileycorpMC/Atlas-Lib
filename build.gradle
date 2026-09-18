@@ -100,7 +100,7 @@ jar {
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                 "FMLCorePlugin": "net.smileycorp.atlas.common.MixinLoader",
                 "ForceLoadAsMod": true,
-                "FMLAT": "raids_at.cfg",
+                //"FMLAT": "raids_at.cfg",
                 "FMLCorePluginContainsFMLMod": true,
                 "TweakClass": "org.spongepowered.asm.launch.MixinTweaker"
         ])
