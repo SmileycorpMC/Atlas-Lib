@@ -1,5 +1,7 @@
 package net.smileycorp.atlas.api.util;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -159,4 +161,79 @@ public class DirectionUtils {
 		return new Vec2f((float) (pos.x / (-pos.z * scaledFov)) * screenWidth, (float) ((pos.y * aspectRatio) / (-pos.z * scaledFov)) * screenHeight);
 	}
 
+	public static boolean hasCollision(World world, Vec3d start, Vec3d end, CollisionContext ctx) {
+		if (start.equals(end)) return false;
+		int i = MathHelper.floor(end.x);
+		int j = MathHelper.floor(end.y);
+		int k = MathHelper.floor(end.z);
+		int l = MathHelper.floor(start.x);
+		int i1 = MathHelper.floor(start.y);
+		int j1 = MathHelper.floor(start.z);
+		BlockPos pos = new BlockPos(l, i1, j1);
+		IBlockState state = world.getBlockState(pos);
+		Block block = state.getBlock();
+
+		if (ctx.apply(world, pos, state, block) && state.getCollisionBoundingBox(world, pos) != Block.NULL_AABB
+				&& block.canCollideCheck(state, false) && state.collisionRayTrace(world, pos, start, end) != null) return true;
+		int k1 = 200;
+		while (k1-- >= 0) {
+			boolean flag2 = true;
+			boolean flag = true;
+			boolean flag1 = true;
+			double d0 = 999.0D;
+			double d1 = 999.0D;
+			double d2 = 999.0D;
+			if (i > l) d0 = (double)l + 1.0D;
+			else if (i < l) d0 = (double)l + 0.0D;
+			else flag2 = false;
+
+			if (j > i1) d1 = (double)i1 + 1.0D;
+			else if (j < i1) d1 = (double)i1 + 0.0D;
+			else flag = false;
+			if (k > j1) d2 = (double)j1 + 1.0D;
+			else if (k < j1) d2 = (double)j1 + 0.0D;
+			else flag1 = false;
+
+			double d3 = 999.0D;
+			double d4 = 999.0D;
+			double d5 = 999.0D;
+			double dx = end.x - start.x;
+			double dy = end.y - start.y;
+			double dz = end.z - start.z;
+			if (flag2) d3 = (d0 - start.x) / dx;
+			if (flag) d4 = (d1 - start.y) / dy;
+			if (flag1) d5 = (d2 - start.z) / dz;
+			if (d3 == -0.0D) d3 = -1.0E-4D;
+			if (d4 == -0.0D) d4 = -1.0E-4D;
+			if (d5 == -0.0D) d5 = -1.0E-4D;
+			EnumFacing enumfacing;
+			if (d3 < d4 && d3 < d5) {
+				enumfacing = i > l ? EnumFacing.WEST : EnumFacing.EAST;
+				start = new Vec3d(d0, start.y + dy * d3, start.z + dz * d3);
+			}
+			else if (d4 < d5) {
+				enumfacing = j > i1 ? EnumFacing.DOWN : EnumFacing.UP;
+				start = new Vec3d(start.x + dx * d4, d1, start.z + dz * d4);
+			}
+			else {
+				enumfacing = k > j1 ? EnumFacing.NORTH : EnumFacing.SOUTH;
+				start = new Vec3d(start.x + dx * d5, start.y + dy * d5, d2);
+			}
+			l = MathHelper.floor(start.x) - (enumfacing == EnumFacing.EAST ? 1 : 0);
+			i1 = MathHelper.floor(start.y) - (enumfacing == EnumFacing.UP ? 1 : 0);
+			j1 = MathHelper.floor(start.z) - (enumfacing == EnumFacing.SOUTH ? 1 : 0);
+			pos = new BlockPos(l, i1, j1);
+			state = world.getBlockState(pos);
+			block = state.getBlock();
+			if (ctx.apply(world, pos, state, block) && state.getCollisionBoundingBox(world, pos) != Block.NULL_AABB
+					&& block.canCollideCheck(state, false) && state.collisionRayTrace(world, pos, start, end) != null) return true;
+		}
+		return false;
+	}
+
+	public interface CollisionContext {
+
+		boolean apply (World world, BlockPos pos, IBlockState state, Block block);
+
+	}
 }

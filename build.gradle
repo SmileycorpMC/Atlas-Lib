@@ -24,6 +24,11 @@ repositories {
         name = "ModMaven"
         url = "https://modmaven.dev"
     }
+    repositories {
+        maven {
+            url "https://www.cursemaven.com"
+        }
+    }
 }
 
 apply plugin: 'net.minecraftforge.gradle'
@@ -84,7 +89,7 @@ dependencies {
     implementation "org.spongepowered:mixin:0.8"
     implementation "io.github.llamalad7:mixinextras-common:0.4.1"
     annotationProcessor 'io.github.llamalad7:mixinextras-common:0.5.0'
-    compileOnly fg.deobf("mezz.jei:jei_1.12.2:4.16.1.1013")
+    compileOnly "curse.maven:jei-238222:4393461"
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
